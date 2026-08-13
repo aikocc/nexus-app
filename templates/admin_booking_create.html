@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Nexus Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0B0E14;--paper:#F7F8FA;--paper-dim:#ECEEF2;--signal:#00D9A3;--signal-dim:#0A3B30;--alert:#FF6B4A;--gray:#7C8699;--line:#1C2230;--line-light:#DCDFE6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0B0E14;font-family:'Inter',sans-serif;min-height:100vh;color:#E8EDF4}
+
+/* Layout */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:200px;background:#0C1320;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:0;flex-shrink:0;position:fixed;top:0;bottom:0;left:0}
+.main{flex:1;margin-left:200px;padding:32px}
+
+/* Sidebar */
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--line);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#F5A623;letter-spacing:0.06em;display:flex;align-items:center;gap:8px}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 7px var(--signal)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;color:#6B7FA0;text-decoration:none;border-left:2px solid transparent;transition:all 0.15s}
+.nav-item:hover{color:#E8EDF4;background:#111D2C}
+.nav-item.active{color:#E8EDF4;background:#111D2C;border-left-color:var(--signal)}
+.nav-section{font-size:10px;letter-spacing:0.1em;color:#2E3F54;text-transform:uppercase;padding:14px 18px 4px}
+.sb-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--line);font-size:12px;color:#4A5E74}
+.sb-footer a{color:var(--alert);text-decoration:none;font-size:12px}
+
+/* Header */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#F7F8FA}
+.page-sub{font-size:13px;color:var(--gray);margin-top:2px}
+.btn-outline{background:transparent;border:1px solid var(--line);color:#A8B0C0;font-family:'Inter',sans-serif;font-size:13px;padding:8px 16px;border-radius:6px;text-decoration:none;display:inline-block}
+.btn-primary{background:var(--signal);color:var(--ink);font-family:'Inter',sans-serif;font-weight:600;font-size:13px;padding:10px 18px;border-radius:6px;text-decoration:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.15s}
+.btn-primary:hover{opacity:0.88}
+
+/* Stat tiles */
+.stat-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:28px}
+.stat-tile{background:#0F141F;border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray);margin-bottom:5px;font-family:'Space Grotesk',sans-serif}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:#F7F8FA}
+
+/* Flash messages */
+.flash-success{font-size:13px;color:var(--signal);background:var(--signal-dim);border:1px solid #1A5A40;border-radius:6px;padding:10px 14px;margin-bottom:20px}
+.flash-error{font-size:13px;color:var(--alert);background:#1F0A0A;border:1px solid #3A1A1A;border-radius:6px;padding:10px 14px;margin-bottom:20px}
+
+/* Filter tabs */
+.filter-tabs{display:flex;gap:4px;margin-bottom:18px;flex-wrap:wrap}
+.filter-tab{padding:7px 14px;border-radius:6px;font-size:13px;text-decoration:none;color:var(--gray);background:#0F141F;border:1px solid var(--line);transition:all 0.15s}
+.filter-tab:hover{color:#E8EDF4}
+.filter-tab.active{background:var(--signal-dim);color:var(--signal);border-color:var(--signal)}
+
+/* Table */
+.table-wrap{background:#0F141F;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead{background:#0C1320}
+th{font-family:'Space Grotesk',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray);padding:12px 16px;text-align:left;border-bottom:1px solid var(--line)}
+td{padding:13px 16px;font-size:13px;color:#C2C9D6;border-bottom:1px solid #141E2C;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#111A28}
+td a{color:#C2C9D6;text-decoration:none}
+td a:hover{color:var(--signal)}
+
+.status-pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+.s-pending{background:#1A2A10;color:#88BB55}.s-confirmed{background:var(--signal-dim);color:var(--signal)}.s-in_progress{background:#2A1F08;color:#F5A623}.s-completed{background:#0A1F2A;color:#4A9ADB}.s-cancelled{background:#1F0A0A;color:#DB5A4A}
+
+.urgency-badge{font-size:11px;color:var(--gray)}
+.urgency-badge.urgent{color:var(--alert)}
+
+.empty{text-align:center;padding:60px 20px;color:var(--gray);font-size:14px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-logo"><span class="sb-dot"></span>NEXUS</div>
+    <nav>
+      <div class="nav-section">Menu</div>
+      <a href="{{ url_for('.admin_dashboard') }}" class="nav-item active">📋 Bookings</a>
+      <a href="{{ url_for('public.index') }}" class="nav-item" target="_blank">🌐 Public site</a>
+    </nav>
+    <div class="sb-footer">
+      Signed in as admin<br>
+      <a href="{{ url_for('booking.admin_booking_new') }}">Sign out</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Bookings</div>
+        <div class="page-sub">All service requests</div>
+      </div>
+      <a href="" class="btn-primary">+ New booking</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="stat-row">
+      <div class="stat-tile"><div class="stat-label">Total</div><div class="stat-val">{{ counts.all }}</div></div>
+      <div class="stat-tile"><div class="stat-label">Pending</div><div class="stat-val">{{ counts.pending }}</div></div>
+      <div class="stat-tile"><div class="stat-label">Confirmed</div><div class="stat-val">{{ counts.confirmed }}</div></div>
+      <div class="stat-tile"><div class="stat-label">In progress</div><div class="stat-val">{{ counts.in_progress }}</div></div>
+      <div class="stat-tile"><div class="stat-label">Completed</div><div class="stat-val">{{ counts.completed }}</div></div>
+    </div>
+
+    <div class="filter-tabs">
+      {% for label, val in [('All', 'all'), ('Pending', 'pending'), ('Confirmed', 'confirmed'), ('In progress', 'in_progress'), ('Completed', 'completed'), ('Cancelled', 'cancelled')] %}
+        <a href="{{ url_for('.admin_dashboard', status=val) }}" class="filter-tab {% if active_filter == val %}active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="table-wrap">
+      {% if bookings %}
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Vehicle</th>
+            <th>Service</th>
+            <th>Urgency</th>
+            <th>Received</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bookings %}
+          <tr>
+            <td><a href="{{ url_for('admin_booking_detail', booking_id=b.id) }}">#{{ b.id }}</a></td>
+            <td>
+              <a href="{{ url_for('admin_booking_detail', booking_id=b.id) }}">
+                <strong>{{ b.name }}</strong><br>
+                <span style="font-size:12px;color:var(--gray)">{{ b.phone }}</span>
+              </a>
+            </td>
+            <td>{{ b.vehicle }}</td>
+            <td>{{ b.service | replace('_', ' ') | title }}</td>
+            <td><span class="urgency-badge {% if b.urgency == 'urgent' %}urgent{% endif %}">{{ b.urgency | title }}</span></td>
+            <td style="font-size:12px;color:var(--gray)">{{ b.created_at.strftime('%d %b, %H:%M') }}</td>
+            <td><span class="status-pill s-{{ b.status }}">{{ b.status | replace('_', ' ') | title }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">No bookings found for this filter.</div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+</body>
+</html>

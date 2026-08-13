@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin login — Nexus Diagnostics</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0B0E14;--signal:#00D9A3;--signal-dim:#0A3B30;--gray:#7C8699;--line:#1C2230;--alert:#FF6B4A}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.panel{background:#0F141F;border:1px solid var(--line);border-radius:12px;padding:40px 36px;width:100%;max-width:360px}
+.logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:#F7F8FA;display:flex;align-items:center;gap:8px;margin-bottom:32px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--signal);box-shadow:0 0 8px var(--signal)}
+h2{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:#F7F8FA;margin-bottom:6px}
+.sub{font-size:13px;color:var(--gray);margin-bottom:28px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;color:var(--gray);margin-bottom:7px;font-family:'Space Grotesk',sans-serif;letter-spacing:0.02em}
+.field input{width:100%;background:#161C29;border:1px solid var(--line);color:#F7F8FA;font-family:'Inter',sans-serif;font-size:14px;padding:11px 14px;border-radius:6px;transition:border-color 0.15s}
+.field input:focus{outline:none;border-color:var(--signal)}
+.field input::placeholder{color:#4E5A70}
+.btn{width:100%;background:var(--signal);color:var(--ink);font-family:'Inter',sans-serif;font-weight:600;font-size:14px;padding:13px;border-radius:6px;border:none;cursor:pointer;margin-top:4px;transition:opacity 0.15s}
+.btn:hover{opacity:0.88}
+.flash{font-size:13px;color:var(--alert);background:#1F0A0A;border:1px solid #3A1A1A;border-radius:6px;padding:10px 14px;margin-bottom:20px}
+</style>
+</head>
+<body>
+<div class="panel">
+  <div class="logo"><span class="dot"></span>NEXUS DIAGNOSTICS</div>
+  <h2>Admin login</h2>
+  <p class="sub">Staff access only.</p>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  <form method="POST">
+    <div class="field">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" autocomplete="username" required>
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required>
+    </div>
+    <button type="submit" class="btn">Sign in</button>
+  </form>
+</div>
+</body>
+</html>

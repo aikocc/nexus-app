@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suppliers — Nexus Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0B0E14;--signal:#00D9A3;--signal-dim:#0A3B30;--alert:#FF6B4A;--amber:#F5A623;--gray:#7C8699;--line:#1C2230;--surface:#0F141F;--surface2:#161C29}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);font-family:'Inter',sans-serif;color:#E8EDF4;min-height:100vh}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:200px;background:#0C1320;border-right:1px solid var(--line);position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--line);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:var(--amber);letter-spacing:0.06em;display:flex;align-items:center;gap:8px}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 7px var(--signal)}
+.nav-section{font-size:10px;letter-spacing:0.1em;color:#2E3F54;text-transform:uppercase;padding:14px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;color:#6B7FA0;text-decoration:none;border-left:2px solid transparent;transition:all 0.15s}
+.nav-item:hover{color:#E8EDF4;background:#111D2C}
+.nav-item.active{color:#E8EDF4;background:#111D2C;border-left-color:var(--signal)}
+.sb-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--line);font-size:12px;color:#4A5E74}
+.sb-footer a{color:var(--alert);text-decoration:none;font-size:12px}
+.main{margin-left:200px;padding:32px;flex:1}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700}
+.page-sub{font-size:13px;color:var(--gray);margin-top:3px}
+.btn-primary{background:var(--signal);color:var(--ink);font-family:'Inter',sans-serif;font-weight:600;font-size:13px;padding:10px 18px;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.15s;border:none;cursor:pointer}
+.btn-primary:hover{opacity:0.88}
+.flash-success{font-size:13px;color:var(--signal);background:var(--signal-dim);border:1px solid #1A5A40;border-radius:6px;padding:10px 14px;margin-bottom:20px}
+.flash-error{font-size:13px;color:var(--alert);background:#1F0A0A;border:1px solid #3A1A1A;border-radius:6px;padding:10px 14px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.sup-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+.sup-name{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:500;color:#E8EDF4;margin-bottom:4px}
+.sup-abn{font-size:11px;color:var(--gray);margin-bottom:12px;font-family:'Space Grotesk',sans-serif}
+.sup-meta{font-size:12px;color:#8A9AB0;margin-bottom:3px}
+.sup-stats{display:flex;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.sup-stat{flex:1}
+.sup-stat-label{font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray);margin-bottom:3px;font-family:'Space Grotesk',sans-serif}
+.sup-stat-val{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:500}
+.green{color:var(--signal)}.amber{color:var(--amber)}
+.sup-actions{display:flex;gap:8px;margin-top:14px}
+.btn-sm{font-size:12px;padding:5px 12px;border-radius:5px;text-decoration:none;border:1px solid var(--line);color:var(--gray);transition:all 0.15s;background:transparent;cursor:pointer;display:inline-flex;align-items:center}
+.btn-sm:hover{border-color:#3A4F66;color:#E8EDF4}
+.btn-sm.danger:hover{border-color:var(--alert);color:var(--alert)}
+.empty{text-align:center;padding:60px 20px;color:var(--gray);font-size:14px}
+.terms-badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:var(--surface2);color:var(--gray);border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-logo"><span class="sb-dot"></span>NEXUS</div>
+    <nav>
+      <div class="nav-section">Menu</div>
+      <a href="{{ url_for('admin_dashboard') }}" class="nav-item">📋 Bookings</a>
+      <a href="{{ url_for('admin_invoices') }}" class="nav-item">🧾 Invoices</a>
+      <a href="{{ url_for('admin_purchases') }}" class="nav-item">📥 Purchases</a>
+      <a href="{{ url_for('admin_suppliers') }}" class="nav-item active">🏭 Suppliers</a>
+      <a href="{{ url_for('index') }}" class="nav-item" target="_blank">🌐 Public site</a>
+    </nav>
+    <div class="sb-footer">Signed in as admin<br><a href="{{ url_for('admin_logout') }}">Sign out</a></div>
+  </aside>
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Suppliers</div>
+        <div class="page-sub">{{ suppliers|length }} supplier{{ 's' if suppliers|length != 1 }} on record</div>
+      </div>
+      <a href="{{ url_for('admin_supplier_new') }}" class="btn-primary">+ Add supplier</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}<div class="flash-{{ category }}">{{ message }}</div>{% endfor %}
+    {% endwith %}
+
+    {% if suppliers %}
+    <div class="grid">
+      {% for s in suppliers %}
+      <div class="sup-card">
+        <div class="sup-name">{{ s.name }}</div>
+        <div class="sup-abn">{% if s.abn %}ABN {{ s.abn }}{% else %}No ABN on record{% endif %}</div>
+        {% if s.contact_name %}<div class="sup-meta">👤 {{ s.contact_name }}</div>{% endif %}
+        {% if s.email %}<div class="sup-meta">✉ {{ s.email }}</div>{% endif %}
+        {% if s.phone %}<div class="sup-meta">📞 {{ s.phone }}</div>{% endif %}
+        <div style="margin-top:8px"><span class="terms-badge">{{ s.payment_terms }}-day terms</span></div>
+        <div class="sup-stats">
+          <div class="sup-stat">
+            <div class="sup-stat-label">Total paid</div>
+            <div class="sup-stat-val green">${{ "%.0f"|format(s.total_spent) }}</div>
+          </div>
+          <div class="sup-stat">
+            <div class="sup-stat-label">Outstanding</div>
+            <div class="sup-stat-val {% if s.outstanding > 0 %}amber{% endif %}">${{ "%.0f"|format(s.outstanding) }}</div>
+          </div>
+          <div class="sup-stat">
+            <div class="sup-stat-label">Invoices</div>
+            <div class="sup-stat-val">{{ s.purchases|length }}</div>
+          </div>
+        </div>
+        <div class="sup-actions">
+          <a href="{{ url_for('admin_purchases') }}?supplier={{ s.id }}" class="btn-sm">View invoices</a>
+          <a href="{{ url_for('admin_supplier_edit', supplier_id=s.id) }}" class="btn-sm">Edit</a>
+          <form method="POST" action="{{ url_for('admin_supplier_delete', supplier_id=s.id) }}" style="display:inline"
+            onsubmit="return confirm('Delete {{ s.name }}?')">
+            <button type="submit" class="btn-sm danger">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+      No suppliers yet.<br>
+      <a href="{{ url_for('admin_supplier_new') }}" style="color:var(--signal);text-decoration:none;margin-top:8px;display:inline-block">Add your first supplier →</a>
+    </div>
+    {% endif %}
+  </main>
+</div>
+</body>
+</html>

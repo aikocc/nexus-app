@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ invoice.invoice_number }} — Nexus Diagnostics</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#fff;font-family:'Inter',sans-serif;color:#1A1F2B;padding:0}
+.page{max-width:760px;margin:0 auto;padding:56px 64px}
+
+/* Print button — hidden when printing */
+.print-bar{background:#0B0E14;color:#E8EDF4;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;font-size:13px;font-family:'Inter',sans-serif}
+.print-bar a{color:#7C8699;text-decoration:none;font-size:13px}
+.print-bar a:hover{color:#E8EDF4}
+.print-btn{background:#00D9A3;color:#0B0E14;border:none;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;padding:8px 18px;border-radius:6px;cursor:pointer}
+@media print{.print-bar{display:none}.page{padding:32px 40px}}
+
+/* Header */
+.inv-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:48px;padding-bottom:32px;border-bottom:2px solid #E8EDF4}
+.business-name{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#0B0E14;letter-spacing:-0.01em}
+.business-tagline{font-size:12px;color:#7C8699;margin-top:3px;letter-spacing:0.04em;text-transform:uppercase}
+.inv-label{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:#E8EDF4;letter-spacing:-0.01em;text-align:right;line-height:1}
+.inv-number{font-family:'Space Grotesk',sans-serif;font-size:14px;color:#7C8699;margin-top:4px;text-align:right}
+
+/* Bill to block */
+.meta-row{margin-bottom:40px}
+.meta-block h4{font-family:'Space Grotesk',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#9AA3B2;margin-bottom:10px}
+.meta-block p{font-size:13px;color:#3A4455;line-height:1.7}
+.meta-block strong{color:#1A1F2B;font-weight:500}
+
+.dates-row{display:flex;gap:32px;margin-bottom:40px}
+.date-block{background:#F7F8FA;border-radius:6px;padding:14px 18px}
+.date-block .dl{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#9AA3B2;margin-bottom:4px;font-family:'Space Grotesk',sans-serif}
+.date-block .dv{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:500;color:#1A1F2B}
+
+/* Line items */
+table{width:100%;border-collapse:collapse;margin-bottom:0}
+thead th{font-family:'Space Grotesk',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#9AA3B2;padding:10px 12px;text-align:left;border-bottom:1px solid #E8EDF4}
+thead th.num{text-align:right}
+tbody td{padding:13px 12px;font-size:13px;color:#3A4455;border-bottom:1px solid #F0F2F6}
+tbody td.num{text-align:right;font-family:'Space Grotesk',sans-serif;color:#1A1F2B}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.has-note td{border-bottom:none}
+
+.note-row td{padding:0;border-bottom:1px solid #F0F2F6}
+.note-row:last-child td{border-bottom:none}
+.note-inner{display:flex;padding:2px 12px 14px 12px}
+.note-bar{width:2px;background:#C7CCD6;border-radius:1px;margin-right:12px;flex-shrink:0}
+.note-text{font-size:11.5px;color:#9AA3B2;line-height:1.6;padding-top:2px}
+
+.totals-wrap{margin-top:0;display:flex;justify-content:flex-end;border-top:1px solid #E8EDF4}
+.totals-inner{width:260px;padding-top:16px}
+.t-row{display:flex;justify-content:space-between;font-size:13px;color:#7C8699;margin-bottom:7px}
+.t-row .tv{font-family:'Space Grotesk',sans-serif;color:#3A4455}
+.t-row.grand{border-top:1px solid #E8EDF4;padding-top:10px;margin-top:4px;font-size:15px;color:#1A1F2B;font-weight:500}
+.t-row.grand .tv{font-size:18px;font-weight:700;color:#0B0E14}
+
+.status-badge{display:inline-block;font-family:'Space Grotesk',sans-serif;font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase}
+.s-paid{background:#DDFAF2;color:#0A7A58}
+.s-sent{background:#DDEEFF;color:#1A5A9A}
+.s-draft{background:#F0F2F6;color:#6B7FA0}
+.s-overdue{background:#FFE8E4;color:#AA3A2A}
+.s-cancelled{background:#F0F0F0;color:#6A6A7A}
+
+.notes-section{margin-top:40px;padding-top:24px;border-top:1px solid #E8EDF4;font-size:12px;color:#7C8699;line-height:1.7;white-space:pre-wrap}
+.footer-note{text-align:center;font-size:11px;color:#B0B8C8;margin-top:48px;padding-top:24px;border-top:1px solid #F0F2F6}
+</style>
+</head>
+<body>
+
+<div class="print-bar">
+  <a href="{{ url_for('admin_invoice_detail', invoice_id=invoice.id) }}">← Back to {{ invoice.invoice_number }}</a>
+  <button class="print-btn" onclick="window.print()">🖨 Print / Save as PDF</button>
+</div>
+
+<div class="page">
+  <div class="inv-head">
+    <div>
+      <div class="business-name">Nexus Diagnostics</div>
+      <div class="business-tagline">Mobile mechanic &amp; diagnostics</div>
+    </div>
+    <div>
+      <div class="inv-label">INVOICE</div>
+      <div class="inv-number">{{ invoice.invoice_number }}</div>
+      <div style="margin-top:8px;text-align:right">
+        <span class="status-badge s-{{ invoice.status }}">{{ invoice.status }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="meta-row">
+    <div class="meta-block">
+      <h4>Bill to</h4>
+      <p>
+        <strong>{{ invoice.customer_name }}</strong><br>
+        {% if invoice.customer_address %}{{ invoice.customer_address }}<br>{% endif %}
+        {{ invoice.customer_email }}<br>
+        {% if invoice.customer_phone %}{{ invoice.customer_phone }}{% endif %}
+      </p>
+      {% if invoice.vehicle %}
+      <p style="margin-top:10px;color:#9AA3B2;font-size:12px">Vehicle: {{ invoice.vehicle }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="dates-row">
+    <div class="date-block">
+      <div class="dl">Issue date</div>
+      <div class="dv">{{ invoice.created_at.strftime('%d %b %Y') }}</div>
+    </div>
+    {% if invoice.due_date %}
+    <div class="date-block">
+      <div class="dl">Due date</div>
+      <div class="dv">{{ invoice.due_date.strftime('%d %b %Y') }}</div>
+    </div>
+    {% endif %}
+    {% if invoice.booking %}
+    <div class="date-block">
+      <div class="dl">Job reference</div>
+      <div class="dv">Booking #{{ invoice.booking.id }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th class="num">Qty</th>
+        <th class="num">Unit price</th>
+        <th class="num">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in invoice.line_items %}
+      <tr{% if item.note %} class="has-note"{% endif %}>
+        <td>{{ item.desc }}</td>
+        <td class="num">{{ item.qty }}</td>
+        <td class="num">${{ "%.2f"|format(item.unit) }}</td>
+        <td class="num">${{ "%.2f"|format(item.qty * item.unit) }}</td>
+      </tr>
+      {% if item.note %}
+      <tr class="note-row">
+        <td colspan="4">
+          <div class="note-inner">
+            <div class="note-bar"></div>
+            <div class="note-text">{{ item.note }}</div>
+          </div>
+        </td>
+      </tr>
+      {% endif %}
+      {% else %}
+      <tr><td colspan="4" style="color:#9AA3B2;text-align:center;padding:20px">No items.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="totals-wrap">
+    <div class="totals-inner">
+      <div class="t-row"><span>Subtotal</span><span class="tv">${{ "%.2f"|format(invoice.subtotal) }}</span></div>
+      <div class="t-row"><span>GST ({{ invoice.tax_rate | int }}%)</span><span class="tv">${{ "%.2f"|format(invoice.tax_amount) }}</span></div>
+      <div class="t-row grand"><span>Total due</span><span class="tv">${{ "%.2f"|format(invoice.total) }}</span></div>
+    </div>
+  </div>
+
+  {% if invoice.notes %}
+  <div class="notes-section">{{ invoice.notes }}</div>
+  {% endif %}
+
+  <div class="footer-note">Thank you for choosing Nexus Diagnostics — nexusdiagnostics.com.au</div>
+</div>
+
+</body>
+</html>

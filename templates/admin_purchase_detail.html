@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ purchase.reference }} — Nexus Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0B0E14;--signal:#00D9A3;--signal-dim:#0A3B30;--alert:#FF6B4A;--amber:#F5A623;--gray:#7C8699;--line:#1C2230;--surface:#0F141F;--surface2:#161C29;--blue:#4A9ADB;--blue-dim:#0A1525}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);font-family:'Inter',sans-serif;color:#E8EDF4;min-height:100vh}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:200px;background:#0C1320;border-right:1px solid var(--line);position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--line);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:var(--amber);letter-spacing:0.06em;display:flex;align-items:center;gap:8px}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 7px var(--signal)}
+.nav-section{font-size:10px;letter-spacing:0.1em;color:#2E3F54;text-transform:uppercase;padding:14px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;color:#6B7FA0;text-decoration:none;border-left:2px solid transparent;transition:all 0.15s}
+.nav-item:hover{color:#E8EDF4;background:#111D2C}
+.nav-item.active{color:#E8EDF4;background:#111D2C;border-left-color:var(--signal)}
+.sb-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--line);font-size:12px;color:#4A5E74}
+.sb-footer a{color:var(--alert);text-decoration:none;font-size:12px}
+.main{margin-left:200px;padding:32px;max-width:960px}
+.back{font-size:13px;color:var(--gray);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:22px}
+.back:hover{color:#E8EDF4}
+.flash-success{font-size:13px;color:var(--signal);background:var(--signal-dim);border:1px solid #1A5A40;border-radius:6px;padding:10px 14px;margin-bottom:20px}
+.flash-error{font-size:13px;color:var(--alert);background:#1F0A0A;border:1px solid #3A1A1A;border-radius:6px;padding:10px 14px;margin-bottom:20px}
+.detail-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
+.inv-number{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700}
+.inv-meta{font-size:13px;color:var(--gray);margin-top:4px}
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{font-family:'Inter',sans-serif;font-size:13px;padding:9px 16px;border-radius:6px;text-decoration:none;border:1px solid var(--line);color:var(--gray);cursor:pointer;background:transparent;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:#3A4F66;color:#E8EDF4}
+.btn-signal{background:var(--signal);color:var(--ink);border-color:var(--signal);font-weight:600}
+.btn-signal:hover{opacity:0.88;color:var(--ink)}
+.btn-danger{background:#1F0A0A;color:var(--alert);border-color:#3A1A1A}
+.status-pill{display:inline-flex;align-items:center;font-size:12px;padding:4px 12px;border-radius:20px;font-weight:500;margin-left:10px}
+.s-unpaid{background:var(--blue-dim);color:var(--blue)}
+.s-paid{background:var(--signal-dim);color:var(--signal)}
+.s-overdue{background:#1F0A0A;color:var(--alert)}
+.grid{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;margin-bottom:18px}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.field-label{font-size:11px;color:var(--gray);margin-bottom:3px;font-family:'Space Grotesk',sans-serif;letter-spacing:0.03em}
+.field-val{font-size:14px;color:#D4E0F0;margin-bottom:12px}
+.detail-row{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px}
+.cat-badge{display:inline-block;font-size:12px;padding:3px 10px;border-radius:4px;background:var(--surface2);color:var(--gray);border:1px solid var(--line)}
+table.items{width:100%;border-collapse:collapse}
+table.items th{font-family:'Space Grotesk',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray);padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+table.items td{padding:11px 10px;font-size:13px;color:#C2C9D6;border-bottom:1px solid #141E2C}
+table.items tr:last-child td{border-bottom:none}
+table.items .num{text-align:right;font-family:'Space Grotesk',sans-serif}
+.totals{border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+.t-row{display:flex;justify-content:space-between;font-size:13px;color:var(--gray);margin-bottom:6px}
+.t-row .tv{font-family:'Space Grotesk',sans-serif;color:#C2C9D6}
+.t-row.grand{font-size:16px;color:#E8EDF4;margin-top:8px}
+.t-row.grand .tv{color:var(--signal);font-weight:700;font-size:18px}
+.notes-block{font-size:13px;color:#8A9AB0;background:var(--surface2);border:1px solid var(--line);border-radius:6px;padding:12px;line-height:1.6;white-space:pre-wrap}
+select.status-sel{width:100%;background:var(--surface2);border:1px solid var(--line);color:#E8EDF4;font-family:'Inter',sans-serif;font-size:14px;padding:10px 14px;border-radius:6px;margin-bottom:10px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237C8699' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+select.status-sel:focus{outline:none;border-color:var(--signal)}
+.full-btn{width:100%;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;padding:11px;border-radius:6px;border:none;cursor:pointer;margin-bottom:8px;transition:opacity 0.15s}
+.full-btn.save{background:var(--signal);color:var(--ink)}
+.full-btn.save:hover{opacity:0.88}
+.full-btn.danger{background:#1F0A0A;color:var(--alert);border:1px solid #3A1A1A}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-logo"><span class="sb-dot"></span>NEXUS</div>
+    <nav>
+      <div class="nav-section">Menu</div>
+      <a href="{{ url_for('admin_dashboard') }}" class="nav-item">📋 Bookings</a>
+      <a href="{{ url_for('admin_invoices') }}" class="nav-item">🧾 Invoices</a>
+      <a href="{{ url_for('admin_purchases') }}" class="nav-item active">📥 Purchases</a>
+      <a href="{{ url_for('admin_suppliers') }}" class="nav-item">🏭 Suppliers</a>
+      <a href="{{ url_for('index') }}" class="nav-item" target="_blank">🌐 Public site</a>
+    </nav>
+    <div class="sb-footer">Signed in as admin<br><a href="{{ url_for('admin_logout') }}">Sign out</a></div>
+  </aside>
+  <main class="main">
+    <a href="{{ url_for('admin_purchases') }}" class="back">← Back to purchases</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}<div class="flash-{{ category }}">{{ message }}</div>{% endfor %}
+    {% endwith %}
+
+    <div class="detail-header">
+      <div>
+        <div class="inv-number">
+          {{ purchase.reference }}
+          <span class="status-pill s-{{ purchase.status }}">{{ purchase.status | title }}</span>
+        </div>
+        <div class="inv-meta">
+          {{ purchase.supplier.name }}
+          {% if purchase.supplier_ref %} · Their ref: {{ purchase.supplier_ref }}{% endif %}
+          · Dated {{ purchase.invoice_date.strftime('%d %b %Y') }}
+          {% if purchase.due_date %} · Due {{ purchase.due_date.strftime('%d %b %Y') }}{% endif %}
+          {% if purchase.paid_date %} · Paid {{ purchase.paid_date.strftime('%d %b %Y') }}{% endif %}
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="{{ url_for('admin_purchase_edit', purchase_id=purchase.id) }}" class="btn">✏️ Edit</a>
+        {% if purchase.status == 'unpaid' or purchase.status == 'overdue' %}
+          <form method="POST" action="{{ url_for('admin_purchase_status', purchase_id=purchase.id) }}" style="display:inline">
+            <input type="hidden" name="status" value="paid">
+            <button type="submit" class="btn btn-signal">✓ Mark as paid</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="grid">
+      <div>
+        <div class="card">
+          <div class="card-title">Supplier details</div>
+          <div class="detail-row">
+            <div><div class="field-label">Supplier</div><div class="field-val">{{ purchase.supplier.name }}</div></div>
+            <div><div class="field-label">ABN</div><div class="field-val">{{ purchase.supplier.abn or '—' }}</div></div>
+            <div><div class="field-label">Contact</div><div class="field-val">{{ purchase.supplier.contact_name or '—' }}</div></div>
+            <div><div class="field-label">Email</div><div class="field-val">{{ purchase.supplier.email or '—' }}</div></div>
+          </div>
+          {% if purchase.category %}
+          <div><div class="field-label">Category</div><div class="field-val"><span class="cat-badge">{{ purchase.category }}</span></div></div>
+          {% endif %}
+        </div>
+
+        <div class="card">
+          <div class="card-title">Line items</div>
+          <table class="items">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th class="num">Qty</th>
+                <th class="num">Unit price</th>
+                <th class="num">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in purchase.line_items %}
+              <tr>
+                <td>{{ item.desc }}</td>
+                <td class="num">{{ item.qty }}</td>
+                <td class="num">${{ "%.2f"|format(item.unit) }}</td>
+                <td class="num">${{ "%.2f"|format(item.qty * item.unit) }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="4" style="text-align:center;color:var(--gray);padding:20px">No line items.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          <div class="totals">
+            <div class="t-row"><span>Subtotal</span><span class="tv">${{ "%.2f"|format(purchase.subtotal) }}</span></div>
+            <div class="t-row"><span>GST ({{ purchase.tax_rate | int }}%)</span><span class="tv">${{ "%.2f"|format(purchase.tax_amount) }}</span></div>
+            <div class="t-row grand"><span>Total</span><span class="tv">${{ "%.2f"|format(purchase.total) }}</span></div>
+          </div>
+        </div>
+
+        {% if purchase.notes %}
+        <div class="card">
+          <div class="card-title">Notes</div>
+          <div class="notes-block">{{ purchase.notes }}</div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-title">Update status</div>
+          <form method="POST" action="{{ url_for('admin_purchase_status', purchase_id=purchase.id) }}">
+            <select name="status" class="status-sel">
+              {% for s in ['unpaid', 'paid', 'overdue'] %}
+              <option value="{{ s }}" {% if purchase.status == s %}selected{% endif %}>{{ s | title }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="full-btn save">Save status</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Supplier</div>
+          <div style="font-size:13px;color:#C2C9D6;margin-bottom:6px">{{ purchase.supplier.name }}</div>
+          {% if purchase.supplier.phone %}<div style="font-size:12px;color:var(--gray)">{{ purchase.supplier.phone }}</div>{% endif %}
+          {% if purchase.supplier.email %}<div style="font-size:12px;color:var(--gray)">{{ purchase.supplier.email }}</div>{% endif %}
+          <a href="{{ url_for('admin_supplier_edit', supplier_id=purchase.supplier.id) }}"
+             style="font-size:12px;color:var(--signal);text-decoration:none;display:inline-block;margin-top:10px">
+            View supplier →
+          </a>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Danger zone</div>
+          <form method="POST" action="{{ url_for('admin_purchase_delete', purchase_id=purchase.id) }}"
+            onsubmit="return confirm('Delete {{ purchase.reference }}? This cannot be undone.')">
+            <button type="submit" class="full-btn danger">Delete invoice</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

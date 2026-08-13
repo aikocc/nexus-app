@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ 'Edit' if supplier else 'Add' }} Supplier — Nexus Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0B0E14;--signal:#00D9A3;--signal-dim:#0A3B30;--alert:#FF6B4A;--amber:#F5A623;--gray:#7C8699;--line:#1C2230;--surface:#0F141F;--surface2:#161C29}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);font-family:'Inter',sans-serif;color:#E8EDF4;min-height:100vh}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:200px;background:#0C1320;border-right:1px solid var(--line);position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--line);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:var(--amber);letter-spacing:0.06em;display:flex;align-items:center;gap:8px}
+.sb-dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 7px var(--signal)}
+.nav-section{font-size:10px;letter-spacing:0.1em;color:#2E3F54;text-transform:uppercase;padding:14px 18px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;color:#6B7FA0;text-decoration:none;border-left:2px solid transparent;transition:all 0.15s}
+.nav-item:hover{color:#E8EDF4;background:#111D2C}
+.nav-item.active{color:#E8EDF4;background:#111D2C;border-left-color:var(--signal)}
+.sb-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--line);font-size:12px;color:#4A5E74}
+.sb-footer a{color:var(--alert);text-decoration:none;font-size:12px}
+.main{margin-left:200px;padding:32px;max-width:700px}
+.back{font-size:13px;color:var(--gray);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:22px}
+.back:hover{color:#E8EDF4}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:24px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px;margin-bottom:20px}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:500;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;color:var(--gray);margin-bottom:7px;font-family:'Space Grotesk',sans-serif;letter-spacing:0.02em}
+.field input,.field select,.field textarea{width:100%;background:var(--surface2);border:1px solid var(--line);color:#E8EDF4;font-family:'Inter',sans-serif;font-size:14px;padding:11px 14px;border-radius:6px;transition:border-color 0.15s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--signal)}
+.field input::placeholder,.field textarea::placeholder{color:#4E5A70}
+.field textarea{resize:vertical;min-height:80px}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237C8699' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+.footer-actions{display:flex;gap:12px;margin-top:8px}
+.btn-save{background:var(--signal);color:var(--ink);font-family:'Inter',sans-serif;font-weight:600;font-size:14px;padding:12px 24px;border-radius:6px;border:none;cursor:pointer;transition:opacity 0.15s}
+.btn-save:hover{opacity:0.88}
+.btn-cancel{background:transparent;color:var(--gray);font-family:'Inter',sans-serif;font-size:14px;padding:12px 20px;border-radius:6px;border:1px solid var(--line);text-decoration:none;transition:all 0.15s}
+.btn-cancel:hover{border-color:#3A4F66;color:#E8EDF4}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sb-logo"><span class="sb-dot"></span>NEXUS</div>
+    <nav>
+      <div class="nav-section">Menu</div>
+      <a href="{{ url_for('admin_dashboard') }}" class="nav-item">📋 Bookings</a>
+      <a href="{{ url_for('admin_invoices') }}" class="nav-item">🧾 Invoices</a>
+      <a href="{{ url_for('admin_purchases') }}" class="nav-item">📥 Purchases</a>
+      <a href="{{ url_for('admin_suppliers') }}" class="nav-item active">🏭 Suppliers</a>
+      <a href="{{ url_for('index') }}" class="nav-item" target="_blank">🌐 Public site</a>
+    </nav>
+    <div class="sb-footer">Signed in as admin<br><a href="{{ url_for('admin_logout') }}">Sign out</a></div>
+  </aside>
+  <main class="main">
+    <a href="{{ url_for('admin_suppliers') }}" class="back">← Back to suppliers</a>
+    <div class="page-title">{{ 'Edit ' + supplier.name if supplier else 'Add supplier' }}</div>
+
+    <form method="POST">
+      <div class="card">
+        <div class="card-title">Business details</div>
+        <div class="field">
+          <label for="name">Supplier name *</label>
+          <input type="text" id="name" name="name" required placeholder="e.g. Repco Auto Parts"
+            value="{{ supplier.name if supplier else '' }}">
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label for="abn">ABN</label>
+            <input type="text" id="abn" name="abn" placeholder="12 345 678 901"
+              value="{{ supplier.abn if supplier else '' }}">
+          </div>
+          <div class="field">
+            <label for="payment_terms">Payment terms (days)</label>
+            <select id="payment_terms" name="payment_terms">
+              {% for t in [7, 14, 21, 30, 60, 90] %}
+              <option value="{{ t }}" {% if supplier and supplier.payment_terms == t %}selected{% elif not supplier and t == 30 %}selected{% endif %}>{{ t }} days</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="address">Address</label>
+          <input type="text" id="address" name="address" placeholder="Street address"
+            value="{{ supplier.address if supplier else '' }}">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Contact</div>
+        <div class="form-row">
+          <div class="field">
+            <label for="contact_name">Contact name</label>
+            <input type="text" id="contact_name" name="contact_name" placeholder="Account rep name"
+              value="{{ supplier.contact_name if supplier else '' }}">
+          </div>
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" placeholder="02 9000 0000"
+              value="{{ supplier.phone if supplier else '' }}">
+          </div>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="accounts@supplier.com.au"
+            value="{{ supplier.email if supplier else '' }}">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Notes</div>
+        <div class="field">
+          <label for="notes">Internal notes</label>
+          <textarea id="notes" name="notes" placeholder="Account number, preferred contact method, delivery notes…">{{ supplier.notes if supplier else '' }}</textarea>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <button type="submit" class="btn-save">{{ 'Save changes' if supplier else 'Add supplier' }}</button>
+        <a href="{{ url_for('admin_suppliers') }}" class="btn-cancel">Cancel</a>
+      </div>
+    </form>
+  </main>
+</div>
+</body>
+</html>

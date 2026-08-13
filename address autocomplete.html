@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Australian Address Autocomplete (Addressr API)</title>
+    <style>
+        :root {
+            --primary: #0071eb;
+            --border: #cccccc;
+            --bg: #f9f9f9;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .address-form {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #333;
+        }
+        .form-group input {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            border-color: var(--primary);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 10px;
+        }
+        /* Dropdown Styling */
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+        .autocomplete-item:hover {
+            background-color: #f1f7fe;
+        }
+    </style>
+</head>
+<body>
+
+<form class="address-form" autocomplete="off" onsubmit="event.preventDefault();">
+    <!-- Main Lookup Field -->
+    <div class="form-group">
+        <label for="search">Search Address</label>
+        <input id="search" type="text" placeholder="Start typing your G-NAF address..." autocomplete="off">
+        <div id="results" class="autocomplete-results"></div>
+    </div>
+
+    <!-- Structured Target Fields -->
+    <div class="form-group">
+        <label for="street_line1">Street Line 1</label>
+        <input id="street_line1" type="text" placeholder="e.g. 100 George St" required>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="suburb">Suburb / Locality</label>
+            <input id="suburb" type="text" required>
+        </div>
+        <div class="form-group">
+            <label for="state">State</label>
+            <input id="state" type="text" placeholder="NSW" required>
+        </div>
+        <div class="form-group">
+            <label for="postcode">Postcode</label>
+            <input id="postcode" type="text" placeholder="2000" required>
+        </div>
+    </div>
+</form>
+
+<script>
+    const searchInput = document.getElementById('search');
+    const resultsContainer = document.getElementById('results');
+    let debounceTimer;
+
+    // INSERT YOUR ACTUAL RAPIDAPI KEY HERE
+    const RAPIDAPI_KEY = 'b2f0882642mshbf10fe11c180dfdp19a4a1jsn34cd988eeb38'; 
+
+    searchInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const query = searchInput.value.trim();
+
+        if (query.length < 3) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetchAddresses(query);
+        }, 300);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+            resultsContainer.style.display = 'none';
+        }
+    });
+
+    async function fetchAddresses(query) {
+        const cleanQuery = encodeURIComponent(query);
+        // Addressr API specific URL structure 
+        const url = 'https://addressr.p.rapidapi.com/addresses?q=' + cleanQuery;
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'x-rapidapi-key': RAPIDAPI_KEY,
+                    'x-rapidapi-host': 'addressr.p.rapidapi.com'
+                }
+            });
+            const data = await response.json();
+            
+            // Addressr returns an array of structural objects inside a root collection
+            // We map data based on the API payload response layout
+            if (data && data.results) {
+                renderResults(data.results);
+            } else if (Array.isArray(data)) {
+                renderResults(data);
+            }
+        } catch (error) {
+            console.error('Error fetching data from Addressr:', error);
+        }
+    }
+
+    function renderResults(addresses) {
+        resultsContainer.innerHTML = '';
+
+        if (!addresses || addresses.length === 0) {
+            resultsContainer.style.display = 'none';
+            return;
+        }
+
+        addresses.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'autocomplete-item';
+            
+            // Addressr uses 'sla' (Single Line Address) or 'text' for the full string representation
+            const displayString = item.sla || item.text || '';
+            div.textContent = displayString;
+            
+            div.addEventListener('click', () => {
+                searchInput.value = displayString;
+                resultsContainer.style.display = 'none';
+                fillFormFields(item);
+            });
+
+            resultsContainer.appendChild(div);
+        });
+
+        resultsContainer.style.display = 'block';
+    }
+
+    function fillFormFields(item) {
+        // Handle variations in Addressr response mapping structures
+        const address = item.address || item;
+        
+        const streetNumber = address.streetNumber || address.street_number || '';
+        const streetName = address.streetName || address.street_name || address.road || '';
+        const streetType = address.streetType || address.street_type || '';
+        
+        // Piece together line 1 cleanly
+        const fullStreet = (streetNumber + ' ' + streetName + ' ' + streetType).trim();
+
+        const suburb = address.suburb || address.locality || '';
+        const state = address.state || '';
+        const postcode = address.postcode || address.postal_code || '';
+
+        document.getElementById('street_line1').value = fullStreet;
+        document.getElementById('suburb').value = suburb;
+        document.getElementById('state').value = state.toUpperCase();
+        document.getElementById('postcode').value = postcode;
+    }
+</script>
+
+</body>
+</html>
