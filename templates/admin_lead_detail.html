@@ -179,6 +179,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
             <span>Customer</span>
             <button type="button" class="btn-card-search" onclick="searchCustomer()">🔍 Search customer</button>
           </div>
+          <input type="hidden" id="customer_id" name="customer_id" value="">
 
           <div class="subgroup-label">Name</div>
           <div class="field-row">
@@ -210,6 +211,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 
           <div class="subgroup-label">Identity</div>
           <div class="field-row">
+            <input type="hidden" id="vehicle_id" name="vehicle_id" value="">
             <div class="field"><span class="field-label">Make</span><input type="text" id="make" name="make" value="{{ lead.make or lead.vehicle }}" required></div>
             <div class="field"><span class="field-label">Model</span><input type="text" id="model" name="model" value="{{ lead.model or '' }}" required></div>
             <div class="field"><span class="field-label">Series</span><input type="text" id="series" name="series" value="{{ lead.series or '' }}"></div>
@@ -307,6 +309,7 @@ function populateCustomer(data) {
   if (data.suburb) document.getElementById('suburb').value = data.suburb;
   if (data.state) document.getElementById('state').value = data.state;
   if (data.postcode) document.getElementById('postcode').value = data.postcode;
+  if (data.id) document.getElementById('customer_id').value = data.id;
   closeModal();
 }
 
@@ -318,6 +321,7 @@ function populateVehicle(data) {
   if (data.rego) document.getElementById('rego').value = data.rego;
   if (data.rego_state) document.getElementById('rego_state').value = data.rego_state;
   if (data.vin) document.getElementById('vin').value = data.vin;
+  if (data.id) document.getElementById('vehicle_id').value = data.id;
   closeModal();
 }
 
