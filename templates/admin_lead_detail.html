@@ -169,7 +169,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
     </div>
 
     <div class="grid">
-      <form id="booking_creation" method="POST" action="/admin/booking/create" novalidate>
+      <form id="booking_creation" method="POST" action="/admin/booking/new" novalidate>
         {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>{% endif %}
         <input type="hidden" name="lead_id" value="{{ lead.id }}"/>
 
