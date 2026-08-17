@@ -11,7 +11,7 @@ def api_bookings():
     bookings = Booking.query.order_by(Booking.created_at.desc()).all()
     return jsonify([b.to_dict() for b in bookings])
 
-@api_bp.route('/bookings')
+@api_bp.route('/leads')
 @login_required
 def api_leads():
     leads = Lead.query.order_by(Lead.created_at.desc()).all()
@@ -26,11 +26,36 @@ def api_customer_search():
 @api_bp.route('/customers/create')
 @login_required
 def api_customer_create():
-    customers = Customer.query.order_by(Customer.created_at.desc()).all()
-    return jsonify([c.to_dict() for c in customers])
+
+    first_name = request.form.get('first_name')
+    last_name = request.form.get('last_name')
+    phone = request.form.get('phone')
+    email = request.form.get('email')
+    street = request.form.get('street')
+    suburb = request.form.get('suburb')
+    state = request.form.get('state')
+    postcode = request.form.get('postcode')
+
+    return jsonify([0,])
 
 @api_bp.route('/vehicles/search')
 @login_required
 def api_vehicle_search():
     vehicles = Vehicle.query.order_by(Vehicle.created_at.desc()).all()
     return jsonify([v.to_dict() for v in vehicles])
+
+@api_bp.route('/vehicles/create')
+@login_required
+def api_vehicle_create():
+
+    make = request.form.get('make')
+    model = request.form.get('model')
+    series = request.form.get('series')
+    year = request.form.get('year')
+    rego = request.form.get('rego')
+    rego_state = request.form.get('rego_state')
+    vin = request.form.get('vin')
+
+    
+
+    return jsonify([0,])
