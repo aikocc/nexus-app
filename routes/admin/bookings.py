@@ -36,9 +36,26 @@ def admin_delete_lead(lead_id):
     return redirect(url_for('admin_dashboard'))
 
 
-@booking_bp.route('/booking/new')
+@booking_bp.post('/booking/new')
 @login_required
-def admin_booking_new(booking_id):
+def admin_booking_convert_lead():
+
+    first_name = request.form.get('first_name')
+    last_name = request.form.get('last_name')
+    phone = request.form.get('phone')
+    email = request.form.get('email')
+    street = request.form.get('street')
+    suburb = request.form.get('suburb')
+    state = request.form.get('state')
+    postcode = request.form.get('postcode')
+
+    booking = Booking.query.get_or_404()
+    return render_template('admin_booking_detail.html', booking=booking)
+
+
+@booking_bp.get('/booking/new')
+@login_required
+def admin_booking_new_page(booking_id):
     booking = Booking.query.get_or_404(booking_id)
     return render_template('admin_booking_detail.html', booking=booking)
 
@@ -73,10 +90,3 @@ def admin_delete_booking(booking_id):
     db.session.commit()
     flash(f'Booking #{booking_id} deleted.', 'success')
     return redirect(url_for('admin_dashboard'))
-
-
-@booking_bp.route('/admin/api/bookings')
-@login_required
-def admin_api_bookings():
-    bookings = Booking.query.order_by(Booking.created_at.desc()).all()
-    return jsonify([b.to_dict() for b in bookings])

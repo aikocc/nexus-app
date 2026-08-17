@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lead #{{ lead.id }} — Nexus Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
   --ink: #0B0E14;
@@ -11,75 +11,127 @@
   --signal: #00D9A3;
   --signal-dim: #0A3B30;
   --alert: #FF6B4A;
+  --alert-dim: #1F0A0A;
+  --amber: #F5A623;
+  --amber-dim: #3B2B11;
   --gray: #7C8699;
   --line: #1C2230;
+  --surface: #0F141F;
+  --surface2: #161C29;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0B0E14; font-family: 'Inter', sans-serif; color: #E8EDF4; min-height: 100vh; }
+body { background: var(--ink); font-family: var(--font-body); color: #E8EDF4; min-height: 100vh; }
 
 .shell { display: flex; min-height: 100vh; }
 .sidebar { width: 200px; background: #0C1320; border-right: 1px solid var(--line); position: fixed; top: 0; bottom: 0; left: 0; display: flex; flex-direction: column; }
-.sb-logo { padding: 20px 18px 16px; border-bottom: 1px solid var(--line); font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; color: #F5A623; letter-spacing: 0.06em; display: flex; align-items: center; gap: 8px; }
+.sb-logo { padding: 20px 18px 16px; border-bottom: 1px solid var(--line); font-family: var(--font-display); font-weight: 700; font-size: 13px; color: var(--amber); letter-spacing: 0.06em; display: flex; align-items: center; gap: 8px; }
 .sb-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 7px var(--signal); }
+.nav-section { font-size: 10px; letter-spacing: 0.1em; color: #2E3F54; text-transform: uppercase; padding: 14px 18px 4px; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 18px; font-size: 13px; color: #6B7FA0; text-decoration: none; border-left: 2px solid transparent; transition: all 0.15s; }
 .nav-item:hover { color: #E8EDF4; background: #111D2C; }
-.nav-section { font-size: 10px; letter-spacing: 0.1em; color: #2E3F54; text-transform: uppercase; padding: 14px 18px 4px; }
+.nav-item.active { color: #E8EDF4; background: #111D2C; border-left-color: var(--signal); }
 .sb-footer { margin-top: auto; padding: 14px 18px; border-top: 1px solid var(--line); font-size: 12px; color: #4A5E74; }
 .sb-footer a { color: var(--alert); text-decoration: none; font-size: 12px; }
 
-.main { margin-left: 200px; padding: 32px; max-width: 900px; }
-.back { font-size: 13px; color: var(--gray); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 24px; }
+.main { margin-left: 200px; padding: 32px; max-width: 980px; }
+.back { font-size: 13px; color: var(--gray); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 22px; }
 .back:hover { color: #E8EDF4; }
-.page-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-.page-sub { font-size: 13px; color: var(--gray); margin-bottom: 28px; }
 
 .flash-success { font-size: 13px; color: var(--signal); background: var(--signal-dim); border: 1px solid #1A5A40; border-radius: 6px; padding: 10px 14px; margin-bottom: 20px; }
-.flash-error { font-size: 13px; color: var(--alert); background: #1F0A0A; border: 1px solid #3A1A1A; border-radius: 6px; padding: 10px 14px; margin-bottom: 20px; }
+.flash-error { font-size: 13px; color: var(--alert); background: var(--alert-dim); border: 1px solid #3A1A1A; border-radius: 6px; padding: 10px 14px; margin-bottom: 20px; }
 
-.grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; align-items: start; }
-.card { background: #0F141F; border: 1px solid var(--line); border-radius: 10px; padding: 24px; margin-bottom: 20px; }
-.card-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 500; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+/* ---------- Page header ---------- */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 28px; flex-wrap: wrap; }
+.title-block { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.lead-ref { font-family: var(--font-mono); font-size: 20px; font-weight: 500; color: #F7F8FA; letter-spacing: -0.01em; }
+.urgency-pill { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-display); font-size: 11px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; }
+.urgency-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+.urgency-pill.u-flexible { background: var(--signal-dim); color: var(--signal); }
+.urgency-pill.u-flexible .dot { background: var(--signal); }
+.urgency-pill.u-soon { background: var(--amber-dim); color: var(--amber); }
+.urgency-pill.u-soon .dot { background: var(--amber); }
+.urgency-pill.u-urgent { background: var(--alert-dim); color: var(--alert); }
+.urgency-pill.u-urgent .dot { background: var(--alert); animation: blink 1.4s ease-in-out infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.page-sub { font-size: 13px; color: var(--gray); margin-top: 6px; }
+.page-sub .status-pill { margin-left: 8px; }
 
-.btn-card-search { background: #111D2C; color: var(--signal); border: 1px solid var(--signal-dim); padding: 5px 10px; font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-transform: none; transition: all 0.15s ease; }
+.btn-convert { background: var(--signal); color: var(--ink); font-family: var(--font-body); font-weight: 600; font-size: 13px; padding: 11px 20px; border-radius: 6px; border: none; cursor: pointer; transition: opacity 0.15s; white-space: nowrap; }
+.btn-convert:hover { opacity: 0.88; }
+
+/* ---------- Layout ---------- */
+.grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start; }
+.twin-grid { display: block; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 24px; margin-bottom: 18px; }
+.card-title { font-family: var(--font-display); font-size: 12px; font-weight: 500; color: var(--gray); text-transform: uppercase; letter-spacing: 0.08em; padding-bottom: 14px; margin-bottom: 18px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+
+.btn-card-search { background: #111D2C; color: var(--signal); border: 1px solid var(--signal-dim); padding: 6px 11px; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: 0.03em; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-transform: none; transition: all 0.15s ease; }
 .btn-card-search:hover { background: var(--signal-dim); color: #FFFFFF; border-color: var(--signal); }
 
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; margin-bottom: 12px; }
-.field-label { font-size: 12px; color: var(--gray); margin-bottom: 6px; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.04em; }
-.field-val { font-size: 14px; color: #D4E0F0; }
-.notes-val { font-size: 14px; color: #D4E0F0; background: #161C29; border: 1px solid var(--line); border-radius: 6px; padding: 12px; min-height: 60px; line-height: 1.5; }
+.subgroup-label { font-size: 10px; color: #4A5E74; text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font-display); margin: 18px 0 10px; }
+.subgroup-label:first-child { margin-top: 0; }
 
-.status-pill { display: inline-block; font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 500; margin-bottom: 16px; }
-.s-pending { background: #1A2A10; color: #88BB55; }
-.s-confirmed { background: var(--signal-dim); color: var(--signal); }
-.s-in_progress { background: #2A1F08; color: #F5A623; }
-.s-completed { background: #0A1F2A; color: #4A9ADB; }
-.s-cancelled { background: #1F0A0A; color: #DB5A4A; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; margin-bottom: 12px; }
+.field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.field-row.wide-first { grid-template-columns: 2fr 1fr; }
+.field { display: flex; flex-direction: column; }
+.field-label { font-size: 11px; color: var(--gray); margin-bottom: 6px; font-family: var(--font-display); letter-spacing: 0.03em; }
+.field input, .field select { width: 100%; background: var(--surface2); border: 1px solid var(--line); color: #E8EDF4; font-family: var(--font-body); font-size: 14px; padding: 10px 12px; border-radius: 6px; transition: border-color 0.15s; }
+.field input:focus, .field select:focus { outline: none; border-color: var(--signal); }
+.field.mono input { font-family: var(--font-mono); letter-spacing: 0.02em; }
 
-input[type="text"], select { width: 100%; background: #161C29; border: 1px solid var(--line); color: #E8EDF4; font-family: 'Inter', sans-serif; font-size: 14px; padding: 10px 12px; border-radius: 6px; transition: border-color 0.15s; }
-input[type="text"]:focus, select:focus { outline: none; border-color: var(--signal); }
-select { margin-bottom: 12px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237C8699' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237C8699' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
 
-.btn { width: 100%; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; padding: 11px; border-radius: 6px; border: none; cursor: pointer; margin-bottom: 8px; transition: opacity 0.15s; }
+.notes-val { font-size: 14px; color: #D4E0F0; background: var(--surface2); border: 1px solid var(--line); border-radius: 6px; padding: 12px; min-height: 60px; line-height: 1.5; white-space: pre-wrap; }
+.chip-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.info-chip { font-size: 12px; color: #C2C9D6; background: var(--surface2); border: 1px solid var(--line); border-radius: 5px; padding: 6px 12px; }
+.info-chip b { color: #F0F3F8; font-weight: 500; }
+
+/* ---------- Sidebar cards ---------- */
+.sidebar-select { width: 100%; background: var(--surface2); border: 1px solid var(--line); color: #E8EDF4; font-family: var(--font-body); font-size: 14px; padding: 10px 12px; border-radius: 6px; margin-bottom: 10px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237C8699' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+.sidebar-select:focus { outline: none; border-color: var(--signal); }
+
+.btn { width: 100%; font-family: var(--font-body); font-weight: 600; font-size: 13px; padding: 11px; border-radius: 6px; border: none; cursor: pointer; margin-bottom: 8px; transition: opacity 0.15s; }
 .btn:hover { opacity: 0.88; }
 .btn-save { background: var(--signal); color: var(--ink); }
-.btn-delete { background: #1F0A0A; color: var(--alert); border: 1px solid #3A1A1A; }
-.meta { font-size: 12px; color: var(--gray); margin-top: 8px; }
+.btn-delete { background: var(--alert-dim); color: var(--alert); border: 1px solid #3A1A1A; }
+.meta { font-size: 12px; color: var(--gray); margin-top: 4px; }
 
-/* Search Results Modal */
+.raw-list { display: flex; flex-direction: column; gap: 12px; }
+.raw-row { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; }
+.raw-row .k { color: var(--gray); flex-shrink: 0; }
+.raw-row .v { color: #C2C9D6; font-family: var(--font-mono); text-align: right; word-break: break-word; }
+.raw-note { font-size: 11px; color: #4A5E74; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); line-height: 1.5; }
+
+/* ---------- Search Results Modal ---------- */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(11, 14, 20, 0.85); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.modal-card { background: #0F141F; border: 1px solid var(--line); border-radius: 10px; width: 100%; max-width: 650px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
+.modal-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; width: 100%; max-width: 650px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(0,0,0,0.6); }
 .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
-.modal-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; color: #E8EDF4; }
+.modal-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: #E8EDF4; }
 .modal-close { background: none; border: none; color: var(--gray); font-size: 22px; cursor: pointer; line-height: 1; }
 .modal-close:hover { color: #FFFFFF; }
 .modal-body { padding: 16px 20px; overflow-y: auto; }
 
 .modal-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-.modal-table th { color: var(--gray); font-family: 'Space Grotesk', sans-serif; padding: 10px; border-bottom: 1px solid var(--line); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+.modal-table th { color: var(--gray); font-family: var(--font-display); padding: 10px; border-bottom: 1px solid var(--line); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
 .modal-table td { padding: 12px 10px; border-bottom: 1px solid #1C2230; color: #D4E0F0; }
-.modal-table tr:hover td { background: #161C29; }
+.modal-table tr:hover td { background: var(--surface2); }
 .btn-select-row { background: var(--signal-dim); color: var(--signal); border: 1px solid #1A5A40; padding: 5px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; }
 .btn-select-row:hover { background: var(--signal); color: var(--ink); }
+
+@media (min-width: 1300px) {
+  .main { max-width: 1340px; }
+  .twin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  .twin-grid .card { margin-bottom: 0; }
+}
+
+@media (max-width: 860px) {
+  .grid { grid-template-columns: 1fr; }
+  .field-row, .field-row.three, .field-row.wide-first { grid-template-columns: 1fr 1fr; }
+}
 </style>
 </head>
 <body>
@@ -96,8 +148,6 @@ select { margin-bottom: 12px; appearance: none; background-image: url("data:imag
 
   <main class="main">
     <a href="{{ url_for('admin_dashboard.admin_dashboard') }}" class="back">← Back to bookings</a>
-    <div class="page-title">Lead #{{ lead.id }}</div>
-    <div class="page-sub">Received {{ lead.created_at.strftime('%d %b %Y at %H:%M') }}</div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
@@ -105,79 +155,109 @@ select { margin-bottom: 12px; appearance: none; background-image: url("data:imag
       {% endfor %}
     {% endwith %}
 
+    <div class="page-header">
+      <div>
+        <div class="title-block">
+          <span class="lead-ref">LD-{{ '%04d'|format(lead.id) }}</span>
+          <span class="urgency-pill u-{{ lead.urgency }}"><span class="dot"></span>{{ lead.urgency | title }}</span>
+        </div>
+        <div class="page-sub">
+          Received {{ lead.created_at.strftime('%d %b %Y at %H:%M') }}
+        </div>
+      </div>
+      <button type="submit" form="booking_creation" class="btn-convert">Convert to booking →</button>
+    </div>
+
     <div class="grid">
       <form id="booking_creation" method="POST" action="/admin/booking/create" novalidate>
         {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>{% endif %}
         <input type="hidden" name="lead_id" value="{{ lead.id }}"/>
 
+        <div class="twin-grid">
         <div class="card">
           <div class="card-title">
-            <span>Customer Information</span>
-            <button type="button" class="btn-card-search" onclick="searchCustomer()">🔍 Search Customer</button>
+            <span>Customer</span>
+            <button type="button" class="btn-card-search" onclick="searchCustomer()">🔍 Search customer</button>
           </div>
-          <div class="row">
-            <div><div class="field-label">First Name</div><div class="field-val"><input type="text" id="first_name" name="first_name" value="{{ lead.first_name or lead.name }}" required></div></div>
-            <div><div class="field-label">Last Name</div><div class="field-val"><input type="text" id="last_name" name="last_name" value="{{ lead.last_name or '' }}" required></div></div>
-            <div><div class="field-label">Phone Number</div><div class="field-val"><input type="text" id="phone" name="phone" value="{{ lead.phone }}" required></div></div>
-            <div><div class="field-label">Email Address</div><div class="field-val"><input type="text" id="email" name="email" value="{{ lead.email }}" required></div></div>
-            <div><div class="field-label">Street Name</div><div class="field-val"><input type="text" id="street" name="street" value="{{ lead.street or lead.address }}" required></div></div>
-            <div><div class="field-label">Suburb</div><div class="field-val"><input type="text" id="suburb" name="suburb" value="{{ lead.suburb or '' }}" required></div></div>
-            <div><div class="field-label">State</div><div class="field-val"><input type="text" id="state" name="state" value="{{ lead.state or '' }}" required></div></div>
-            <div><div class="field-label">Postcode</div><div class="field-val"><input type="text" id="postcode" name="postcode" value="{{ lead.postcode or '' }}" required></div></div>
+
+          <div class="subgroup-label">Name</div>
+          <div class="field-row">
+            <div class="field"><span class="field-label">First name</span><input type="text" id="first_name" name="first_name" value="{{ lead.first_name or lead.name }}" required></div>
+            <div class="field"><span class="field-label">Last name</span><input type="text" id="last_name" name="last_name" value="{{ lead.last_name or '' }}" required></div>
           </div>
+
+          <div class="subgroup-label">Contact</div>
+          <div class="field-row">
+            <div class="field"><span class="field-label">Phone number</span><input type="text" id="phone" name="phone" value="{{ lead.phone }}" required></div>
+            <div class="field"><span class="field-label">Email address</span><input type="text" id="email" name="email" value="{{ lead.email }}" required></div>
+          </div>
+
+          <div class="subgroup-label">Address</div>
+          <div class="field" style="margin-bottom:12px"><span class="field-label">Street name</span><input type="text" id="street" name="street" value="{{ lead.street or lead.address }}" required></div>
+          <div class="field-row three">
+            <div class="field"><span class="field-label">Suburb</span><input type="text" id="suburb" name="suburb" value="{{ lead.suburb or '' }}" required></div>
+            <div class="field"><span class="field-label">State</span><input type="text" id="state" name="state" value="{{ lead.state or '' }}" required></div>
+            <div class="field"><span class="field-label">Postcode</span><input type="text" id="postcode" name="postcode" value="{{ lead.postcode or '' }}" required></div>
+          </div>
+          <button type="button" form="booking_creation" class="btn btn-save" style="margin-top:6px" onclick="saveCustomer()">Save customer</button>
         </div>
 
         <div class="card">
           <div class="card-title">
-            <span>Vehicle Details</span>
-            <button type="button" class="btn-card-search" onclick="searchVehicle()">🔍 Search Vehicle</button>
+            <span>Vehicle details</span>
+            <button type="button" class="btn-card-search" onclick="searchVehicle()">🔍 Search vehicle</button>
           </div>
-          <div class="row">
-            <div><div class="field-label">Make</div><div class="field-val"><input type="text" id="make" name="make" value="{{ lead.make or lead.vehicle }}" required></div></div>
-            <div><div class="field-label">Model</div><div class="field-val"><input type="text" id="model" name="model" value="{{ lead.model or '' }}" required></div></div>
-            <div><div class="field-label">Series</div><div class="field-val"><input type="text" id="series" name="series" value="{{ lead.series or '' }}"></div></div>
-            <div><div class="field-label">Year</div><div class="field-val"><input type="text" id="year" name="year" value="{{ lead.year or '' }}" required></div></div>
-            <div><div class="field-label">Rego</div><div class="field-val"><input type="text" id="rego" name="rego" value="{{ lead.rego }}" required></div></div>
-            <div><div class="field-label">State</div><div class="field-val"><input type="text" id="rego_state" name="rego_state" value="{{ lead.rego_state }}" required></div></div>
+
+          <div class="subgroup-label">Identity</div>
+          <div class="field-row">
+            <div class="field"><span class="field-label">Make</span><input type="text" id="make" name="make" value="{{ lead.make or lead.vehicle }}" required></div>
+            <div class="field"><span class="field-label">Model</span><input type="text" id="model" name="model" value="{{ lead.model or '' }}" required></div>
+            <div class="field"><span class="field-label">Series</span><input type="text" id="series" name="series" value="{{ lead.series or '' }}"></div>
+            <div class="field"><span class="field-label">Year</span><input type="text" id="year" name="year" value="{{ lead.year or '' }}" required></div>
           </div>
-          <div style="margin-top:12px;"><div class="field-label">VIN</div><div class="field-val"><input type="text" id="vin" name="vin" value="{{ lead.vin or '' }}"></div></div>
+
+          <div class="subgroup-label">Registration</div>
+          <div class="field-row">
+            <div class="field mono"><span class="field-label">Rego</span><input type="text" id="rego" name="rego" value="{{ lead.rego }}" required></div>
+            <div class="field"><span class="field-label">State</span><input type="text" id="rego_state" name="rego_state" value="{{ lead.rego_state }}" required></div>
+          </div>
+          <div class="field mono"><span class="field-label">VIN</span><input type="text" id="vin" name="vin" value="{{ lead.vin or '' }}"></div>
+          <button type="button" form="booking_creation" class="btn btn-save" style="margin-top:6px" onclick="saveVehicleS()">Save vehicle</button>
+        </div>
         </div>
 
         <div class="card">
-          <div class="card-title"><span>Request Information</span></div>
-          <div class="row">
-            <div><div class="field-label">Service</div><div class="field-val">{{ lead.service | replace('_', ' ') | title }}</div></div>
-            <div><div class="field-label">Urgency</div><div class="field-val">{{ lead.urgency | title }}</div></div>
+          <div class="card-title"><span>Service request</span></div>
+          <div class="chip-row">
+            <span class="info-chip">Service: <b>{{ lead.service | replace('_', ' ') | title }}</b></span>
+            <span class="info-chip">Urgency: <b>{{ lead.urgency | title }}</b></span>
           </div>
           {% if lead.notes %}
-          <div style="margin-top:12px">
+          <div style="margin-top:14px">
             <div class="field-label" style="margin-bottom:8px">Notes from customer</div>
             <div class="notes-val">{{ lead.notes }}</div>
           </div>
           {% endif %}
         </div>
-
-        <button type="submit" class="btn btn-save">Convert Lead to Booking</button>
       </form>
 
       <div>
         <div class="card">
-          <div class="card-title"><span>Status</span></div>
-          <span class="status-pill s-{{ lead.status }}">{{ lead.status | replace('_', ' ') | title }}</span>
-          <form method="POST" action="{{ url_for('booking.admin_update_lead_status', lead_id=lead.id) }}">
-            {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>{% endif %}
-            <select name="status">
-              {% for s in ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'] %}
-              <option value="{{ s }}" {% if lead.status == s %}selected{% endif %}>{{ s | replace('_', ' ') | title }}</option>
-              {% endfor %}
-            </select>
-            <button type="submit" class="btn btn-save">Save status</button>
-          </form>
-          <div class="meta">Last updated when saved above.</div>
+          <div class="card-title"><span>Original submission</span></div>
+          <div class="raw-list">
+            <div class="raw-row"><span class="k">Full name</span><span class="v">{{ lead.name }}</span></div>
+            <div class="raw-row"><span class="k">Phone Number</span><span class="v">{{ lead.phone }}</span></div>
+            <div class="raw-row"><span class="k">Address</span><span class="v">{{ lead.address }}</span></div>
+            <div class="raw-row"><span class="k">Vehicle</span><span class="v">{{ lead.vehicle }}</span></div>
+            <div class="raw-row"><span class="k">Rego</span><span class="v">{{ lead.rego }} ({{ lead.rego_state }})</span></div>
+            <div class="raw-row"><span class="k">Service</span><span class="v">{{ lead.service | replace('_', ' ') | title }}</span></div>
+            <div class="raw-row"><span class="k">Urgency</span><span class="v">{{ lead.urgency | title }}</span></div>
+          </div>
+          <div class="raw-note">This is the raw text the customer submitted through the booking form — kept here for reference while you fill in the structured fields on the left.</div>
         </div>
 
         <div class="card">
-          <div class="card-title"><span>Danger Zone</span></div>
+          <div class="card-title"><span>Danger zone</span></div>
           <form method="POST" action="{{ url_for('booking.admin_delete_lead', lead_id=lead.id) }}"
             onsubmit="return confirm('Permanently delete lead #{{ lead.id }}? This cannot be undone.')">
             {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>{% endif %}
@@ -193,7 +273,7 @@ select { margin-bottom: 12px; appearance: none; background-image: url("data:imag
 <div id="searchModal" class="modal-backdrop" style="display:none;" onclick="handleBackdropClick(event)">
   <div class="modal-card">
     <div class="modal-header">
-      <span id="modalTitle" class="modal-title">Select Record</span>
+      <span id="modalTitle" class="modal-title">Select record</span>
       <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
     </div>
     <div class="modal-body">
@@ -265,8 +345,37 @@ async function searchCustomer() {
   }
 }
 
+async function saveCustomer() {
+  const first_name = document.getElementById('first_name').value.trim();
+  const last_name = document.getElementById('last_name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const street = document.getElementById('street').value.trim();
+  const suburb = document.getElementById('suburb').value.trim();
+  const state = document.getElementById('state').value.trim();
+  const postcode = document.getElementById('postcode').value.trim();
+
+  if (!first_name || !last_name) {
+    alert('Enter both first and last name.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/customers/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ first_name, last_name, phone, email, street, suburb, state, postcode })
+    });
+    if (!res.ok) throw new Error('Error saving customer.');
+    const data = await res.json();
+    populateCustomer(data);
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
 function showCustomerModal(customers) {
-  document.getElementById('modalTitle').innerText = `Select Customer (${customers.length} matches found)`;
+  document.getElementById('modalTitle').innerText = `Select customer (${customers.length} matches found)`;
   document.getElementById('modalThead').innerHTML = `
     <tr>
       <th>Name</th>
@@ -275,7 +384,7 @@ function showCustomerModal(customers) {
       <th>Location</th>
       <th></th>
     </tr>`;
-  
+
   const tbody = document.getElementById('modalTbody');
   tbody.innerHTML = '';
 
@@ -302,7 +411,7 @@ async function searchVehicle() {
   const vin = document.getElementById('vin').value.trim();
 
   if (!rego && !vin) {
-    alert('Enter a Rego or VIN to search.');
+    alert('Enter a rego or VIN to search.');
     return;
   }
 
@@ -321,8 +430,36 @@ async function searchVehicle() {
   }
 }
 
+async function saveVehicle() {
+  const make = document.getElementById('make').value.trim();
+  const model = document.getElementById('model').value.trim();
+  const series = document.getElementById('series').value.trim();
+  const year = document.getElementById('year').value.trim();
+  const rego = document.getElementById('rego').value.trim();
+  const rego_state = document.getElementById('rego_state').value.trim();
+  const vin = document.getElementById('vin').value.trim();
+
+  if (!make || !model || !year) {
+    alert('Enter make, model, and year.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/vehicles/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ make, model, series, year, rego, rego_state, vin })
+    });
+    if (!res.ok) throw new Error('Error saving vehicle.');
+    const data = await res.json();
+    populateVehicle(data);
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
 function showVehicleModal(vehicles) {
-  document.getElementById('modalTitle').innerText = `Select Vehicle (${vehicles.length} matches found)`;
+  document.getElementById('modalTitle').innerText = `Select vehicle (${vehicles.length} matches found)`;
   document.getElementById('modalThead').innerHTML = `
     <tr>
       <th>Vehicle</th>

@@ -21,6 +21,20 @@ class Customer(db.Model):
     state       = db.Column(db.String(10), nullable=False)
     postcode    = db.Column(db.Integer, nullable=False)
     vehicles    = db.relationship("Vehicle", secondary=CustomerVehicle.__table__, back_populates="owners")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "created_at": self.created_at.strftime("%d %b %Y, %H:%M"),
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "phone": self.phone,
+            "email": self.email,
+            "street": self.street,
+            "suburb": self.suburb,
+            "state": self.state,
+            "postcode": self.postcode,
+        }
     
 
 class Vehicle(db.Model):
@@ -34,6 +48,19 @@ class Vehicle(db.Model):
     rego_state  = db.Column(db.String(4), default="")
     vin         = db.Column(db.String(17), default="")
     owners      = db.relationship("Customer", secondary=CustomerVehicle.__table__, back_populates="vehicles")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "created_at": self.created_at.strftime("%d %b %Y, %H:%M"),
+            "make": self.make,
+            "model": self.model,
+            "series": self.series,
+            "year": self.year,
+            "rego": self.rego,
+            "rego_state": self.rego_state,
+            "vin": self.vin,
+        }
 
 class Lead(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
