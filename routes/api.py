@@ -11,7 +11,11 @@ def api_bookings():
     bookings = Booking.query.order_by(Booking.created_at.desc()).all()
     return jsonify([b.to_dict() for b in bookings])
 
+<<<<<<< HEAD
 @api_bp.route('/leads')
+=======
+@api_bp.route('/bookings')
+>>>>>>> cdcb7f0 (Add HTML templates for booking confirmation, index page, and invoice printing)
 @login_required
 def api_leads():
     leads = Lead.query.order_by(Lead.created_at.desc()).all()
@@ -26,6 +30,7 @@ def api_customer_search():
 @api_bp.route('/customers/create')
 @login_required
 def api_customer_create():
+<<<<<<< HEAD
 
     first_name = request.form.get('first_name')
     last_name = request.form.get('last_name')
@@ -37,11 +42,16 @@ def api_customer_create():
     postcode = request.form.get('postcode')
 
     return jsonify([0,])
+=======
+    customers = Customer.query.order_by(Customer.created_at.desc()).all()
+    return jsonify([c.to_dict() for c in customers])
+>>>>>>> cdcb7f0 (Add HTML templates for booking confirmation, index page, and invoice printing)
 
 @api_bp.route('/vehicles/search')
 @login_required
 def api_vehicle_search():
     vehicles = Vehicle.query.order_by(Vehicle.created_at.desc()).all()
+<<<<<<< HEAD
     return jsonify([v.to_dict() for v in vehicles])
 
 @api_bp.route('/vehicles/create')
@@ -59,3 +69,6 @@ def api_vehicle_create():
     
 
     return jsonify([0,])
+=======
+    return jsonify([v.to_dict() for v in vehicles])
+>>>>>>> cdcb7f0 (Add HTML templates for booking confirmation, index page, and invoice printing)

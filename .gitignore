@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 .env
 venv/
 __pycache__
+=======
+__pycache__
+.env
+venv/*
+>>>>>>> cdcb7f0 (Add HTML templates for booking confirmation, index page, and invoice printing)
