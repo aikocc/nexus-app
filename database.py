@@ -47,6 +47,8 @@ class Vehicle(db.Model):
     rego        = db.Column(db.String(10), default="No Plate")
     rego_state  = db.Column(db.String(4), default="")
     vin         = db.Column(db.String(17), default="")
+    last_odometer = db.Column(db.Integer, default=0)
+    last_odometer_date = db.Column(db.DateTime, default=None)
     owners      = db.relationship("Customer", secondary=CustomerVehicle.__table__, back_populates="vehicles")
 
     def to_dict(self):
@@ -60,6 +62,8 @@ class Vehicle(db.Model):
             "rego": self.rego,
             "rego_state": self.rego_state,
             "vin": self.vin,
+            "last_odometer": self.last_odometer,
+            "last_odometer_date": self.last_odometer_date.strftime("%d %b %Y, %H:%M") if self.last_odometer_date else None,
         }
 
 class Lead(db.Model):
@@ -75,7 +79,7 @@ class Lead(db.Model):
     service     = db.Column(db.String(60), nullable=False)
     urgency     = db.Column(db.String(30), nullable=False)
     notes       = db.Column(db.Text, default="")
-    status      = db.Column(db.String(30), default="pending")
+    active      = db.Column(db.Boolean, default=True)
 
     def to_dict(self):
         return {
@@ -100,11 +104,17 @@ class Booking(db.Model):
     booking_time= db.Column(db.DateTime, nullable=False)
     vehicle     = db.Column(db.Integer, db.ForeignKey("vehicle.id"), nullable=False)
     customer    = db.Column(db.Integer, db.ForeignKey("customer.id"), nullable=False)
-    service     = db.Column(db.String(60), nullable=False)
-    urgency     = db.Column(db.String(30), nullable=False)
     notes       = db.Column(db.Text, default="")
+    odometer    = db.Column(db.Integer, default=0)
     status      = db.Column(db.String(30), default="pending")
     invoices    = db.relationship("Invoice", backref="booking", lazy=True)
+
+    def update_odometer(self, odometer):
+        if type(odometer) != int:
+            return Exception
+        self.odometer = odometer
+        db.session.commit()
+        return self.to_dict()
 
     def to_dict(self):
         return {
@@ -115,6 +125,7 @@ class Booking(db.Model):
             "vehicle": self.vehicle,
             "service": self.service,
             "urgency": self.urgency,
+            "odometer": self.odometer,
             "notes": self.notes,
             "status": self.status,
         }
@@ -125,7 +136,6 @@ class Invoice(db.Model):
     due_date    = db.Column(db.Date, nullable=True)
     booking_id  = db.Column(db.Integer, db.ForeignKey("booking.id"), nullable=True)
 
-    
     vehicle     = db.Column(db.Integer, db.ForeignKey("vehicle.id"), nullable=False)
     customer    = db.Column(db.Integer, db.ForeignKey("customer.id"), nullable=False)
 

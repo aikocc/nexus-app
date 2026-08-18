@@ -169,7 +169,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
     </div>
 
     <div class="grid">
-      <form id="booking_creation" method="POST" action="/admin/booking/new" novalidate>
+      <form id="booking_creation" method="POST" action="/admin/booking/create" novalidate>
         {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>{% endif %}
         <input type="hidden" name="lead_id" value="{{ lead.id }}"/>
 
@@ -224,7 +224,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
             <div class="field"><span class="field-label">State</span><input type="text" id="rego_state" name="rego_state" value="{{ lead.rego_state }}" required></div>
           </div>
           <div class="field mono"><span class="field-label">VIN</span><input type="text" id="vin" name="vin" value="{{ lead.vin or '' }}"></div>
-          <button type="button" form="booking_creation" class="btn btn-save" style="margin-top:6px" onclick="saveVehicleS()">Save vehicle</button>
+          <button type="button" form="booking_creation" class="btn btn-save" style="margin-top:6px" onclick="saveVehicle()">Save vehicle</button>
         </div>
         </div>
 
@@ -260,7 +260,7 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 
         <div class="card">
           <div class="card-title"><span>Danger zone</span></div>
-          <form method="POST" action="{{ url_for('booking.admin_delete_lead', lead_id=lead.id) }}"
+          <form method="POST" action="{{ url_for('lead.delete', lead_id=lead.id) }}"
             onsubmit="return confirm('Permanently delete lead #{{ lead.id }}? This cannot be undone.')">
             {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>{% endif %}
             <button type="submit" class="btn btn-delete">Delete lead</button>
@@ -442,6 +442,8 @@ async function saveVehicle() {
   const rego = document.getElementById('rego').value.trim();
   const rego_state = document.getElementById('rego_state').value.trim();
   const vin = document.getElementById('vin').value.trim();
+
+  print(make, model, year, rego, rego_state, vin);
 
   if (!make || !model || !year) {
     alert('Enter make, model, and year.');

@@ -2,54 +2,141 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Nexus Admin</title>
+<title>Booking #{{ booking.id }} — Nexus Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#0B0E14;--paper:#F7F8FA;--paper-dim:#ECEEF2;--signal:#00D9A3;--signal-dim:#0A3B30;--alert:#FF6B4A;--gray:#7C8699;--line:#1C2230;--line-light:#DCDFE6}
+:root{--ink:#0B0E14;--signal:#00D9A3;--signal-dim:#0A3B30;--alert:#FF6B4A;--amber:#F5A623;--gray:#7C8699;--line:#1C2230;--surface:#0F141F;--surface2:#161C29;--blue:#4A9ADB;--blue-dim:#0A1525}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0B0E14;font-family:'Inter',sans-serif;min-height:100vh;color:#E8EDF4}
-
-/* Layout */
+body{background:var(--ink);font-family:'Inter',sans-serif;color:#E8EDF4;min-height:100vh}
 .shell{display:flex;min-height:100vh}
-.sidebar{width:200px;background:#0C1320;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:0;flex-shrink:0;position:fixed;top:0;bottom:0;left:0}
-.main{flex:1;margin-left:200px;padding:32px}
 
-/* Sidebar */
-.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--line);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:#F5A623;letter-spacing:0.06em;display:flex;align-items:center;gap:8px}
+/* ---- Sidebar ---- */
+.sidebar{width:200px;background:#0C1320;border-right:1px solid var(--line);position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--line);font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;color:var(--amber);letter-spacing:0.06em;display:flex;align-items:center;gap:8px}
 .sb-dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 7px var(--signal)}
+.nav-section{font-size:10px;letter-spacing:0.1em;color:#2E3F54;text-transform:uppercase;padding:14px 18px 4px}
 .nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;color:#6B7FA0;text-decoration:none;border-left:2px solid transparent;transition:all 0.15s}
 .nav-item:hover{color:#E8EDF4;background:#111D2C}
 .nav-item.active{color:#E8EDF4;background:#111D2C;border-left-color:var(--signal)}
-.nav-section{font-size:10px;letter-spacing:0.1em;color:#2E3F54;text-transform:uppercase;padding:14px 18px 4px}
 .sb-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--line);font-size:12px;color:#4A5E74}
 .sb-footer a{color:var(--alert);text-decoration:none;font-size:12px}
 
-/* Header */
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
-.page-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#F7F8FA}
-.page-sub{font-size:13px;color:var(--gray);margin-top:2px}
-.btn-outline{background:transparent;border:1px solid var(--line);color:#A8B0C0;font-family:'Inter',sans-serif;font-size:13px;padding:8px 16px;border-radius:6px;text-decoration:none;display:inline-block}
-.btn-primary{background:var(--signal);color:var(--ink);font-family:'Inter',sans-serif;font-weight:600;font-size:13px;padding:10px 18px;border-radius:6px;text-decoration:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity 0.15s}
-.btn-primary:hover{opacity:0.88}
+.main{margin-left:200px;padding:32px;flex:1;max-width:1180px}
+.back{font-size:13px;color:var(--gray);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:20px}
+.back:hover{color:#E8EDF4}
 
-/* Stat tiles */
-.stat-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:28px}
-.stat-tile{background:#0F141F;border:1px solid var(--line);border-radius:8px;padding:14px 16px}
-.stat-label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray);margin-bottom:5px;font-family:'Space Grotesk',sans-serif}
-.stat-val{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:#F7F8FA}
-
-/* Flash messages */
 .flash-success{font-size:13px;color:var(--signal);background:var(--signal-dim);border:1px solid #1A5A40;border-radius:6px;padding:10px 14px;margin-bottom:20px}
 .flash-error{font-size:13px;color:var(--alert);background:#1F0A0A;border:1px solid #3A1A1A;border-radius:6px;padding:10px 14px;margin-bottom:20px}
 
-/* Filter tabs */
-.filter-tabs{display:flex;gap:4px;margin-bottom:18px;flex-wrap:wrap}
-.filter-tab{padding:7px 14px;border-radius:6px;font-size:13px;text-decoration:none;color:var(--gray);background:#0F141F;border:1px solid var(--line);transition:all 0.15s}
-.filter-tab:hover{color:#E8EDF4}
-.filter-tab.active{background:var(--signal-dim);color:var(--signal);border-color:var(--signal)}
+.toast{position:fixed;top:20px;right:20px;background:var(--signal-dim);color:var(--signal);border:1px solid #1A5A40;border-radius:6px;padding:10px 16px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;opacity:0;transform:translateY(-8px);transition:all 0.25s;pointer-events:none;z-index:200}
+.toast.show{opacity:1;transform:translateY(0)}
 
-/* Table */
-.table-wrap{background:#0F141F;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+/* ---- Header ---- */
+.detail-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px}
+.title-block .inv-number{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px}
+.title-block .inv-meta{font-size:13px;color:var(--gray);margin-top:4px}
+.status-pill{display:inline-flex;align-items:center;font-size:12px;padding:4px 12px;border-radius:20px;font-weight:500}
+.s-pending{background:#1A2A10;color:#88BB55}.s-confirmed{background:var(--signal-dim);color:var(--signal)}.s-in_progress{background:#2A1F08;color:#F5A623}.s-completed{background:#0A1F2A;color:#4A9ADB}.s-cancelled{background:#1F0A0A;color:#DB5A4A}
+
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{font-family:'Inter',sans-serif;font-size:13px;padding:9px 16px;border-radius:6px;text-decoration:none;border:1px solid var(--line);color:var(--gray);cursor:pointer;background:transparent;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:#3A4F66;color:#E8EDF4}
+.btn-signal{background:var(--signal);color:var(--ink);border-color:var(--signal);font-weight:600}
+.btn-signal:hover{opacity:0.88;color:var(--ink)}
+
+/* ---- Tabs ---- */
+.tabs{display:flex;gap:4px;margin-bottom:22px;border-bottom:1px solid var(--line)}
+.tab-btn{padding:11px 18px;border-radius:6px 6px 0 0;font-size:13px;font-family:'Space Grotesk',sans-serif;font-weight:500;color:var(--gray);background:transparent;border:none;cursor:pointer;transition:all 0.15s;position:relative;top:1px}
+.tab-btn:hover{color:#E8EDF4}
+.tab-btn.active{color:var(--signal);border-bottom:2px solid var(--signal)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadein 0.15s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
+
+/* ---- Cards / grid ---- */
+.top-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;transition:border-color 0.15s}
+.card.editing{border-color:#2A5A48}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:500;color:var(--gray);text-transform:uppercase;letter-spacing:0.08em;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.card-title-actions{display:flex;align-items:center;gap:12px}
+.card-title .link-out{font-size:11px;color:var(--signal);text-decoration:none;text-transform:none;letter-spacing:0;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif}
+.card-title .link-out:hover{opacity:0.8}
+.edit-toggle{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);background:transparent;border:1px solid var(--line);padding:4px 10px;border-radius:5px;cursor:pointer;text-transform:none;letter-spacing:0;font-family:'Inter',sans-serif;transition:all 0.15s}
+.edit-toggle:hover{border-color:var(--signal);color:var(--signal)}
+
+/* ---- Editable field grid ---- */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px}
+.field-grid.full{grid-template-columns:1fr}
+.info-field label{display:block;font-size:11px;color:var(--gray);margin-bottom:6px;font-family:'Space Grotesk',sans-serif;letter-spacing:0.03em}
+.info-field input,.info-field select{
+  width:100%;font-family:'Inter',sans-serif;font-size:14px;color:#D4E0F0;
+  background:transparent;border:1px solid transparent;border-radius:6px;
+  padding:8px 0;transition:all 0.15s;cursor:default;
+}
+.info-field input[readonly],.info-field select[disabled]{background:transparent}
+.card.editing .info-field input,.card.editing .info-field select{
+  background:var(--surface2);border-color:var(--line);color:#E8EDF4;
+  padding:9px 12px;cursor:text;
+}
+.card.editing .info-field select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237C8699' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.info-field input:focus,.info-field select:focus{outline:none;border-color:var(--signal)}
+.info-field input.mono{font-family:'Space Grotesk',sans-serif}
+.field-row-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
+
+/* Rego search row */
+.rego-search-row{display:none;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;background:var(--blue-dim);border:1px solid #16324a;border-radius:6px}
+.card.editing .rego-search-row{display:flex}
+.rego-search-row .msg{font-size:12px;color:#8FB6DB;flex:1}
+.btn-rego-search{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--blue);color:var(--blue);font-family:'Inter',sans-serif;font-weight:600;font-size:12px;padding:7px 14px;border-radius:5px;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.btn-rego-search:hover{background:var(--blue);color:#08131F}
+.btn-rego-search:disabled{opacity:0.6;cursor:wait}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,0.3);border-top-color:currentColor;border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.card-edit-actions{display:none;gap:8px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.card.editing .card-edit-actions{display:flex}
+.btn-save-card{background:var(--signal);color:var(--ink);font-family:'Inter',sans-serif;font-weight:600;font-size:13px;padding:9px 18px;border-radius:6px;border:none;cursor:pointer;transition:opacity 0.15s}
+.btn-save-card:hover{opacity:0.88}
+.btn-cancel-card{background:transparent;color:var(--gray);font-family:'Inter',sans-serif;font-size:13px;padding:9px 16px;border-radius:6px;border:1px solid var(--line);cursor:pointer;transition:all 0.15s}
+.btn-cancel-card:hover{border-color:#3A4F66;color:#E8EDF4}
+
+/* Odometer input fields */
+.odo-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.odo-field label{display:block;font-size:11px;color:var(--gray);margin-bottom:7px;font-family:'Space Grotesk',sans-serif;letter-spacing:0.03em}
+.odo-field .input-wrap{position:relative}
+.odo-field input{width:100%;background:var(--surface2);border:1px solid var(--line);color:#E8EDF4;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:500;padding:10px 44px 10px 14px;border-radius:6px;transition:border-color 0.15s}
+.odo-field input:focus{outline:none;border-color:var(--signal)}
+.odo-field .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--gray);font-family:'Inter',sans-serif}
+.odo-field.readonly input{color:#8A9AB0}
+.odo-delta{font-size:11px;color:var(--gray);margin-top:6px}
+.odo-delta.positive{color:var(--signal)}
+.odo-delta.flag{color:var(--alert)}
+
+/* ---- Notes ---- */
+.notes-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.note-list{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;padding-right:4px}
+.note-item{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.note-item-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.note-item-date{font-family:'Space Grotesk',sans-serif;font-size:11px;color:var(--gray)}
+.note-item-src{font-size:10px;color:#4E5A70;text-transform:uppercase;letter-spacing:0.05em}
+.note-item-text{font-size:13px;color:#C2C9D6;line-height:1.55;white-space:pre-wrap}
+.note-empty{text-align:center;padding:32px 16px;color:#4E5A70;font-size:13px}
+
+.note-compose textarea{width:100%;min-height:130px;background:var(--surface2);border:1px solid var(--line);color:#E8EDF4;font-family:'Inter',sans-serif;font-size:14px;padding:12px 14px;border-radius:6px;resize:vertical;transition:border-color 0.15s}
+.note-compose textarea:focus{outline:none;border-color:var(--signal)}
+.note-compose textarea::placeholder{color:#4E5A70}
+.note-compose-foot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.note-compose-hint{font-size:11px;color:var(--gray)}
+.btn-add-note{background:var(--signal);color:var(--ink);font-family:'Inter',sans-serif;font-weight:600;font-size:13px;padding:9px 18px;border-radius:6px;border:none;cursor:pointer;transition:opacity 0.15s}
+.btn-add-note:hover{opacity:0.88}
+
+/* ---- History tables ---- */
+.hist-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.hist-tile{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px}
+.hist-tile-label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray);margin-bottom:5px;font-family:'Space Grotesk',sans-serif}
+.hist-tile-val{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700}
+
+.table-wrap{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 table{width:100%;border-collapse:collapse}
 thead{background:#0C1320}
 th{font-family:'Space Grotesk',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray);padding:12px 16px;text-align:left;border-bottom:1px solid var(--line)}
@@ -58,14 +145,43 @@ tr:last-child td{border-bottom:none}
 tr:hover td{background:#111A28}
 td a{color:#C2C9D6;text-decoration:none}
 td a:hover{color:var(--signal)}
+.current-row td{background:#0E2019}
+.current-tag{font-size:10px;color:var(--signal);border:1px solid var(--signal-dim);background:var(--signal-dim);padding:2px 7px;border-radius:4px;margin-left:8px;text-transform:uppercase;letter-spacing:0.04em}
+.empty{text-align:center;padding:50px 20px;color:var(--gray);font-size:14px}
 
-.status-pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
-.s-pending{background:#1A2A10;color:#88BB55}.s-confirmed{background:var(--signal-dim);color:var(--signal)}.s-in_progress{background:#2A1F08;color:#F5A623}.s-completed{background:#0A1F2A;color:#4A9ADB}.s-cancelled{background:#1F0A0A;color:#DB5A4A}
+@media (max-width: 860px){
+  .top-grid, .notes-grid, .hist-summary{grid-template-columns:1fr}
+  .field-grid, .odo-row, .field-row-3{grid-template-columns:1fr}
+}
 
-.urgency-badge{font-size:11px;color:var(--gray)}
-.urgency-badge.urgent{color:var(--alert)}
+/* ---- Modals ---- */
+.modal-backdrop{position:fixed;inset:0;background:rgba(11,14,20,0.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal-backdrop.show{display:flex}
+.modal-card{background:#0F141F;border:1px solid var(--line);border-radius:10px;width:100%;max-width:640px;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,0.6)}
+.modal-card.narrow{max-width:460px}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:#E8EDF4}
+.modal-close{background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer;line-height:1}
+.modal-close:hover{color:#FFFFFF}
+.modal-body{padding:18px 20px;overflow-y:auto}
+.modal-sub{font-size:12.5px;color:var(--gray);margin-bottom:16px;line-height:1.6}
 
-.empty{text-align:center;padding:60px 20px;color:var(--gray);font-size:14px}
+.modal-table{width:100%;border-collapse:collapse;font-size:13px;text-align:left}
+.modal-table th{color:var(--gray);font-family:'Space Grotesk',sans-serif;padding:10px;border-bottom:1px solid var(--line);font-size:11px;text-transform:uppercase;letter-spacing:0.05em}
+.modal-table td{padding:12px 10px;border-bottom:1px solid #1C2230;color:#D4E0F0}
+.modal-table tr:hover td{background:#161C29}
+.btn-select-row{background:var(--signal-dim);color:var(--signal);border:1px solid #1A5A40;padding:5px 12px;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer}
+.btn-select-row:hover{background:var(--signal);color:var(--ink)}
+
+/* Save decision modal */
+.decision-option{display:flex;align-items:flex-start;gap:14px;width:100%;text-align:left;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:12px;cursor:pointer;transition:all 0.15s}
+.decision-option:hover{border-color:var(--signal);background:#131D24}
+.decision-option .icon{width:34px;height:34px;border-radius:8px;background:var(--signal-dim);color:var(--signal);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.decision-option.new .icon{background:#1F1A08;color:var(--amber)}
+.decision-option .txt strong{display:block;font-size:14px;color:#E8EDF4;margin-bottom:4px;font-family:'Space Grotesk',sans-serif}
+.decision-option .txt span{font-size:12.5px;color:var(--gray);line-height:1.5}
+.modal-cancel{width:100%;text-align:center;background:transparent;border:1px solid var(--line);color:var(--gray);font-family:'Inter',sans-serif;font-size:13px;padding:10px;border-radius:6px;cursor:pointer;margin-top:4px;transition:all 0.15s}
+.modal-cancel:hover{border-color:#3A4F66;color:#E8EDF4}
 </style>
 </head>
 <body>
@@ -74,82 +190,543 @@ td a:hover{color:var(--signal)}
     <div class="sb-logo"><span class="sb-dot"></span>NEXUS</div>
     <nav>
       <div class="nav-section">Menu</div>
-      <a href="{{ url_for('.admin_dashboard') }}" class="nav-item active">📋 Bookings</a>
+      <a href="{{ url_for('admin_dashboard.admin_dashboard') }}" class="nav-item active">📋 Bookings</a>
       <a href="{{ url_for('public.index') }}" class="nav-item" target="_blank">🌐 Public site</a>
     </nav>
-    <div class="sb-footer">
-      Signed in as admin<br>
-      <a href="{{ url_for('booking.admin_booking_new') }}">Sign out</a>
-    </div>
+    <div class="sb-footer">Signed in as admin<br><a href="{{ url_for('auth.admin_logout') }}">Sign out</a></div>
   </aside>
 
   <main class="main">
-    <div class="page-header">
-      <div>
-        <div class="page-title">Bookings</div>
-        <div class="page-sub">All service requests</div>
-      </div>
-      <a href="" class="btn-primary">+ New booking</a>
-    </div>
+    <a href="{{ url_for('admin_dashboard.admin_dashboard') }}" class="back">← Back to bookings</a>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <div class="flash-{{ category }}">{{ message }}</div>
-      {% endfor %}
+      {% for category, message in messages %}<div class="flash-{{ category }}">{{ message }}</div>{% endfor %}
     {% endwith %}
 
-    <div class="stat-row">
-      <div class="stat-tile"><div class="stat-label">Total</div><div class="stat-val">{{ counts.all }}</div></div>
-      <div class="stat-tile"><div class="stat-label">Pending</div><div class="stat-val">{{ counts.pending }}</div></div>
-      <div class="stat-tile"><div class="stat-label">Confirmed</div><div class="stat-val">{{ counts.confirmed }}</div></div>
-      <div class="stat-tile"><div class="stat-label">In progress</div><div class="stat-val">{{ counts.in_progress }}</div></div>
-      <div class="stat-tile"><div class="stat-label">Completed</div><div class="stat-val">{{ counts.completed }}</div></div>
+    <div class="detail-header">
+      <div class="title-block">
+        <div class="inv-number">
+          Booking #{{ booking.id }}
+          <span class="status-pill s-{{ booking.status }}">{{ booking.status | replace('_', ' ') | title }}</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="{{ url_for('invoices.new_invoice', booking_id=booking.id) }}" class="btn">+ Create invoice</a>
+      </div>
     </div>
 
-    <div class="filter-tabs">
-      {% for label, val in [('All', 'all'), ('Pending', 'pending'), ('Confirmed', 'confirmed'), ('In progress', 'in_progress'), ('Completed', 'completed'), ('Cancelled', 'cancelled')] %}
-        <a href="{{ url_for('.admin_dashboard', status=val) }}" class="filter-tab {% if active_filter == val %}active{% endif %}">{{ label }}</a>
-      {% endfor %}
+    <!-- ============ TABS ============ -->
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab-btn active" data-tab="info" role="tab" aria-selected="true">Booking Information</button>
+      <button type="button" class="tab-btn" data-tab="customer" role="tab" aria-selected="false">Customer History</button>
+      <button type="button" class="tab-btn" data-tab="vehicle" role="tab" aria-selected="false">Vehicle History</button>
     </div>
 
-    <div class="table-wrap">
-      {% if bookings %}
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Customer</th>
-            <th>Vehicle</th>
-            <th>Service</th>
-            <th>Urgency</th>
-            <th>Received</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for b in bookings %}
-          <tr>
-            <td><a href="{{ url_for('admin_booking_detail', booking_id=b.id) }}">#{{ b.id }}</a></td>
-            <td>
-              <a href="{{ url_for('admin_booking_detail', booking_id=b.id) }}">
-                <strong>{{ b.name }}</strong><br>
-                <span style="font-size:12px;color:var(--gray)">{{ b.phone }}</span>
-              </a>
-            </td>
-            <td>{{ b.vehicle }}</td>
-            <td>{{ b.service | replace('_', ' ') | title }}</td>
-            <td><span class="urgency-badge {% if b.urgency == 'urgent' %}urgent{% endif %}">{{ b.urgency | title }}</span></td>
-            <td style="font-size:12px;color:var(--gray)">{{ b.created_at.strftime('%d %b, %H:%M') }}</td>
-            <td><span class="status-pill s-{{ b.status }}">{{ b.status | replace('_', ' ') | title }}</span></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-      <div class="empty">No bookings found for this filter.</div>
-      {% endif %}
-    </div>
+    <!-- ============ TAB 1: BOOKING INFORMATION ============ -->
+    <section class="tab-panel active" id="panel-info">
+
+      <div class="top-grid">
+
+        <!-- ===== Customer info — editable ===== -->
+        <div class="card" id="customer-card" data-card>
+          <form method="POST" action="{{ url_for('booking.admin_update_customer', customer_id=customer.id) }}" data-card-form>
+            {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>{% endif %}
+            <input type="hidden" name="booking_id" value="{{ booking.id }}">
+
+            <div class="card-title">
+              <span>Customer</span>
+              <div class="card-title-actions">
+                <button type="button" class="link-out" data-tab-link="customer">Full history →</button>
+                <button type="button" class="edit-toggle" data-edit-btn>✏️ Edit</button>
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <div class="info-field">
+                <label for="c_first">First name</label>
+                <input type="text" id="c_first" name="first_name" value="{{ customer.first_name }}" readonly required>
+              </div>
+              <div class="info-field">
+                <label for="c_last">Last name</label>
+                <input type="text" id="c_last" name="last_name" value="{{ customer.last_name }}" readonly required>
+              </div>
+              <div class="info-field">
+                <label for="c_phone">Phone</label>
+                <input type="tel" id="c_phone" name="phone" value="{{ customer.phone }}" readonly required>
+              </div>
+              <div class="info-field">
+                <label for="c_email">Email</label>
+                <input type="email" id="c_email" name="email" value="{{ customer.email }}" readonly required>
+              </div>
+            </div>
+
+            <div class="field-grid full" style="margin-top:14px">
+              <div class="info-field">
+                <label for="c_street">Street address</label>
+                <input type="text" id="c_street" name="street" value="{{ customer.street }}" readonly required>
+              </div>
+            </div>
+            <div class="field-row-3" style="margin-top:14px">
+              <div class="info-field">
+                <label for="c_suburb">Suburb</label>
+                <input type="text" id="c_suburb" name="suburb" value="{{ customer.suburb }}" readonly required>
+              </div>
+              <div class="info-field">
+                <label for="c_state">State</label>
+                <select id="c_state" name="state" disabled required>
+                  {% for st in ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'] %}
+                  <option value="{{ st }}" {% if customer.state == st %}selected{% endif %}>{{ st }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="info-field">
+                <label for="c_postcode">Postcode</label>
+                <input type="text" id="c_postcode" name="postcode" value="{{ customer.postcode }}" readonly required>
+              </div>
+            </div>
+
+            <div class="card-edit-actions">
+              <button type="submit" class="btn-save-card">Save changes</button>
+              <button type="button" class="btn-cancel-card" data-cancel-btn>Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ===== Vehicle info — editable, with rego search + update/new decision ===== -->
+        <div class="card" id="vehicle-card" data-card data-vehicle-card>
+          <form method="POST" action="{{ url_for('booking.admin_update_vehicle', vehicle_id=vehicle.id) }}" id="vehicleForm" data-card-form>
+            {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>{% endif %}
+            <input type="hidden" name="booking_id" value="{{ booking.id }}">
+            <input type="hidden" name="save_action" id="vehicleSaveAction" value="update">
+
+            <div class="card-title">
+              <span>Vehicle</span>
+              <div class="card-title-actions">
+                <button type="button" class="link-out" data-tab-link="vehicle">Full history →</button>
+                <button type="button" class="edit-toggle" data-edit-btn>✏️ Edit</button>
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <div class="info-field">
+                <label for="v_make">Make</label>
+                <input type="text" id="v_make" name="make" value="{{ vehicle.make }}" readonly required>
+              </div>
+              <div class="info-field">
+                <label for="v_model">Model</label>
+                <input type="text" id="v_model" name="model" value="{{ vehicle.model }}" readonly required>
+              </div>
+              <div class="info-field">
+                <label for="v_series">Series</label>
+                <input type="text" id="v_series" name="series" value="{{ vehicle.series }}" readonly>
+              </div>
+              <div class="info-field">
+                <label for="v_year">Year</label>
+                <input type="number" id="v_year" name="year" value="{{ vehicle.year }}" readonly>
+              </div>
+            </div>
+
+            <div class="field-row-3" style="margin-top:14px">
+              <div class="info-field">
+                <label for="v_vin">VIN</label>
+                <input type="text" id="v_vin" name="vin" class="mono" value="{{ vehicle.vin }}" readonly>
+              </div>
+              <div class="info-field">
+                <label for="v_rego">Rego</label>
+                <input type="text" id="v_rego" name="rego" class="mono" value="{{ vehicle.rego }}" readonly required>
+              </div>
+              <div class="info-field">
+                <label for="v_rego_state">Rego state</label>
+                <select id="v_rego_state" name="rego_state" disabled required>
+                  {% for st in ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'] %}
+                  <option value="{{ st }}" {% if vehicle.rego_state == st %}selected{% endif %}>{{ st }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <!-- Rego search — only shown while editing -->
+            <div class="rego-search-row">
+              <span class="msg">Look up the entered rego to auto-fill make, model, series, year &amp; VIN.</span>
+              <button type="button" class="btn-rego-search" data-rego-search-btn>🔍 Search rego</button>
+            </div>
+
+            <div class="card-edit-actions">
+              <button type="button" class="btn-save-card" data-save-btn>Save changes</button>
+              <button type="button" class="btn-cancel-card" data-cancel-btn>Cancel</button>
+            </div>
+          </form>
+
+          <!-- Odometer — its own always-editable control, separate small form -->
+          <form method="POST" action="{{ url_for('booking.admin_update_odometer', booking_id=booking.id) }}">
+            {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>{% endif %}
+            <div class="odo-row">
+              <div class="odo-field readonly">
+                <label for="odo_last">Last recorded odometer</label>
+                <div class="input-wrap">
+                  <input type="text" id="odo_last" value="{{ '{:,}'.format(last_odometer) if last_odometer else '—' }}" readonly disabled>
+                  <span class="unit">km</span>
+                </div>
+                <div class="odo-delta">{% if last_odometer_date %}Recorded {{ last_odometer_date.strftime('%d %b %Y') }}{% else %}No prior reading on file{% endif %}</div>
+              </div>
+              <div class="odo-field">
+                <label for="odo_current">Current odometer</label>
+                <div class="input-wrap">
+                  <input type="number" id="odo_current" name="odometer" min="0" step="1"
+                    placeholder="Enter reading" value="{{ current_odometer if current_odometer else '' }}">
+                  <span class="unit">km</span>
+                </div>
+                <div class="odo-delta {% if last_odometer and current_odometer and current_odometer > last_odometer %}positive{% elif last_odometer and current_odometer and current_odometer < last_odometer %}flag{% endif %}">
+                  {% if last_odometer and current_odometer %}
+                    {% if current_odometer >= last_odometer %}+{{ '{:,}'.format(current_odometer - last_odometer) }} km since last visit
+                    {% else %}⚠ Lower than last recorded reading{% endif %}
+                  {% else %}Save to compare against last reading{% endif %}
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:14px">
+              <button type="submit" class="btn btn-signal">Save odometer reading</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="notes-grid">
+        <div class="card">
+          <div class="card-title"><span>Previous vehicle notes</span></div>
+          <div class="note-list">
+            {% if vehicle_notes %}
+              {% for n in vehicle_notes %}
+              <div class="note-item">
+                <div class="note-item-head">
+                  <span class="note-item-date">{{ n.created_at.strftime('%d %b %Y') }}{% if n.booking_id %} · Booking #{{ n.booking_id }}{% endif %}</span>
+                  <span class="note-item-src">{{ n.author or 'Technician' }}</span>
+                </div>
+                <div class="note-item-text">{{ n.text }}</div>
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="note-empty">No previous notes recorded for this vehicle.</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span>Notes for this booking</span></div>
+          <form method="POST" action="{{ url_for('booking.admin_add_booking_note', booking_id=booking.id) }}">
+            {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>{% endif %}
+            <div class="note-compose">
+              <textarea name="note" placeholder="Add a note about this job — findings, parts used, follow-up needed…">{{ booking.notes if booking.notes else '' }}</textarea>
+              <div class="note-compose-foot">
+                <span class="note-compose-hint">Saved notes are attached to this vehicle's history</span>
+                <button type="submit" class="btn-add-note">Save note</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TAB 2: CUSTOMER HISTORY ============ -->
+    <section class="tab-panel" id="panel-customer">
+      <div class="hist-summary">
+        <div class="hist-tile"><div class="hist-tile-label">Total bookings</div><div class="hist-tile-val">{{ customer_history|length if customer_history else 0 }}</div></div>
+        <div class="hist-tile"><div class="hist-tile-label">Vehicles on file</div><div class="hist-tile-val">{{ customer.vehicles|length if customer else 0 }}</div></div>
+        <div class="hist-tile"><div class="hist-tile-label">Customer since</div><div class="hist-tile-val" style="font-size:14px">{{ customer.created_at.strftime('%b %Y') if customer else '—' }}</div></div>
+        <div class="hist-tile"><div class="hist-tile-label">Lifetime spend</div><div class="hist-tile-val" style="color:var(--signal)">${{ '%.0f'|format(customer_lifetime_spend) if customer_lifetime_spend else '0' }}</div></div>
+      </div>
+
+      <div class="table-wrap">
+        {% if customer_history %}
+        <table>
+          <thead>
+            <tr><th>#</th><th>Vehicle</th><th>Service</th><th>Date</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for b in customer_history %}
+            <tr class="{% if b.id == booking.id %}current-row{% endif %}">
+              <td><a href="{{ url_for('booking.admin_booking_detail', booking_id=b.id) }}">#{{ b.id }}</a>{% if b.id == booking.id %}<span class="current-tag">This booking</span>{% endif %}</td>
+              <td>{{ b.vehicle }}</td>
+              <td>{{ b.service | replace('_', ' ') | title }}</td>
+              <td style="color:var(--gray)">{{ b.created_at.strftime('%d %b %Y') }}</td>
+              <td><span class="status-pill s-{{ b.status }}">{{ b.status | replace('_', ' ') | title }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No other bookings on file for this customer.</div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- ============ TAB 3: VEHICLE HISTORY ============ -->
+    <section class="tab-panel" id="panel-vehicle">
+      <div class="hist-summary">
+        <div class="hist-tile"><div class="hist-tile-label">Total visits</div><div class="hist-tile-val">{{ vehicle_history|length if vehicle_history else 0 }}</div></div>
+        <div class="hist-tile"><div class="hist-tile-label">Current odometer</div><div class="hist-tile-val">{{ '{:,}'.format(last_odometer) if last_odometer else '—' }}<span style="font-size:12px;color:var(--gray)"> km</span></div></div>
+        <div class="hist-tile"><div class="hist-tile-label">Last serviced</div><div class="hist-tile-val" style="font-size:14px">{{ vehicle_history[0].created_at.strftime('%d %b %Y') if vehicle_history else '—' }}</div></div>
+        <div class="hist-tile"><div class="hist-tile-label">Owners on file</div><div class="hist-tile-val">{{ vehicle.owners|length if vehicle else 0 }}</div></div>
+      </div>
+
+      <div class="table-wrap">
+        {% if vehicle_history %}
+        <table>
+          <thead>
+            <tr><th>#</th><th>Service</th><th>Odometer</th><th>Date</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for b in vehicle_history %}
+            <tr class="{% if b.id == booking.id %}current-row{% endif %}">
+              <td><a href="{{ url_for('booking.admin_booking_detail', booking_id=b.id) }}">#{{ b.id }}</a>{% if b.id == booking.id %}<span class="current-tag">This booking</span>{% endif %}</td>
+              <td>{{ b.service | replace('_', ' ') | title }}</td>
+              <td style="font-family:'Space Grotesk',sans-serif">{{ '{:,}'.format(b.odometer) ~ ' km' if b.odometer else '—' }}</td>
+              <td style="color:var(--gray)">{{ b.created_at.strftime('%d %b %Y') }}</td>
+              <td><span class="status-pill s-{{ b.status }}">{{ b.status | replace('_', ' ') | title }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No prior service history for this vehicle.</div>
+        {% endif %}
+      </div>
+    </section>
+
   </main>
 </div>
+
+<!-- Rego search results modal -->
+<div class="modal-backdrop" id="regoModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span class="modal-title" id="regoModalTitle">Rego search</span>
+      <button type="button" class="modal-close" data-close-modal="regoModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-sub" id="regoModalSub"></div>
+      <table class="modal-table" id="regoModalTable" style="display:none">
+        <thead><tr><th>Vehicle</th><th>Rego</th><th>VIN</th><th></th></tr></thead>
+        <tbody id="regoModalTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Save decision modal (vehicle card only) -->
+<div class="modal-backdrop" id="saveDecisionModal">
+  <div class="modal-card narrow">
+    <div class="modal-header">
+      <span class="modal-title">Save vehicle details</span>
+      <button type="button" class="modal-close" data-close-modal="saveDecisionModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-sub">You've changed details on an existing vehicle record. Choose how to save these changes:</div>
+
+      <button type="button" class="decision-option" id="decisionUpdate">
+        <span class="icon">✓</span>
+        <span class="txt">
+          <strong>Update current vehicle</strong>
+          <span>Overwrites this vehicle's existing record with the new details. Use this if you're correcting or updating info for the same physical vehicle.</span>
+        </span>
+      </button>
+
+      <button type="button" class="decision-option new" id="decisionNew">
+        <span class="icon">+</span>
+        <span class="txt">
+          <strong>Create new vehicle</strong>
+          <span>Keeps the original vehicle record untouched and creates a separate one with these details, linked to this booking. Use this if the customer brought in a different vehicle.</span>
+        </span>
+      </button>
+
+      <button type="button" class="modal-cancel" data-close-modal="saveDecisionModal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Changes saved</div>
+
+<script>
+(function() {
+  // ---------- Tabs ----------
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const panels = {
+    info: document.getElementById('panel-info'),
+    customer: document.getElementById('panel-customer'),
+    vehicle: document.getElementById('panel-vehicle'),
+  };
+  function activate(tab) {
+    tabButtons.forEach(b => {
+      const on = b.dataset.tab === tab;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    Object.entries(panels).forEach(([key, el]) => el.classList.toggle('active', key === tab));
+    if (history.replaceState) history.replaceState(null, '', '#' + tab);
+  }
+  tabButtons.forEach(btn => btn.addEventListener('click', () => activate(btn.dataset.tab)));
+  document.querySelectorAll('[data-tab-link]').forEach(link => {
+    link.addEventListener('click', () => activate(link.dataset.tabLink));
+  });
+  const initial = window.location.hash.replace('#', '');
+  if (panels[initial]) activate(initial);
+
+  // ---------- Toast (shows once after a redirect back with ?saved=1, see note below) ----------
+  const toast = document.getElementById('toast');
+  function showToast(msg) {
+    toast.textContent = '✓ ' + msg;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+  {% if request.args.get('saved') %}
+    showToast('{{ request.args.get('saved') }}');
+  {% endif %}
+
+  // ---------- Generic modal helpers ----------
+  function openModal(id) { document.getElementById(id).classList.add('show'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+  document.querySelectorAll('[data-close-modal]').forEach(btn => {
+    btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
+  });
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', (e) => { if (e.target === backdrop) backdrop.classList.remove('show'); });
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-backdrop.show').forEach(m => m.classList.remove('show'));
+  });
+
+  // ---------- Editable cards ----------
+  document.querySelectorAll('[data-card]').forEach(card => {
+    const fields = card.querySelectorAll('.info-field input, .info-field select');
+    const editBtn = card.querySelector('[data-edit-btn]');
+    const cancelBtn = card.querySelector('[data-cancel-btn]');
+    const isVehicleCard = card.hasAttribute('data-vehicle-card');
+    let snapshot = [];
+
+    function enterEdit() {
+      snapshot = Array.from(fields).map(f => f.value);
+      fields.forEach(f => { f.removeAttribute('readonly'); f.removeAttribute('disabled'); });
+      card.classList.add('editing');
+      editBtn.style.display = 'none';
+      fields[0] && fields[0].focus();
+    }
+    function exitEdit() {
+      fields.forEach(f => {
+        if (f.tagName === 'SELECT') f.setAttribute('disabled', 'true');
+        else f.setAttribute('readonly', 'true');
+      });
+      card.classList.remove('editing');
+      editBtn.style.display = '';
+    }
+
+    editBtn.addEventListener('click', enterEdit);
+    cancelBtn.addEventListener('click', () => {
+      fields.forEach((f, i) => f.value = snapshot[i]);
+      exitEdit();
+    });
+
+    if (isVehicleCard) {
+      // Vehicle card: the visible "Save changes" button opens a decision modal
+      // instead of submitting directly. The form only submits once a decision
+      // (update vs new) is picked, via the hidden save_action field.
+      const saveBtn = card.querySelector('[data-save-btn]');
+      const form = document.getElementById('vehicleForm');
+      const saveActionField = document.getElementById('vehicleSaveAction');
+
+      saveBtn.addEventListener('click', () => {
+        if (!form.reportValidity()) return;
+        openModal('saveDecisionModal');
+      });
+      document.getElementById('decisionUpdate').addEventListener('click', () => {
+        saveActionField.value = 'update';
+        closeModal('saveDecisionModal');
+        form.submit();
+      });
+      document.getElementById('decisionNew').addEventListener('click', () => {
+        saveActionField.value = 'new';
+        closeModal('saveDecisionModal');
+        form.submit();
+      });
+    }
+    // Customer card's Save button is a normal type="submit" — no JS needed.
+  });
+
+  // ---------- Rego search ----------
+  const searchBtn = document.querySelector('[data-rego-search-btn]');
+  const regoModalSub = document.getElementById('regoModalSub');
+  const regoModalTable = document.getElementById('regoModalTable');
+  const regoModalTbody = document.getElementById('regoModalTbody');
+
+  function fillVehicleFields(m) {
+    document.getElementById('v_make').value = m.make || '';
+    document.getElementById('v_model').value = m.model || '';
+    document.getElementById('v_series').value = m.series || '';
+    document.getElementById('v_year').value = m.year || '';
+    document.getElementById('v_vin').value = m.vin || '';
+    document.getElementById('v_rego').value = m.rego || '';
+    if (m.rego_state) document.getElementById('v_rego_state').value = m.rego_state;
+  }
+
+  function renderMatches(matches) {
+    regoModalTbody.innerHTML = '';
+    matches.forEach(m => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${m.year || ''} ${m.make || ''} ${m.model || ''}</strong><br><span style="font-size:11px;color:var(--gray)">${m.series || ''}</span></td>
+        <td class="mono">${m.rego || '-'} (${m.rego_state || ''})</td>
+        <td><small>${m.vin || '-'}</small></td>
+        <td style="text-align:right"><button type="button" class="btn-select-row">Use this</button></td>`;
+      tr.querySelector('.btn-select-row').addEventListener('click', () => {
+        fillVehicleFields(m);
+        closeModal('regoModal');
+        showToast('Vehicle details filled from rego search');
+      });
+      regoModalTbody.appendChild(tr);
+    });
+  }
+
+  searchBtn.addEventListener('click', async () => {
+    const rego = document.getElementById('v_rego').value.trim();
+    const state = document.getElementById('v_rego_state').value;
+    if (!rego || !state) {
+      alert('Enter a rego and select a state before searching.');
+      return;
+    }
+
+    searchBtn.disabled = true;
+    searchBtn.innerHTML = '<span class="spin"></span> Searching…';
+
+    try {
+      // Reuses the same rego/VIN lookup endpoint as the lead-conversion screen.
+      const res = await fetch(`/api/vehicles/search?rego=${encodeURIComponent(rego)}&state=${encodeURIComponent(state)}`);
+      if (!res.ok) throw new Error('No matching vehicles found for this rego.');
+      const matches = await res.json();
+
+      if (!matches || matches.length === 0) {
+        alert('No matching vehicles found for this rego.');
+        return;
+      }
+      if (matches.length === 1) {
+        fillVehicleFields(matches[0]);
+        showToast('Vehicle details filled from rego search');
+        return;
+      }
+
+      document.getElementById('regoModalTitle').textContent = `${matches.length} matches for ${rego.toUpperCase()} (${state})`;
+      regoModalSub.textContent = 'Multiple vehicles were found for this rego. Select the correct one to fill in the details below.';
+      regoModalTable.style.display = '';
+      renderMatches(matches);
+      openModal('regoModal');
+    } catch (err) {
+      alert(err.message || 'Rego search failed.');
+    } finally {
+      searchBtn.disabled = false;
+      searchBtn.innerHTML = '🔍 Search rego';
+    }
+  });
+})();
+</script>
 </body>
 </html>

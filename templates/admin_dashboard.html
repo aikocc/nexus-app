@@ -80,7 +80,7 @@ td a:hover{color:var(--signal)}
     </nav>
     <div class="sb-footer">
       Signed in as admin<br>
-      <a href="{{ url_for('booking.admin_booking_new_page') }}">Sign out</a>
+      <a href="{{ url_for('.admin_dashboard') }}">Sign out</a>
     </div>
   </aside>
 
@@ -90,7 +90,7 @@ td a:hover{color:var(--signal)}
         <div class="page-title">Bookings</div>
         <div class="page-sub">All service requests</div>
       </div>
-      <a href="" class="btn-primary">+ New booking</a>
+      <a href="{{ url_for('booking.booking_overview') }}" class="btn-primary">+ New booking</a>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -168,9 +168,9 @@ td a:hover{color:var(--signal)}
           <tbody>
             {% for b in leads %}
             <tr>
-              <td><a href="{{ url_for('booking.admin_lead_detail', lead_id=b.id) }}">#{{ b.id }}</a></td>
+              <td><a href="{{ url_for('lead.info', lead_id=b.id) }}">#{{ b.id }}</a></td>
               <td>
-                <a href="{{ url_for('booking.admin_lead_detail', lead_id=b.id) }}">
+                <a href="{{ url_for('lead.info', lead_id=b.id) }}">
                   <strong>{{ b.name }}</strong><br>
                   <span style="font-size:12px;color:var(--gray)">{{ b.phone }}</span>
                 </a>

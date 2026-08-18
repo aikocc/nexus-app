@@ -191,9 +191,6 @@ td a:hover{color:var(--signal)}
     <nav>
       <div class="nav-section">Menu</div>
       <a href="{{ url_for('admin_dashboard.admin_dashboard') }}" class="nav-item active">📋 Bookings</a>
-      <a href="{{ url_for('admin_invoices') }}" class="nav-item">🧾 Invoices</a>
-      <a href="{{ url_for('admin_purchases') }}" class="nav-item">📥 Purchases</a>
-      <a href="{{ url_for('admin_suppliers') }}" class="nav-item">🏭 Suppliers</a>
       <a href="{{ url_for('public.index') }}" class="nav-item" target="_blank">🌐 Public site</a>
     </nav>
     <div class="sb-footer">Signed in as admin<br><a href="{{ url_for('auth.admin_logout') }}">Sign out</a></div>
