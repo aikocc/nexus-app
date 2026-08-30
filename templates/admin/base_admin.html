@@ -1,0 +1,320 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="admin-shell">
+    <aside class="admin-sidebar">
+        <a href="{{ url_for('public.index') }}" class="sidebar-logo">
+            <span class="logo-mark">ND</span>
+            <span class="logo-text">Nexus<span class="logo-accent">Diagnostics</span></span>
+        </a>
+        
+        <nav class="sidebar-nav">
+            <ul class="sidebar-nav-list">
+                <li>
+                    <a href="{{ url_for('admin_dashboard.dashboard') }}" class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+                        <span class="sidebar-icon">📊</span> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_leads.list_leads') }}" class="sidebar-link {% if active_page == 'leads' %}active{% endif %}">
+                        <span class="sidebar-icon">📋</span> Leads
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ 1 }}" class="sidebar-link {% if active_page == 'bookings' %}active{% endif %}">
+                        <span class="sidebar-icon">⛔</span> Bookings
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ 1 }}" class="sidebar-link {% if active_page == 'invoices' %}active{% endif %}">
+                        <span class="sidebar-icon">⛔</span> Invoices
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ 1 }}" class="sidebar-link {% if active_page == 'stock' %}active{% endif %}">
+                        <span class="sidebar-icon">⛔</span> Stock
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ 1 }}" class="sidebar-link {% if active_page == 'purchases' %}active{% endif %}">
+                        <span class="sidebar-icon">⛔</span> Purchases
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ 1 }}" class="sidebar-link {% if active_page == 'suppliers' %}active{% endif %}">
+                        <span class="sidebar-icon">⛔</span> Suppliers
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_invoices.list_invoices') }}" class="sidebar-link {% if active_page == 'invoices' %}active{% endif %}">
+                        <span class="sidebar-icon">🧾</span> Create Invoice
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_customers.list_customers') }}" class="sidebar-link {% if active_page == 'customers' %}active{% endif %}">
+                        <span class="sidebar-icon">👥</span> Customers
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_vehicles.list_vehicles') }}" class="sidebar-link {% if active_page == 'vehicles' %}active{% endif %}">
+                        <span class="sidebar-icon">🚗</span> Vehicles
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('admin_reports.reports_dashboard') }}" class="sidebar-link {% if active_page == 'reports' %}active{% endif %}">
+                        <span class="sidebar-icon">📈</span> Reports
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="sidebar-user">Signed in as admin</div>
+            <a href="{{ url_for('auth.logout') }}" class="sidebar-signout">Sign Out</a>
+        </div>
+    </aside>
+    
+    <main class="admin-main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ 'success' if category == 'success' else 'danger' if category in ['error', 'danger'] else 'warning' }}" uk-alert>
+                        <a href="#" class="uk-alert-close" uk-close></a>
+                        <p>{{ message }}</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block admin_content %}{% endblock %}
+    </main>
+</div>
+
+<style>
+/* =============================================
+   ADMIN SHELL LAYOUT
+   ============================================= */
+.admin-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* =============================================
+   SIDEBAR
+   ============================================= */
+.admin-sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    background: #FFFFFF;
+    border-right: 1px solid var(--line);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding: 20px 0;
+    z-index: 980;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    padding: 0 16px 20px;
+    border-bottom: 1px solid var(--line);
+}
+
+.sidebar-logo .logo-mark {
+    background: var(--signal);
+    color: #FFFFFF;
+}
+
+.sidebar-logo .logo-text {
+    font-size: 13px;
+    color: var(--text);
+}
+
+.sidebar-logo .logo-accent {
+    color: var(--amber);
+}
+
+/* =============================================
+   SIDEBAR NAVIGATION
+   ============================================= */
+.sidebar-nav {
+    flex: 1;
+    padding: 16px 8px;
+    overflow-y: auto;
+}
+
+.sidebar-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: var(--gray);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+
+.sidebar-link:hover {
+    color: var(--text);
+    background-color: var(--surface2);
+    text-decoration: none;
+}
+
+.sidebar-link.active {
+    color: var(--signal);
+    background-color: var(--signal-dim);
+    font-weight: 600;
+}
+
+.sidebar-icon {
+    font-size: 14px;
+    width: 20px;
+    text-align: center;
+}
+
+/* =============================================
+   SIDEBAR FOOTER
+   ============================================= */
+.sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-user {
+    font-size: 11px;
+    color: var(--gray);
+}
+
+.sidebar-signout {
+    color: var(--alert);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.sidebar-signout:hover {
+    text-decoration: underline;
+}
+
+/* =============================================
+   MAIN CONTENT AREA
+   ============================================= */
+.admin-main {
+    flex: 1;
+    margin-left: 200px;
+    padding: 32px;
+    min-height: 100vh;
+    background: var(--paper);
+}
+
+/* =============================================
+   FLASH MESSAGES
+   ============================================= */
+.flash-message {
+    margin-bottom: 20px;
+    border-radius: 6px;
+}
+
+.flash-message p {
+    margin: 0;
+}
+
+.flash-success {
+    background: #D1FAE5 !important;
+    color: #065F46 !important;
+    border: 1px solid #A7F3D0 !important;
+}
+
+.flash-danger {
+    background: #FEF2F2 !important;
+    color: #991B1B !important;
+    border: 1px solid #FECACA !important;
+}
+
+.flash-warning {
+    background: #FEF3C7 !important;
+    color: #92400E !important;
+    border: 1px solid #FDE68A !important;
+}
+
+/* Alert close button styling */
+.uk-alert-close {
+    color: inherit !important;
+    opacity: 0.5;
+}
+
+.uk-alert-close:hover {
+    opacity: 1;
+}
+
+/* =============================================
+   UIKIT NAV OVERRIDES
+   ============================================= */
+.uk-nav-default > li > a {
+    color: var(--gray);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+}
+
+.uk-nav-default > li > a:hover {
+    color: var(--text);
+    background-color: var(--surface2);
+}
+
+.uk-nav-default > li > a.uk-active {
+    color: var(--signal);
+    background-color: var(--signal-dim);
+    font-weight: 600;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 860px) {
+    .admin-sidebar {
+        width: 60px;
+    }
+    
+    .sidebar-logo .logo-text,
+    .sidebar-link span,
+    .sidebar-user {
+        display: none;
+    }
+    
+    .sidebar-link {
+        justify-content: center;
+        padding: 10px;
+    }
+    
+    .sidebar-icon {
+        width: auto;
+    }
+    
+    .admin-main {
+        margin-left: 60px;
+    }
+}
+</style>
+{% endblock %}

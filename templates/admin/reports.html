@@ -1,0 +1,64 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Reports — Nexus Diagnostics{% endblock %}
+{% set active_page = 'reports' %}
+
+{% block admin_content %}
+<h1 class="uk-h3 uk-margin-bottom" style="font-family: var(--font-display); color: var(--text);">Reports</h1>
+
+<div class="uk-grid uk-grid-small uk-margin-bottom" uk-grid>
+    <div class="uk-width-1-2@s uk-width-1-4@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Total Customers</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">{{ total_customers }}</div>
+        </div>
+    </div>
+    <div class="uk-width-1-2@s uk-width-1-4@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Total Vehicles</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">{{ total_vehicles }}</div>
+        </div>
+    </div>
+    <div class="uk-width-1-2@s uk-width-1-4@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Avg Invoice</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">$0</div>
+        </div>
+    </div>
+    <div class="uk-width-1-2@s uk-width-1-4@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Revenue (MTD)</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">$0</div>
+        </div>
+    </div>
+</div>
+
+<div class="uk-card uk-card-default">
+    <div class="uk-card-header">
+        <h2 class="uk-card-title uk-margin-remove">Report Types</h2>
+    </div>
+    <div class="uk-card-body" style="padding: 0;">
+        <a href="#" class="uk-flex uk-flex-middle" style="padding: 16px 24px; text-decoration: none; border-bottom: 1px solid var(--line); transition: background-color 0.15s; gap: 15px;">
+            <span style="font-size: 24px;">📊</span>
+            <div>
+                <div style="font-family: var(--font-display); font-weight: 600; color: var(--text); font-size: 14px;">Customer Report</div>
+                <div style="font-size: 13px; color: var(--gray);">All customers with vehicle counts</div>
+            </div>
+        </a>
+        <a href="#" class="uk-flex uk-flex-middle" style="padding: 16px 24px; text-decoration: none; border-bottom: 1px solid var(--line); transition: background-color 0.15s; gap: 15px;">
+            <span style="font-size: 24px;">🚗</span>
+            <div>
+                <div style="font-family: var(--font-display); font-weight: 600; color: var(--text); font-size: 14px;">Vehicle Report</div>
+                <div style="font-size: 13px; color: var(--gray);">All vehicles with service history</div>
+            </div>
+        </a>
+        <a href="#" class="uk-flex uk-flex-middle" style="padding: 16px 24px; text-decoration: none; transition: background-color 0.15s; gap: 15px;">
+            <span style="font-size: 24px;">💰</span>
+            <div>
+                <div style="font-family: var(--font-display); font-weight: 600; color: var(--text); font-size: 14px;">Revenue Report</div>
+                <div style="font-size: 13px; color: var(--gray);">Monthly revenue breakdown</div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

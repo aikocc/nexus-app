@@ -1,0 +1,84 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}View Leads — Nexus Diagnostics{% endblock %}
+{% set active_page = 'leads' %}
+
+{% block admin_content %}
+<div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
+    <h1 class="uk-h3 uk-margin-remove" style="font-family: var(--font-display); color: var(--text);">Leads</h1>
+</div>
+
+<div class="uk-grid uk-grid-small uk-margin-bottom" uk-grid>
+    <div class="uk-width-1-3@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Total Leads</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">{{ leads | length }}</div>
+        </div>
+    </div>
+    <div class="uk-width-1-3@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Average Time to Conversion</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">0</div>
+        </div>
+    </div>
+    <div class="uk-width-1-3@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Completed Today</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">0</div>
+        </div>
+    </div>
+</div>
+
+<div class="uk-card uk-card-default">
+    <div class="uk-overflow-auto">
+        <table class="uk-table uk-table-divider uk-table-hover uk-margin-remove">
+            <thead>
+                <tr>
+                    <th class="uk-text-uppercase">Full Name</th>
+                    <th class="uk-text-uppercase">Phone</th>
+                    <th class="uk-text-uppercase">Rego</th>
+                    <th class="uk-text-uppercase">Vehicle Make & Model</th>
+                    <th class="uk-text-uppercase">Address</th>
+                    <th class="uk-text-uppercase">Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lead in leads %}
+                <tr class="lead-row" data-href="{{ url_for('admin_leads.view_lead', lead_id=lead.id) }}" style="cursor: pointer;">
+                    <td>{{ lead.full_name }}</td>
+                    <td>{{ lead.phone or '—' }}</td>
+                    <td class="uk-text-mono">{{ lead.rego + " (" + lead.rego_state + ")" if lead.rego else '—' }}</td>
+                    <td>{{ lead.vehicle_description or '—' }}</td>
+                    <td>{{ lead.address or '—' }}</td>
+                    <td>{{ lead.notes or '—' }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="uk-text-center">No leads found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const leadRows = document.querySelectorAll('.lead-row');
+        
+        leadRows.forEach(row => {
+            row.addEventListener('click', function() {
+                window.location.href = this.dataset.href;
+            });
+            
+            row.setAttribute('tabindex', '0');
+            row.setAttribute('role', 'link');
+            
+            row.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    window.location.href = this.dataset.href;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

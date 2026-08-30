@@ -1,0 +1,57 @@
+{% extends "customer/base_customer.html" %}
+
+{% block title %}My Dashboard — Nexus Diagnostics{% endblock %}
+{% set active_page = 'dashboard' %}
+
+{% block customer_content %}
+<h1 class="page-title">My Dashboard</h1>
+
+{% if customer %}
+<div class="stat-row">
+    <div class="stat-tile">
+        <span class="stat-label">VEHICLES</span>
+        <span class="stat-value">{{ customer.vehicle_count }}</span>
+    </div>
+    <div class="stat-tile">
+        <span class="stat-label">UPCOMING</span>
+        <span class="stat-value">0</span>
+    </div>
+    <div class="stat-tile">
+        <span class="stat-label">COMPLETED</span>
+        <span class="stat-value">0</span>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title">My Vehicles</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Registration</th>
+                    <th>Vehicle</th>
+                    <th>Year</th>
+                    <th>Odometer</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicle in vehicles %}
+                <tr>
+                    <td class="mono">{{ vehicle.registration_no }}</td>
+                    <td>{{ vehicle.make }} {{ vehicle.model }}</td>
+                    <td>{{ vehicle.year or '—' }}</td>
+                    <td>{{ vehicle.odometer_reading or '—' }} km</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="text-center">No vehicles on file.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card">
+    <p class="text-muted">No customer data found. Please contact support.</p>
+</div>
+{% endif %}
+{% endblock %}

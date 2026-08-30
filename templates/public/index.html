@@ -1,0 +1,613 @@
+{% extends "public/base_public.html" %}
+
+{% block title %}Nexus Diagnostics — Mobile Vehicle Diagnostics{% endblock %}
+
+{% block public_content %}
+<!-- Hero -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-copy">
+            <p class="hero-eyebrow">MOBILE VEHICLE DIAGNOSTICS</p>
+            <h1 class="hero-title">Your car,<br>diagnosed <span class="text-signal">on the spot.</span></h1>
+            <p class="hero-sub">We come to you. Full OBD-II scanning, fault clearing, and health reports — at your home or workplace.</p>
+            <div class="hero-actions">
+                <a href="#book" class="btn btn-primary">Book a Diagnostic</a>
+                <a href="#services" class="btn btn-outline">View Services</a>
+            </div>
+        </div>
+        
+        <div class="diagnostic-widget">
+            <div class="widget-header">
+                <span class="widget-label">LIVE DIAGNOSTIC FEED</span>
+                <span class="widget-status">
+                    <span class="pulse-dot"></span>
+                    SCANNING
+                </span>
+            </div>
+            <div class="widget-waveform">
+                <svg viewBox="0 0 300 80" preserveAspectRatio="none">
+                    <polyline points="0,40 20,40 25,20 30,60 35,35 40,45 50,30 55,50 60,40 70,40 75,15 80,65 85,40 90,40 95,50 100,30 110,40 115,25 120,55 125,40 130,45 140,35 145,50 150,40 160,40 165,20 170,60 175,40 180,40 185,45 190,30 200,40 205,35 210,50 215,40 220,40 225,25 230,55 235,40 240,45 250,30 255,50 260,40 270,40 275,20 280,60 285,40 300,40"
+                    fill="none" stroke="#00D9A3" stroke-width="1.5">
+                        <animate attributeName="points" 
+                                 values="0,40 20,40 25,20 30,60 35,35 40,45 50,30 55,50 60,40 70,40 75,15 80,65 85,40 90,40 95,50 100,30 110,40 115,25 120,55 125,40 130,45 140,35 145,50 150,40 160,40 165,20 170,60 175,40 180,40 185,45 190,30 200,40 205,35 210,50 215,40 220,40 225,25 230,55 235,40 240,45 250,30 255,50 260,40 270,40 275,20 280,60 285,40 300,40;
+                                 0,40 20,40 25,30 30,50 35,40 40,35 50,45 55,30 60,40 70,45 75,25 80,55 85,40 90,35 95,45 100,40 110,35 115,45 120,30 125,40 130,50 140,30 145,45 150,40 160,45 165,35 170,50 175,40 180,35 185,50 190,40 200,35 205,45 210,30 215,40 220,45 225,35 230,50 235,40 240,35 245,45 250,40 255,30 260,50 265,40 270,45 275,35 280,55 285,40 300,40;
+                                 0,40 20,40 25,20 30,60 35,35 40,45 50,30 55,50 60,40 70,40 75,15 80,65 85,40 90,40 95,50 100,30 110,40 115,25 120,55 125,40 130,45 140,35 145,50 150,40 160,40 165,20 170,60 175,40 180,40 185,45 190,30 200,40 205,35 210,50 215,40 220,40 225,25 230,55 235,40 240,45 250,30 255,50 260,40 270,40 275,20 280,60 285,40 300,40"
+                                 dur="3.2s" repeatCount="indefinite"/>
+                </svg>
+            </div>
+            <div class="widget-ticker">
+                <div class="ticker-track">
+                    <span class="code-chip">P0420</span>
+                    <span class="code-chip">B1342</span>
+                    <span class="code-chip">P0301</span>
+                    <span class="code-chip">C0561</span>
+                    <span class="code-chip">P0171</span>
+                    <span class="code-chip">U0100</span>
+                    <span class="code-chip">P0442</span>
+                    <span class="code-chip">B0020</span>
+                    <span class="code-chip">P0420</span>
+                    <span class="code-chip">B1342</span>
+                    <span class="code-chip">P0301</span>
+                    <span class="code-chip">C0561</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Strip -->
+<section class="trust-strip">
+    <div class="container">
+        <div class="trust-grid">
+            <div class="trust-item">
+                <span class="trust-number">500+</span>
+                <span class="trust-label">Diagnostics Run</span>
+            </div>
+            <div class="trust-item">
+                <span class="trust-number">4.9★</span>
+                <span class="trust-label">Average Rating</span>
+            </div>
+            <div class="trust-item">
+                <span class="trust-number">24h</span>
+                <span class="trust-label">Response Time</span>
+            </div>
+            <div class="trust-item">
+                <span class="trust-number">100%</span>
+                <span class="trust-label">Mobile Service</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services -->
+<section class="section-light" id="services">
+    <div class="container">
+        <h2 class="section-title">Our Services</h2>
+        <p class="section-sub">Professional-grade diagnostics without the workshop visit.</p>
+        <div class="service-grid">
+            <div class="service-card">
+                <div class="service-icon">EC</div>
+                <h3>Engine Code Scan</h3>
+                <p>Full OBD-II fault code reading with plain-English explanations.</p>
+                <span class="service-price">$89</span>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">BR</div>
+                <h3>Brake Inspection</h3>
+                <p>On-site brake system health check with wear measurements.</p>
+                <span class="service-price">$59</span>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">BT</div>
+                <h3>Battery Test</h3>
+                <p>Load test, charging system check, and health report.</p>
+                <span class="service-price">$49</span>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">FH</div>
+                <h3>Full Health Report</h3>
+                <p>Comprehensive 60-point inspection with photo documentation.</p>
+                <span class="service-price">$149</span>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">AC</div>
+                <h3>AC Diagnostics</h3>
+                <p>Temperature output, pressure check, and leak detection.</p>
+                <span class="service-price">$79</span>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">SM</div>
+                <h3>Sensor Mapping</h3>
+                <p>Live data logging for intermittent fault diagnosis.</p>
+                <span class="service-price">$119</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Booking -->
+<section class="section-dark" id="book">
+    <div class="container">
+        <div class="booking-grid">
+            <div class="booking-copy">
+                <h2 class="section-title">Book a Diagnostic</h2>
+                <p>Tell us about your vehicle and we'll come to you — home, work, or roadside.</p>
+            </div>
+            <div class="booking-panel">
+                <form id="bookingForm" class="booking-form" method="POST" action="{{ url_for('public.create_booking') }}">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="field">
+                        {{ form.full_name.label }}
+                        {{ form.full_name(class="form-control", placeholder="John Smith") }}
+                        {% for error in form.full_name.errors %}
+                            <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="field">
+                        {{ form.phone.label }}
+                        {{ form.phone(class="form-control", placeholder="0400 000 000") }}
+                        {% for error in form.phone.errors %}
+                            <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="field">
+                        {{ form.email.label }}
+                        {{ form.email(class="form-control", placeholder="john@example.com") }}
+                        {% for error in form.email.errors %}
+                            <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Registration and State side by side -->
+                    <div class="field-row">
+                        <div class="field field-half">
+                            {{ form.rego.label }}
+                            {{ form.rego(class="form-control mono", placeholder="ABC123") }}
+                            {% for error in form.rego.errors %}
+                                <span class="error-message">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="field field-half">
+                            {{ form.rego_state.label }}
+                            {{ form.rego_state(class="form-select form-select-dark") }}
+                            {% for error in form.rego_state.errors %}
+                                <span class="error-message">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="field">
+                        {{ form.vehicle_description.label }}
+                        {{ form.vehicle_description(class="form-control", placeholder="Toyota Corolla 2020") }}
+                        {% for error in form.vehicle_description.errors %}
+                            <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Address field with custom autocomplete -->
+                    <div class="field">
+                        {{ form.address.label }}
+                        <div class="autocomplete-wrapper">
+                            {{ form.address(
+                                class="form-control",
+                                id="addressInput",
+                                placeholder="Enter your address",
+                                autocomplete="off"
+                            ) }}
+                            <div id="addressSuggestions" class="autocomplete-suggestions hidden"></div>
+                        </div>
+                        <small class="field-hint">We'll come to your home, workplace, or roadside location</small>
+                        {% for error in form.address.errors %}
+                            <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="field">
+                        {{ form.notes.label }}
+                        {{ form.notes(class="form-control", placeholder="Any additional notes or specific issues") }}
+                        {% for error in form.notes.errors %}
+                        <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    {{ form.submit(class="btn btn-primary btn-full") }}
+                </form>
+                <div id="bookingSuccess" class="booking-success hidden">
+                    <div class="success-check">✓</div>
+                    <h3>Booking Requested!</h3>
+                    <p>We'll confirm your appointment within 24 hours.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.getElementById('bookingForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    document.getElementById('bookingForm').classList.add('hidden');
+    document.getElementById('bookingSuccess').classList.remove('hidden');
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const addressInput = document.getElementById('addressInput');
+    const suggestionsContainer = document.getElementById('addressSuggestions');
+    let debounceTimer;
+    let selectedIndex = -1;
+    let suggestions = [];
+
+    // Debounce function to limit API calls
+    function debounce(func, delay) {
+        return function(...args) {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Fetch address suggestions from your API
+    // Update the fetchAddressSuggestions function
+    async function fetchAddressSuggestions(query) {
+        if (query.length < 3) {
+            suggestionsContainer.classList.add('hidden');
+            return;
+        }
+
+        // Show loading state
+        suggestionsContainer.innerHTML = '<div class="autocomplete-loading">Searching addresses...</div>';
+        suggestionsContainer.classList.remove('hidden');
+
+        try {
+            const response = await fetch(`{{ url_for('api_main.address_autocomplete') }}?q=${encodeURIComponent(query)}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                suggestionsContainer.innerHTML = `<div class="autocomplete-error">${data.error}</div>`;
+                return;
+            }
+            
+            suggestions = data.suggestions || data.results || [];
+            
+            if (suggestions.length > 0) {
+                renderSuggestions(suggestions, query); // Pass query for highlighting
+            } else {
+                suggestionsContainer.innerHTML = '<div class="autocomplete-no-results">No addresses found</div>';
+            }
+        } catch (error) {
+            console.error('Error fetching address suggestions:', error);
+            suggestionsContainer.innerHTML = '<div class="autocomplete-error">Error loading suggestions</div>';
+        }
+    }
+
+    // Render suggestions dropdown with highlighting
+    function renderSuggestions(items, query) {
+        suggestionsContainer.innerHTML = '';
+        suggestionsContainer.classList.remove('hidden');
+        
+        items.forEach((item, index) => {
+            const suggestionDiv = document.createElement('div');
+            suggestionDiv.className = 'autocomplete-suggestion';
+            
+            // Get the display text
+            let displayText = '';
+            let placeId = '';
+            
+            if (typeof item === 'string') {
+                displayText = item;
+            } else if (item.description) {
+                displayText = item.description;
+                placeId = item.place_id || '';
+            } else if (item.address) {
+                displayText = item.address;
+            } else if (item.label) {
+                displayText = item.label;
+            }
+            
+            suggestionDiv.textContent = displayText;
+            
+            suggestionDiv.dataset.index = index;
+            if (placeId) {
+                suggestionDiv.dataset.placeId = placeId;
+            }
+            
+            // Event listeners
+            suggestionDiv.addEventListener('click', () => {
+                selectSuggestion(index);
+            });
+            
+            suggestionDiv.addEventListener('mouseenter', () => {
+                setActiveSuggestion(index);
+            });
+            
+            suggestionsContainer.appendChild(suggestionDiv);
+        });
+        
+        selectedIndex = -1;
+    }
+
+    // Select a suggestion
+    function selectSuggestion(index) {
+        if (index >= 0 && index < suggestions.length) {
+            const selected = suggestions[index];
+            addressInput.value = typeof selected === 'string' ? selected : selected.address || selected.label || selected.description || selected;
+            suggestionsContainer.classList.add('hidden');
+            
+            // Trigger change event for any other logic
+            addressInput.dispatchEvent(new Event('change'));
+        }
+    }
+
+    // Set active suggestion (hover/keyboard)
+    function setActiveSuggestion(index) {
+        const items = suggestionsContainer.querySelectorAll('.autocomplete-suggestion');
+        items.forEach((item, i) => {
+            item.classList.toggle('active', i === index);
+        });
+        selectedIndex = index;
+    }
+
+    // Keyboard navigation
+    addressInput.addEventListener('keydown', (e) => {
+        const items = suggestionsContainer.querySelectorAll('.autocomplete-suggestion');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const nextIndex = Math.min(selectedIndex + 1, items.length - 1);
+            setActiveSuggestion(nextIndex);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const prevIndex = Math.max(selectedIndex - 1, 0);
+            setActiveSuggestion(prevIndex);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+                selectSuggestion(selectedIndex);
+            }
+        } else if (e.key === 'Escape') {
+            suggestionsContainer.classList.add('hidden');
+        }
+    });
+
+    // Input handler with debouncing
+    addressInput.addEventListener('input', debounce(function(e) {
+        const query = e.target.value.trim();
+        if (query.length >= 3) {
+            fetchAddressSuggestions(query);
+        } else {
+            suggestionsContainer.classList.add('hidden');
+        }
+    }, 300));
+
+    // Close suggestions on blur (with delay to allow click selection)
+    addressInput.addEventListener('blur', () => {
+        setTimeout(() => {
+            suggestionsContainer.classList.add('hidden');
+        }, 200);
+    });
+
+    // Close suggestions on focus if there are results
+    addressInput.addEventListener('focus', () => {
+        if (addressInput.value.length >= 3 && suggestions.length > 0) {
+            renderSuggestions(suggestions);
+        }
+    });
+
+    // Form submission
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        // Don't prevent default unless you're handling it via AJAX
+        // e.preventDefault(); // Remove or comment this out for normal submission
+        
+        // If you want AJAX submission:
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                document.getElementById('bookingForm').classList.add('hidden');
+                document.getElementById('bookingSuccess').classList.remove('hidden');
+            } else {
+                // Handle errors
+                console.error(data.errors);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    // Clear error state on input
+    addressInput.addEventListener('input', () => {
+        addressInput.style.borderColor = '';
+    });
+});
+</script>
+<style>
+    /* Autocomplete Wrapper */
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Autocomplete Input */
+#addressInput {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+#addressInput:focus {
+    outline: none;
+    border-color: #00D9A3;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(0, 217, 163, 0.1);
+}
+
+#addressInput::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Suggestions Dropdown */
+.autocomplete-suggestions {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 4px;
+}
+
+.autocomplete-suggestions.hidden {
+    display: none;
+}
+
+/* Individual Suggestion */
+.autocomplete-suggestion {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.autocomplete-suggestion:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-suggestion:hover,
+.autocomplete-suggestion.active {
+    background: rgba(0, 217, 163, 0.1);
+}
+
+.autocomplete-suggestion.active {
+    border-left: 3px solid #00D9A3;
+}
+
+/* Suggestion Text */
+.autocomplete-suggestion {
+    color: #e0e0e0;
+    font-size: 14px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* Highlight matching text */
+.autocomplete-suggestion .highlight {
+    color: #00D9A3;
+    font-weight: 600;
+}
+
+/* Scrollbar Styling */
+.autocomplete-suggestions::-webkit-scrollbar {
+    width: 8px;
+}
+
+.autocomplete-suggestions::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.autocomplete-suggestions::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.autocomplete-suggestions::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 217, 163, 0.5);
+}
+
+/* Loading State (optional) */
+.autocomplete-loading {
+    padding: 12px 16px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    text-align: center;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* No Results State */
+.autocomplete-no-results {
+    padding: 12px 16px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Error State */
+.autocomplete-error {
+    padding: 12px 16px;
+    color: #ef4444;
+    font-size: 14px;
+    text-align: center;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Animation for dropdown */
+.autocomplete-suggestions {
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Highlight matching text in suggestions (JavaScript enhancement) */
+.autocomplete-suggestion mark {
+    background: transparent;
+    color: #00D9A3;
+    font-weight: 600;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .autocomplete-suggestion {
+        padding: 14px 16px;
+        font-size: 16px; /* Larger touch targets on mobile */
+    }
+    
+    .autocomplete-suggestions {
+        max-height: 250px;
+    }
+}
+</style>
+{% endblock %}

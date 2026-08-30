@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error — Nexus Diagnostics{% endblock %}
+
+{% block body %}
+<div class="error-page">
+    <div class="error-card">
+        <div class="error-code">500</div>
+        <h1 class="error-title">Internal Server Error</h1>
+        <p class="error-sub">Something went wrong. Please try again later.</p>
+        <a href="{{ url_for('public.index') }}" class="btn btn-primary">Go Home</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="shell">
+    <aside class="sidebar">
+        <a href="{{ url_for('public.index') }}" class="sidebar-logo">
+            <span class="logo-mark">ND</span>
+            <span class="logo-text">Nexus<span class="logo-accent">Diagnostics</span></span>
+        </a>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('customer_dashboard.dashboard') }}" class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+                <span class="sidebar-icon">📊</span> Dashboard
+            </a>
+            <a href="{{ url_for('customer_vehicles.my_vehicles') }}" class="sidebar-link {% if active_page == 'vehicles' %}active{% endif %}">
+                <span class="sidebar-icon">🚗</span> My Vehicles
+            </a>
+            <a href="{{ url_for('customer_appointments.my_appointments') }}" class="sidebar-link {% if active_page == 'appointments' %}active{% endif %}">
+                <span class="sidebar-icon">📅</span> Appointments
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <span class="sidebar-user">Signed in as Customer</span>
+            <a href="{{ url_for('auth.logout') }}" class="sidebar-signout">Sign Out</a>
+        </div>
+    </aside>
+    
+    <main class="main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block customer_content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

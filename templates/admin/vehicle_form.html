@@ -1,0 +1,365 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ title }} — Nexus Diagnostics{% endblock %}
+{% set active_page = 'vehicles' %}
+
+{% block admin_content %}
+<div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
+    <h1 class="uk-h3 uk-margin-remove" style="font-family: var(--font-display); color: var(--text);">{{ title }}</h1>
+    <a href="{{ url_for('admin_vehicles.list_vehicles') }}" class="uk-button uk-button-default">← Back</a>
+</div>
+
+<!-- Rego Lookup -->
+<div class="uk-card uk-card-default uk-margin-bottom">
+    <div class="uk-card-header">
+        <h2 class="uk-card-title uk-margin-remove">Rego Lookup</h2>
+    </div>
+    <div class="uk-card-body">
+        <div class="uk-flex uk-flex-bottom uk-grid-small" uk-grid>
+            <div class="uk-width-large">
+                <label class="uk-form-label">Registration Number</label>
+                <input type="text" id="regoLookup" class="uk-input uk-text-mono" placeholder="Enter rego (e.g., YOY40Y)">
+            </div>
+            <div class="uk-width-small">
+                <label class="uk-form-label">State</label>
+                <select id="regoState" class="uk-select">
+                    <option value="ACT">ACT</option>
+                    <option value="NSW">NSW</option>
+                    <option value="NT">NT</option>
+                    <option value="QLD">QLD</option>
+                    <option value="SA">SA</option>
+                    <option value="TAS">TAS</option>
+                    <option value="VIC">VIC</option>
+                    <option value="WA">WA</option>
+                </select>
+            </div>
+            <div>
+                <button type="button" id="lookupBtn" class="uk-button uk-button-primary">Lookup Vehicle</button>
+            </div>
+            <div>
+                <span id="lookupSpinner" uk-spinner style="display: none;"></span>
+            </div>
+        </div>
+        <div id="lookupError" class="uk-alert-danger" style="display: none; margin-top: 15px;"></div>
+    </div>
+</div>
+
+<!-- Variant Modal -->
+<div id="variantModal" uk-modal>
+    <div class="uk-modal-dialog">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+            <h3 class="uk-modal-title">Select Vehicle Variant</h3>
+        </div>
+        <div class="uk-modal-body">
+            <p style="color: var(--gray);">Multiple variants found for this registration. Please select the correct one:</p>
+            <div id="variantList" class="uk-flex uk-flex-column" style="gap: 10px; margin-top: 15px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Vehicle Form -->
+<div class="uk-card uk-card-default">
+    <div class="uk-card-header">
+        <h2 class="uk-card-title uk-margin-remove">Vehicle Details</h2>
+    </div>
+    <div class="uk-card-body">
+        <form method="POST" id="vehicleForm">
+            {{ form.hidden_tag() }}
+            {{ form.customer_id() }}
+            
+            <div class="uk-grid uk-grid-small" uk-grid>
+                <div class="uk-width-1-2@s" style="position: relative;">
+                    <label class="uk-form-label">{{ form.customer_search.label }}</label>
+                    {{ form.customer_search(class="uk-input", placeholder="Type to search customers...", autocomplete="off", id="customerSearch") }}
+                    <div id="customerResults" class="uk-card uk-card-default" style="display: none; position: absolute; z-index: 1000; width: 100%; margin-top: 5px; max-height: 200px; overflow-y: auto;"></div>
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Registration</label>
+                    <input type="text" name="registration_no" id="registration_no" class="uk-input uk-text-mono" value="{{ form.registration_no.data or '' }}">
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">VIN</label>
+                    <input type="text" name="vin" id="vin" class="uk-input uk-text-mono" value="{{ form.vin.data or '' }}">
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Make</label>
+                    <input type="text" name="make" id="make" class="uk-input" value="{{ form.make.data or '' }}">
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Model</label>
+                    <input type="text" name="model" id="model" class="uk-input" value="{{ form.model.data or '' }}">
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Sub Model</label>
+                    <input type="text" name="sub_model" id="sub_model" class="uk-input" value="{{ form.sub_model.data or '' }}">
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Year</label>
+                    <input type="number" name="year" id="year" class="uk-input" value="{{ form.year.data or '' }}">
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Body Type</label>
+                    <input type="text" name="body_type" id="body_type" class="uk-input" value="{{ form.body_type.data or '' }}">
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Drive Type</label>
+                    <select name="drive_type" id="drive_type" class="uk-select">
+                        <option value="">Select</option>
+                        <option value="FWD">FWD</option>
+                        <option value="RWD">RWD</option>
+                        <option value="AWD">AWD</option>
+                        <option value="4WD">4WD</option>
+                        <option value="2WD">2WD</option>
+                    </select>
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Fuel Type</label>
+                    <select name="fuel_type" id="fuel_type" class="uk-select">
+                        <option value="">Select</option>
+                        <option value="PETROL">Petrol</option>
+                        <option value="DIESEL">Diesel</option>
+                        <option value="BEV">Electric (BEV)</option>
+                        <option value="PHEV">Plug-in Hybrid</option>
+                        <option value="HYBRID">Hybrid</option>
+                        <option value="LPG">LPG</option>
+                    </select>
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Transmission</label>
+                    <select name="transmission" id="transmission" class="uk-select">
+                        <option value="">Select</option>
+                        <option value="Auto">Auto</option>
+                        <option value="Manual">Manual</option>
+                        <option value="Auto/Manual">Auto/Manual</option>
+                        <option value="CVT">CVT</option>
+                    </select>
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Engine Spec</label>
+                    <input type="text" name="engine_spec" id="engine_spec" class="uk-input" value="{{ form.engine_spec.data or '' }}">
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Color</label>
+                    <input type="text" name="color" id="color" class="uk-input" value="{{ form.color.data or '' }}">
+                </div>
+                
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">Odometer (km)</label>
+                    <input type="number" name="odometer_reading" id="odometer_reading" class="uk-input" value="{{ form.odometer_reading.data or '' }}">
+                </div>
+                
+                <div class="uk-width-1-1">
+                    <div class="uk-flex" style="gap: 10px; margin-top: 8px;">
+                        <button type="submit" class="uk-button uk-button-primary">Save Vehicle</button>
+                        <a href="{{ url_for('admin_vehicles.list_vehicles') }}" class="uk-button uk-button-default">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+.autocomplete-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--line);
+    transition: background-color 0.15s;
+}
+
+.autocomplete-item:hover {
+    background-color: var(--surface);
+}
+
+.customer-name {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 13px;
+}
+
+.customer-detail {
+    font-size: 12px;
+    color: var(--gray);
+}
+
+.variant-option {
+    background: var(--surface2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.variant-option:hover {
+    border-color: var(--signal);
+    background: var(--signal-dim);
+}
+
+.variant-title {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 5px;
+    font-family: var(--font-display);
+}
+
+.variant-details {
+    font-size: 12px;
+    color: var(--gray);
+}
+</style>
+
+<script>
+// Customer autocomplete
+(function() {
+    const searchInput = document.getElementById('customerSearch');
+    const resultsDiv = document.getElementById('customerResults');
+    const customerIdInput = document.getElementById('customer_id');
+    let debounceTimer = null;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            resultsDiv.style.display = 'none';
+            return;
+        }
+        
+        debounceTimer = setTimeout(() => {
+            fetch(`/api/customers/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(customers => {
+                    if (customers.length === 0) {
+                        resultsDiv.innerHTML = '<div class="autocomplete-item" style="color: var(--gray);">No customers found</div>';
+                    } else {
+                        resultsDiv.innerHTML = customers.map(c => `
+                            <div class="autocomplete-item" data-id="${c.id}" data-name="${c.name}">
+                                <div class="customer-name">${c.name}</div>
+                                <div class="customer-detail">${c.email || c.phone || ''}</div>
+                            </div>
+                        `).join('');
+                    }
+                    resultsDiv.style.display = 'block';
+                    
+                    resultsDiv.querySelectorAll('.autocomplete-item').forEach(item => {
+                        item.addEventListener('click', function() {
+                            searchInput.value = this.dataset.name;
+                            customerIdInput.value = this.dataset.id;
+                            resultsDiv.style.display = 'none';
+                        });
+                    });
+                });
+        }, 300);
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+            resultsDiv.style.display = 'none';
+        }
+    });
+})();
+
+// Rego lookup
+document.getElementById('lookupBtn').addEventListener('click', function() {
+    const rego = document.getElementById('regoLookup').value.trim();
+    const state = document.getElementById('regoState').value;
+    
+    if (!rego) {
+        const errorDiv = document.getElementById('lookupError');
+        errorDiv.textContent = 'Please enter a registration number.';
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    const spinner = document.getElementById('lookupSpinner');
+    const errorDiv = document.getElementById('lookupError');
+    
+    spinner.style.display = 'inline-block';
+    errorDiv.style.display = 'none';
+    
+    const csrfToken = document.querySelector('input[name="csrf_token"]')?.value || '';
+    
+    fetch('/api/lookup-rego', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({ rego: rego, state: state })
+    })
+    .then(response => response.json())
+    .then(data => {
+        spinner.style.display = 'none';
+        
+        if (data.error) {
+            errorDiv.textContent = data.error;
+            errorDiv.style.display = 'block';
+            return;
+        }
+        
+        if (data.variant_count === 1) {
+            populateForm(data.variants[0]);
+        } else {
+            showVariantModal(data.variants);
+        }
+    })
+    .catch(err => {
+        spinner.style.display = 'none';
+        errorDiv.textContent = 'Lookup failed. Please try again.';
+        errorDiv.style.display = 'block';
+    });
+});
+
+function populateForm(vehicle) {
+    document.getElementById('registration_no').value = vehicle.registration_no || '';
+    document.getElementById('vin').value = vehicle.vin || '';
+    document.getElementById('make').value = vehicle.make || '';
+    document.getElementById('model').value = vehicle.model || '';
+    document.getElementById('sub_model').value = vehicle.sub_model || '';
+    document.getElementById('year').value = vehicle.year || '';
+    document.getElementById('body_type').value = vehicle.body_type || '';
+    document.getElementById('drive_type').value = vehicle.drive_type || '';
+    document.getElementById('fuel_type').value = vehicle.fuel_type || '';
+    document.getElementById('transmission').value = vehicle.transmission || '';
+    document.getElementById('engine_spec').value = vehicle.engine_spec || '';
+}
+
+function showVariantModal(variants) {
+    const list = document.getElementById('variantList');
+    
+    list.innerHTML = variants.map((v, i) => `
+        <div class="variant-option" data-index="${i}">
+            <div class="variant-title">${v.description || v.model}</div>
+            <div class="variant-details">
+                ${v.year || ''} · ${v.engine_spec || ''} · ${v.transmission || ''} · ${v.drive_type || ''}
+                ${v.body_type ? '· ' + v.body_type : ''}
+            </div>
+        </div>
+    `).join('');
+    
+    list.querySelectorAll('.variant-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index);
+            populateForm(variants[index]);
+            UIkit.modal(document.getElementById('variantModal')).hide();
+        });
+    });
+    
+    UIkit.modal(document.getElementById('variantModal')).show();
+}
+</script>
+{% endblock %}

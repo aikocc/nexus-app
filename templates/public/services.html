@@ -1,0 +1,23 @@
+{% extends "public/base_public.html" %}
+
+{% block title %}Services — Nexus Diagnostics{% endblock %}
+
+{% block public_content %}
+<section class="section-light">
+    <div class="container">
+        <h1 class="section-title">Our Services</h1>
+        <p class="section-sub">Professional diagnostics, delivered to your location.</p>
+        <div class="service-grid">
+            {% for service in services %}
+            <div class="service-card">
+                <div class="service-icon">{{ service.name[:2]|upper }}</div>
+                <h3>{{ service.name }}</h3>
+                <p>Professional on-site service.</p>
+                <span class="service-price">{{ service.price }}</span>
+                <span class="service-duration">{{ service.duration }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

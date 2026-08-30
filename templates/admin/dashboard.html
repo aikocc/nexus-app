@@ -1,0 +1,66 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Admin Dashboard — Nexus Diagnostics{% endblock %}
+{% set active_page = 'dashboard' %}
+
+{% block admin_content %}
+<h1 class="uk-h3 uk-margin-bottom" style="font-family: var(--font-display); color: var(--text);">Dashboard</h1>
+
+<div class="uk-grid uk-grid-small uk-margin-bottom" uk-grid>
+    <div class="uk-width-1-2@s uk-width-1-4@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Total Customers</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">{{ total_customers }}</div>
+        </div>
+    </div>
+    <div class="uk-width-1-2@s uk-width-1-4@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Total Vehicles</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">{{ total_vehicles }}</div>
+        </div>
+    </div>
+    <div class="uk-width-1-2@s uk-width-1-4@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Open Bookings</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">0</div>
+        </div>
+    </div>
+    <div class="uk-width-1-2@s uk-width-1-4@m">
+        <div class="uk-card uk-card-default uk-card-body" style="padding: 18px;">
+            <div class="uk-text-uppercase uk-margin-small-bottom" style="font-size: 11px; letter-spacing: 0.08em; color: var(--gray);">Completed Today</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--text);">0</div>
+        </div>
+    </div>
+</div>
+
+<div class="uk-card uk-card-default">
+    <div class="uk-card-header uk-flex uk-flex-between uk-flex-middle">
+        <h2 class="uk-card-title uk-margin-remove">Recent Customers</h2>
+        <a href="{{ url_for('admin_customers.list_customers') }}" class="uk-button uk-button-small uk-button-default">View All</a>
+    </div>
+    <div class="uk-overflow-auto">
+        <table class="uk-table uk-table-divider uk-table-hover uk-margin-remove">
+            <thead>
+                <tr>
+                    <th class="uk-text-uppercase">Name</th>
+                    <th class="uk-text-uppercase">Email</th>
+                    <th class="uk-text-uppercase">Phone</th>
+                    <th class="uk-text-uppercase">Vehicles</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in recent_customers %}
+                <tr>
+                    <td>{{ customer.full_name }}</td>
+                    <td>{{ customer.email or '—' }}</td>
+                    <td>{{ customer.phone or '—' }}</td>
+                    <td><span class="uk-badge">{{ customer.vehicle_count }}</span></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="uk-text-center">No customers yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

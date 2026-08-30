@@ -1,0 +1,44 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Manage Vehicles — Nexus Diagnostics{% endblock %}
+{% set active_page = 'vehicles' %}
+
+{% block admin_content %}
+<div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
+    <h1 class="uk-h3 uk-margin-remove" style="font-family: var(--font-display); color: var(--text);">Vehicles</h1>
+    <a href="{{ url_for('admin_vehicles.create_vehicle') }}" class="uk-button uk-button-primary">+ New Vehicle</a>
+</div>
+
+<div class="uk-card uk-card-default">
+    <div class="uk-overflow-auto">
+        <table class="uk-table uk-table-divider uk-table-hover uk-margin-remove">
+            <thead>
+                <tr>
+                    <th class="uk-text-uppercase">Rego</th>
+                    <th class="uk-text-uppercase">Make</th>
+                    <th class="uk-text-uppercase">Model</th>
+                    <th class="uk-text-uppercase">Year</th>
+                    <th class="uk-text-uppercase">Fuel</th>
+                    <th class="uk-text-uppercase">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicle in vehicles %}
+                <tr>
+                    <td class="uk-text-mono">{{ vehicle.registration_no }}</td>
+                    <td>{{ vehicle.make }}</td>
+                    <td>{{ vehicle.model }}</td>
+                    <td>{{ vehicle.year or '—' }}</td>
+                    <td>{{ vehicle.fuel_type or '—' }}</td>
+                    <td>
+                        <a href="{{ url_for('admin_vehicles.edit_vehicle', vehicle_id=vehicle.id) }}" class="uk-button uk-button-small uk-button-default">Edit</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="uk-text-center">No vehicles found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

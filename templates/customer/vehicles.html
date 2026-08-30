@@ -1,0 +1,40 @@
+{% extends "customer/base_customer.html" %}
+
+{% block title %}My Vehicles — Nexus Diagnostics{% endblock %}
+{% set active_page = 'vehicles' %}
+
+{% block customer_content %}
+<h1 class="page-title">My Vehicles</h1>
+
+<div class="card">
+    <div class="card-title">Registered Vehicles</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Rego</th>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Year</th>
+                    <th>Fuel</th>
+                    <th>Odometer</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicle in vehicles %}
+                <tr>
+                    <td class="mono">{{ vehicle.registration_no }}</td>
+                    <td>{{ vehicle.make }}</td>
+                    <td>{{ vehicle.model }}</td>
+                    <td>{{ vehicle.year or '—' }}</td>
+                    <td>{{ vehicle.fuel_type or '—' }}</td>
+                    <td>{{ vehicle.odometer_reading or '—' }} km</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center">No vehicles registered.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

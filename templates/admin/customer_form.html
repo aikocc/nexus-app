@@ -1,0 +1,54 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{{ title }} — Nexus Diagnostics{% endblock %}
+{% set active_page = 'customers' %}
+
+{% block admin_content %}
+<div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
+    <h1 class="uk-h3 uk-margin-remove" style="font-family: var(--font-display); color: var(--text);">{{ title }}</h1>
+    <a href="{{ url_for('admin_customers.list_customers') }}" class="uk-button uk-button-default">← Back</a>
+</div>
+
+<div class="uk-card uk-card-default">
+    <div class="uk-card-header">
+        <h2 class="uk-card-title uk-margin-remove">Customer Details</h2>
+    </div>
+    <div class="uk-card-body">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="uk-grid uk-grid-small" uk-grid>
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">{{ form.first_name.label }}</label>
+                    {{ form.first_name(class="uk-input", placeholder="John") }}
+                </div>
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">{{ form.last_name.label }}</label>
+                    {{ form.last_name(class="uk-input", placeholder="Smith") }}
+                </div>
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">{{ form.company_name.label }}</label>
+                    {{ form.company_name(class="uk-input", placeholder="Company (optional)") }}
+                </div>
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">{{ form.email.label }}</label>
+                    {{ form.email(class="uk-input", placeholder="email@example.com") }}
+                </div>
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">{{ form.phone.label }}</label>
+                    {{ form.phone(class="uk-input", placeholder="555-1234") }}
+                </div>
+                <div class="uk-width-1-2@s">
+                    <label class="uk-form-label">{{ form.city.label }}</label>
+                    {{ form.city(class="uk-input", placeholder="Springfield") }}
+                </div>
+                <div class="uk-width-1-1">
+                    <div class="uk-flex" style="gap: 10px; margin-top: 8px;">
+                        {{ form.submit(class="uk-button uk-button-primary") }}
+                        <a href="{{ url_for('admin_customers.list_customers') }}" class="uk-button uk-button-default">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

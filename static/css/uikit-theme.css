@@ -1,0 +1,389 @@
+/* =============================================
+   NEXUS DIAGNOSTICS — UIKIT THEME OVERRIDES
+   LIGHT MODE
+   ============================================= */
+
+:root {
+    /* Global Colors */
+    --uk-global-color: #1A1D26;
+    --uk-global-muted-color: #6B7280;
+    --uk-global-primary-color: #00B894;
+    --uk-global-background: #F8F9FB;
+    --uk-global-muted-background: #FFFFFF;
+    --uk-global-border: #E2E5EA;
+    --uk-global-danger-color: #E74C3C;
+    --uk-global-warning-color: #F39C12;
+    --uk-global-success-color: #00B894;
+    
+    /* Typography */
+    --uk-global-font-family: 'Inter', sans-serif;
+    --uk-global-heading-font-family: 'Space Grotesk', sans-serif;
+    --uk-global-font-size: 14px;
+    --uk-global-line-height: 1.6;
+    
+    /* Forms */
+    --uk-form-background: #FFFFFF;
+    --uk-form-color: #1A1D26;
+    --uk-form-border: #D1D5DB;
+    --uk-form-focus-background: #FFFFFF;
+    --uk-form-focus-color: #1A1D26;
+    --uk-form-focus-border: #00B894;
+    --uk-form-placeholder-color: #9CA3AF;
+    
+    /* Buttons */
+    --uk-button-default-background: #FFFFFF;
+    --uk-button-default-color: #4B5563;
+    --uk-button-default-border: #D1D5DB;
+    --uk-button-default-hover-background: #F3F4F6;
+    --uk-button-default-hover-color: #1A1D26;
+    --uk-button-default-hover-border: #9CA3AF;
+    
+    --uk-button-primary-background: #00B894;
+    --uk-button-primary-color: #FFFFFF;
+    --uk-button-primary-hover-background: #00A381;
+    --uk-button-primary-hover-color: #FFFFFF;
+    
+    --uk-button-danger-background: #FEF2F2;
+    --uk-button-danger-color: #DC2626;
+    --uk-button-danger-border: #FECACA;
+    --uk-button-danger-hover-background: #FEE2E2;
+    --uk-button-danger-hover-color: #B91C1C;
+    
+    /* Cards */
+    --uk-card-default-background: #FFFFFF;
+    --uk-card-default-color: #1A1D26;
+    --uk-card-default-border: #E2E5EA;
+    --uk-card-default-hover-background: #F9FAFB;
+    
+    /* Tables */
+    --uk-table-header-background: #F3F4F6;
+    --uk-table-header-color: #4B5563;
+    --uk-table-row-hover-background: #F9FAFB;
+    --uk-table-divider-border: #E5E7EB;
+    
+    /* Badges */
+    --uk-badge-background: #D1FAE5;
+    --uk-badge-color: #047857;
+    
+    /* Alerts */
+    --uk-alert-success-background: #D1FAE5;
+    --uk-alert-success-color: #065F46;
+    --uk-alert-danger-background: #FEF2F2;
+    --uk-alert-danger-color: #991B1B;
+    --uk-alert-warning-background: #FEF3C7;
+    --uk-alert-warning-color: #92400E;
+    
+    /* Modal */
+    --uk-modal-background: #FFFFFF;
+    --uk-modal-color: #1A1D26;
+    --uk-modal-header-background: #F9FAFB;
+    --uk-modal-footer-background: #F9FAFB;
+    
+    /* Nav */
+    --uk-nav-default-color: #6B7280;
+    --uk-nav-default-hover-color: #1A1D26;
+    --uk-nav-default-hover-background: #F3F4F6;
+    --uk-nav-default-active-color: #00B894;
+    --uk-nav-default-active-background: #D1FAE5;
+    
+    /* Spinner */
+    --uk-spinner-color: #00B894;
+    
+    /* Dropdown */
+    --uk-dropdown-background: #FFFFFF;
+    --uk-dropdown-color: #1A1D26;
+    --uk-dropdown-border: #E2E5EA;
+    
+    /* Offcanvas */
+    --uk-offcanvas-bar-background: #FFFFFF;
+    --uk-offcanvas-bar-color: #1A1D26;
+    
+    /* Tooltip */
+    --uk-tooltip-background: #1A1D26;
+    --uk-tooltip-color: #FFFFFF;
+    
+    /* Accordion */
+    --uk-accordion-title-color: #4B5563;
+    --uk-accordion-title-hover-color: #1A1D26;
+    
+    /* Notification */
+    --uk-notification-message-background: #FFFFFF;
+    --uk-notification-message-color: #1A1D26;
+    
+    /* Label */
+    --uk-label-background: #D1FAE5;
+    --uk-label-color: #047857;
+}
+
+/* Additional custom styling for better integration */
+.uk-input,
+.uk-select,
+.uk-textarea {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    transition: border-color 0.15s;
+}
+
+.uk-input:focus,
+.uk-select:focus,
+.uk-textarea:focus {
+    border-color: #00B894 !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+}
+
+.uk-button {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: all 0.15s;
+}
+
+.uk-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.uk-card {
+    transition: all 0.15s;
+}
+
+.uk-table th {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* Light scrollbar for webkit browsers */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #F3F4F6;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}
+
+/* =============================================
+   TABLE OVERRIDES - Force light theme
+   ============================================= */
+
+.uk-table {
+    background: #FFFFFF !important;
+    color: #1A1D26 !important;
+}
+
+.uk-table th {
+    background: #F3F4F6 !important;
+    color: #4B5563 !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #E5E7EB !important;
+}
+
+.uk-table td {
+    background: transparent !important;
+    color: #1A1D26 !important;
+    font-size: 13px !important;
+    padding: 13px 16px !important;
+    border-bottom: 1px solid #F3F4F6 !important;
+}
+
+.uk-table-hover tbody tr:hover td,
+.uk-table-hover tbody tr:hover th {
+    background: #F9FAFB !important;
+}
+
+.uk-table-divider > tr:not(:first-child),
+.uk-table-divider > :not(:first-child) > tr,
+.uk-table-divider > :first-child > tr:not(:first-child) {
+    border-top: 1px solid #E5E7EB !important;
+}
+
+/* Ensure tbody rows don't inherit white background */
+.uk-table tbody tr {
+    background: transparent !important;
+}
+
+/* Override any default UIkit table styling */
+.uk-table-striped tbody tr:nth-of-type(odd) {
+    background: #F9FAFB !important;
+    border-bottom: 1px solid #E5E7EB !important;
+}
+
+.uk-table-striped tbody tr:nth-of-type(even) {
+    background: #FFFFFF !important;
+    border-bottom: 1px solid #E5E7EB !important;
+}
+
+/* =============================================
+   CARD OVERRIDES - Force light theme
+   ============================================= */
+
+.uk-card-default {
+    background: #FFFFFF !important;
+    color: #1A1D26 !important;
+    border: 1px solid #E2E5EA !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.uk-card-header {
+    border-bottom: 1px solid #E5E7EB !important;
+    padding: 20px 24px !important;
+    background: transparent !important;
+}
+
+.uk-card-body {
+    padding: 24px !important;
+    background: transparent !important;
+}
+
+.uk-card-title {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: 14px;
+    font-weight: 500 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #4B5563 !important;
+}
+
+/* =============================================
+   BADGE OVERRIDES - Force light theme
+   ============================================= */
+
+.uk-badge {
+    background: #D1FAE5 !important;
+    color: #047857 !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+    border-radius: 20px !important;
+    padding: 4px 12px !important;
+    font-size: 11px !important;
+    font-weight: 500;
+}
+
+.uk-label {
+    background: #D1FAE5 !important;
+    color: #047857 !important;
+    font-family: 'Space Grotesk', sans-serif !important;
+}
+
+/* =============================================
+   FORM OVERRIDES - Force light theme
+   ============================================= */
+
+.uk-input,
+.uk-select,
+.uk-textarea {
+    background: #FFFFFF !important;
+    border: 1px solid #D1D5DB !important;
+    color: #1A1D26 !important;
+    border-radius: 6px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px !important;
+    padding: 10px 14px !important;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.uk-input:focus,
+.uk-select:focus,
+.uk-textarea:focus {
+    border-color: #00B894 !important;
+    outline: none !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1) !important;
+}
+
+.uk-input::placeholder,
+.uk-textarea::placeholder {
+    color: #9CA3AF !important;
+}
+
+.uk-form-label {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: 11px !important;
+    color: #4B5563 !important;
+    letter-spacing: 0.03em !important;
+    text-transform: uppercase !important;
+    margin-bottom: 6px !important;
+}
+
+/* =============================================
+   BUTTON OVERRIDES - Force light theme
+   ============================================= */
+
+.uk-button {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.02em !important;
+    border-radius: 6px !important;
+    transition: all 0.15s !important;
+}
+
+.uk-button-default {
+    background: #FFFFFF !important;
+    border: 1px solid #D1D5DB !important;
+    color: #4B5563 !important;
+}
+
+.uk-button-default:hover {
+    background: #F3F4F6 !important;
+    border-color: #9CA3AF !important;
+    color: #1A1D26 !important;
+}
+
+.uk-button-primary {
+    background: #00B894 !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    font-weight: 600 !important;
+}
+
+.uk-button-primary:hover {
+    background: #00A381 !important;
+    color: #FFFFFF !important;
+    opacity: 0.9 !important;
+}
+
+.uk-button-danger {
+    background: #FEF2F2 !important;
+    color: #DC2626 !important;
+    border: 1px solid #FECACA !important;
+}
+
+.uk-button-danger:hover {
+    background: #FEE2E2 !important;
+    color: #B91C1C !important;
+}
+
+.uk-button-small {
+    font-size: 12px !important;
+    padding: 5px 12px !important;
+}
+
+.uk-icon-button {
+    background: #FFFFFF !important;
+    border: 1px solid #D1D5DB !important;
+    color: #6B7280 !important;
+    border-radius: 6px !important;
+    transition: all 0.15s !important;
+}
+
+.uk-icon-button:hover {
+    background: #F3F4F6 !important;
+    border-color: #9CA3AF !important;
+    color: #1A1D26 !important;
+}

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tax Invoice — Nexus Diagnostics</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B0E14;--gray:#6B7280;--gray-lt:#9AA3B2;--line:#DADFE6;--line-lt:#EEF0F3;
+  --signal:#00A67E;--alert:#D33B2C;--paper:#FFFFFF;--paper-dim:#F5F6F8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1A1D24;font-family:'Inter',sans-serif;color:var(--ink);min-height:100vh;padding-bottom:60px}
+
+/* ---------- Toolbar (screen only) ---------- */
+.toolbar{
+  position:sticky;top:0;z-index:50;background:#0C1320;border-bottom:1px solid #1C2230;
+  padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.tb-logo{font-weight:700;font-size:13px;letter-spacing:0.06em;display:flex;align-items:center;gap:8px;white-space:nowrap;color:#F7F8FA}
+.tb-dot{width:7px;height:7px;border-radius:50%;background:var(--signal);box-shadow:0 0 7px var(--signal)}
+.tb-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font-size:13px;font-weight:500;padding:9px 16px;border-radius:6px;border:1px solid #2A3142;color:#9AA3B2;cursor:pointer;background:transparent;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:#4A5568;color:#F7F8FA}
+.btn-signal{background:var(--signal);color:#06140F;border-color:var(--signal);font-weight:600}
+.btn-signal:hover{opacity:0.88;color:#06140F}
+input[type=file]{display:none}
+
+/* ---------- Page shell ---------- */
+.wrap{max-width:900px;margin:32px auto;padding:0 20px}
+.page{background:var(--paper);color:var(--ink);border-radius:4px;padding:44px 48px 36px;box-shadow:0 20px 50px rgba(0,0,0,0.35)}
+
+/* ---------- Shared field look ---------- */
+.ed{
+  background:transparent;border:1px solid transparent;color:var(--ink);
+  font-family:'Inter',sans-serif;font-size:13.5px;padding:3px 4px;border-radius:3px;
+  transition:border-color,background 0.15s;width:100%;
+}
+.ed:hover{background:var(--paper-dim)}
+.ed:focus{outline:none;border-color:var(--signal);background:var(--paper-dim)}
+.ed::placeholder{color:#B9C0CC}
+textarea.ed{resize:vertical;line-height:1.55}
+
+/* Hide number input arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.lbl{display:block;font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-lt);margin-bottom:5px;font-weight:600}
+
+/* ---------- Header ---------- */
+.inv-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.inv-head > div:first-child{flex:1;min-width:0}
+.biz-name{font-size:19px;font-weight:700;padding:3px 4px;width:100%;min-width:300px}
+.biz-phone-row{display:flex;align-items:center;gap:6px;margin-top:2px}
+.biz-phone-row span.ico{color:var(--signal);font-size:13px;flex-shrink:0}
+.biz-phone-row input{color:var(--signal);font-weight:500;max-width:140px}
+.biz-right{text-align:right;color:var(--gray);font-size:13px;flex-shrink:0}
+.biz-right input{text-align:right;color:var(--gray);font-size:13px}
+
+/* ---------- Customer / invoice number row ---------- */
+.cust-row{display:flex;justify-content:space-between;gap:24px;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.cust-code{font-size:12px;color:var(--gray);margin-bottom:4px}
+.cust-code input{font-size:12px;color:var(--gray);display:inline-block;width:auto;min-width:40px}
+.cust-name input{font-weight:700;font-size:14px}
+.cust-fields{display:flex;flex-direction:column;gap:2px;max-width:280px}
+.inv-right{text-align:right;min-width:160px}
+.inv-right .origlbl{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.05em}
+.inv-right .origlbl select{text-align:right;font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:0.05em;border:none;background:transparent;appearance:none;cursor:pointer;width:auto}
+.inv-right .titlelbl{font-weight:700;font-size:15px;margin-top:2px}
+.inv-num-row{display:flex;justify-content:flex-end;align-items:center;gap:4px;margin-top:2px}
+.inv-num-row input{font-weight:700;font-size:15px;text-align:right;width:110px}
+
+/* ---------- Detail grid ---------- */
+.detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 20px;padding-bottom:16px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.detail-grid + .detail-grid{border-top:1px solid var(--line);padding-top:16px;margin-top:0}
+.detail-grid:last-of-type{margin-bottom:22px}
+.dfield input{font-size:13.5px}
+
+/* ---------- Items table ---------- */
+.items-table{width:100%;border-collapse:collapse;margin-bottom:4px}
+.items-table thead th{font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--gray-lt);font-weight:600;padding:0 6px 8px;text-align:left;border-bottom:2px solid var(--ink)}
+.items-table thead th.num{text-align:right}
+.items-table .col-prod{width:14%}.items-table .col-desc{width:38%}.items-table .col-qty{width:10%}.items-table .col-price{width:14%}.items-table .col-amt{width:16%}.items-table .col-del{width:4%}
+.items-table td{padding:5px 6px;vertical-align:top}
+.items-table td.num{text-align:right}
+.items-table input.ed{font-size:13.5px}
+.woref-row td{padding:10px 6px 6px}
+.woref-row input{font-size:12.5px;color:var(--gray);text-decoration:underline;text-decoration-color:var(--line);width:auto;min-width:220px}
+.line-row td{border-top:1px solid var(--line-lt)}
+.amt-val{display:block;font-size:13.5px;padding:5px 4px;text-align:right}
+.notes-row td{padding:0 6px 10px 6px}
+.notes-row textarea{width:100%;font-size:12.5px;color:var(--gray);min-height:0;line-height:1.6;border:1px dashed transparent}
+.notes-row textarea:hover,.notes-row textarea:focus{border-color:var(--line)}
+.del-btn{background:none;border:none;color:#C7CCD6;cursor:pointer;font-size:14px;padding:5px;border-radius:4px;line-height:1;transition:color 0.15s}
+.del-btn:hover{color:var(--alert)}
+.add-row-actions{display:flex;gap:8px;margin-top:10px}
+.add-line-btn{background:transparent;border:1px dashed var(--line);color:var(--gray);font-size:12px;padding:7px 14px;border-radius:6px;cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+.add-line-btn:hover{border-color:var(--signal);color:var(--signal)}
+
+/* ---------- Totals ---------- */
+.totals-wrap{display:flex;justify-content:flex-end;margin-top:22px}
+.totals-box{border:1px solid var(--ink);min-width:260px}
+.t-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.t-row:last-child{border-bottom:none;font-weight:700;font-size:14px}
+.t-row .tk{color:var(--ink)}
+.t-row .tv{font-weight:600}
+.t-row.tax-row .tk{display:flex;align-items:center;gap:5px}
+.t-row.tax-row input{width:34px;text-align:center;padding:1px 2px;font-size:12px}
+
+/* ---------- Footer ---------- */
+.footer-note{margin-top:30px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--gray)}
+.footer-note input{font-size:11.5px;color:var(--gray);width:100%}
+.page-of{text-align:right;font-size:11px;color:var(--gray-lt);margin-top:14px}
+
+@media (max-width:760px){
+  .inv-head,.cust-row{flex-direction:column}
+  .inv-right,.biz-right{text-align:left}
+  .inv-num-row,.origlbl select{justify-content:flex-start}
+  .detail-grid{grid-template-columns:1fr 1fr}
+  .items-table .col-qty,.items-table .col-price{display:none}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  body{background:#fff;padding:0;margin:0}
+  .toolbar{display:none!important}
+  .wrap{max-width:100%;margin:0;padding:0}
+  .page{box-shadow:none;border-radius:0;padding:20px 10px;margin:0}
+  .ed{background:transparent!important;border-color:transparent!important}
+  .del-btn,.add-row-actions{display:none!important}
+  .items-table .col-qty,.items-table .col-price{display:table-cell!important}
+  .notes-row textarea{border-color:transparent!important}
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="tb-logo"><span class="tb-dot"></span>NEXUS DIAGNOSTICS</div>
+  <div class="tb-actions">
+    <button class="btn" id="newBtn">＋ New</button>
+    <button class="btn" id="loadBtn">📂 Load</button>
+    <input type="file" id="fileInput" accept="application/json">
+    <button class="btn" id="saveBtn">💾 Save JSON</button>
+    <button class="btn btn-signal" id="printBtn">🖨 Print / Save as PDF</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="page" id="invoicePage">
+
+    <!-- ===== Header ===== -->
+    <div class="inv-head">
+      <div>
+        <input class="ed biz-name" id="bizName" value="Nexus Diagnostics — Mobile Mechanic">
+        <div class="biz-phone-row">
+          <span class="ico">☎</span>
+          <input class="ed" id="bizPhone" value="0437 133 718" style="max-width:140px">
+        </div>
+      </div>
+      <div class="biz-right">
+        <input class="ed" id="bizArea" value="Servicing Canberra &amp; surrounds">
+        <input class="ed" id="bizCity" value="Canberra ACT">
+        <input class="ed" id="bizEmail" value="nexusdiagnostics@busacker.xyz">
+      </div>
+    </div>
+
+    <!-- ===== Customer / invoice number ===== -->
+    <div class="cust-row">
+      <div>
+        <div class="cust-code">Customer Code: <input class="ed" id="custCode" value="1"></div>
+        <div class="cust-fields">
+          <input class="ed cust-name" id="custName" value="DAMO SOUTHWELL">
+          <input class="ed" id="custStreet" value="6 TANGE PL">
+          <input class="ed" id="custSuburb" value="NICHOLLS ACT 2913">
+        </div>
+      </div>
+      <div class="inv-right">
+        <div class="origlbl">
+          <select class="ed" id="invOriginal">
+            <option>ORIGINAL</option>
+            <option>COPY</option>
+            <option>DUPLICATE</option>
+          </select>
+        </div>
+        <div class="titlelbl">TAX INVOICE</div>
+        <div class="inv-num-row"><input class="ed" id="invNumber" value="00001"></div>
+      </div>
+    </div>
+
+    <!-- ===== Detail grid row 1 ===== -->
+    <div class="detail-grid">
+      <div class="dfield"><span class="lbl">Issued</span><input class="ed" type="text" id="issuedDate" placeholder="DD/MM/YYYY"></div>
+      <div class="dfield"><span class="lbl">Technician</span><input class="ed" id="technician" value="Josh Busacker"></div>
+      <div class="dfield"><span class="lbl">Finalised by</span><input class="ed" id="finalisedBy" value="Josh Busacker"></div>
+      <div class="dfield"><span class="lbl">Customer name</span><input class="ed" id="custNameRow" value="Damo Southwell"></div>
+    </div>
+
+    <!-- ===== Detail grid row 2 ===== -->
+    <div class="detail-grid">
+      <div class="dfield"><span class="lbl">Vehicle make</span><input class="ed" id="vMake" value="Ford"></div>
+      <div class="dfield"><span class="lbl">Vehicle series</span><input class="ed" id="vSeries" value="FG"></div>
+      <div class="dfield"><span class="lbl">Year</span><input class="ed" id="vYear" value="2008"></div>
+      <div class="dfield"><span class="lbl">Odometer</span><input class="ed" id="vOdo" value="262,834"></div>
+    </div>
+
+    <!-- ===== Detail grid row 3 ===== -->
+    <div class="detail-grid">
+      <div class="dfield"><span class="lbl">Vehicle model</span><input class="ed" id="vModel" value="Falcon XR6T"></div>
+      <div class="dfield"><span class="lbl">Registration no.</span><input class="ed" id="vRego" value="FRZ51R"></div>
+      <div class="dfield"><span class="lbl">VIN no.</span><input class="ed" id="vVin" value="6FPAAAJGSW8E93453"></div>
+      <div class="dfield"><span class="lbl">Paid by</span><input class="ed" id="paidBy" value="BANK TRANSFER : $230"></div>
+    </div>
+
+    <!-- ===== Line items ===== -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th class="col-prod">Product</th>
+          <th class="col-desc">Description</th>
+          <th class="col-qty num">Qty</th>
+          <th class="col-price num">Price</th>
+          <th class="col-amt num">Amount</th>
+          <th class="col-del"></th>
+        </tr>
+      </thead>
+      <tbody id="woBody">
+        <tr class="woref-row"><td colspan="6"><input class="ed" id="woRef" value="W/ORDER: 000001"></td></tr>
+      </tbody>
+      <tbody id="lineItems"></tbody>
+    </table>
+    <div class="add-row-actions">
+      <button type="button" class="add-line-btn" id="addLineBtn">＋ Add line item</button>
+    </div>
+
+    <!-- ===== Totals ===== -->
+    <div class="totals-wrap">
+      <div class="totals-box">
+        <div class="t-row"><span class="tk">Ex GST amount</span><span class="tv" id="exGstVal">$0.00</span></div>
+        <div class="t-row tax-row"><span class="tk">GST (<input class="ed" type="number" id="gstRate" value="10" min="0" max="100" step="0.1">%)</span><span class="tv" id="gstVal">$0.00</span></div>
+        <div class="t-row"><span class="tk">Total</span><span class="tv" id="totalVal">$0.00</span></div>
+      </div>
+    </div>
+
+    <!-- ===== Footer ===== -->
+    <div class="footer-note">
+      <input class="ed" id="footerNote" value="Goods and services remain the property of Nexus Diagnostics until paid in full. Thanks for choosing Nexus Diagnostics.">
+    </div>
+    <div class="page-of">Page <input class="ed" id="pageOf" value="1 of 1" style="display:inline-block;width:50px;text-align:right"></div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  const lineItemsBody = document.getElementById('lineItems');
+  let lineIdCounter = 0;
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  }
+
+  function lineRowHTML(item) {
+    const id = 'l' + (lineIdCounter++);
+    const product = item?.product || '';
+    const desc    = item?.desc || '';
+    const qty     = item?.qty ?? 1;
+    const price   = item?.price ?? 0;
+    const notes   = item?.notes || '';
+    return `
+      <tr class="line-row" data-id="${id}">
+        <td class="col-prod"><input class="ed" type="text" data-f="product" value="${esc(product)}" placeholder="Code"></td>
+        <td class="col-desc"><input class="ed" type="text" data-f="desc" value="${esc(desc)}" placeholder="Description"></td>
+        <td class="col-qty num"><input class="ed" type="number" data-f="qty" value="${qty}" step="0.01"></td>
+        <td class="col-price num"><input class="ed" type="number" data-f="price" value="${price}" step="0.01"></td>
+        <td class="col-amt num"><span class="amt-val" data-amt>$0.00</span></td>
+        <td class="col-del"><button type="button" class="del-btn" data-del title="Remove line">✕</button></td>
+      </tr>
+      <tr class="notes-row"><td colspan="6"><textarea class="ed" data-f="notes" rows="2" placeholder="Notes / findings (optional, printed under this line)">${esc(notes)}</textarea></td></tr>
+    `;
+  }
+
+  function addLine(item) {
+    lineItemsBody.insertAdjacentHTML('beforeend', lineRowHTML(item));
+    recalc();
+    bindTextareaGrow();
+  }
+
+  function removeLine(row) {
+    const rows = lineItemsBody.querySelectorAll('.line-row');
+    if (rows.length <= 1) return;
+    const notesRow = row.nextElementSibling;
+    if (notesRow && notesRow.classList.contains('notes-row')) notesRow.remove();
+    row.remove();
+    recalc();
+  }
+
+  function fmt(n) { return '$' + n.toFixed(2); }
+
+  function recalc() {
+    let total = 0;
+    lineItemsBody.querySelectorAll('.line-row').forEach(row => {
+      const qty   = parseFloat(row.querySelector('[data-f="qty"]').value) || 0;
+      const price = parseFloat(row.querySelector('[data-f="price"]').value) || 0;
+      const amt = qty * price;
+      const amtEl = row.querySelector('[data-amt]');
+      amtEl.textContent = amt < 0 ? `(${Math.abs(amt).toFixed(2)})` : fmt(amt);
+      total += amt;
+    });
+    const rate = parseFloat(document.getElementById('gstRate').value) || 0;
+    const exGst = rate > 0 ? total / (1 + rate / 100) : total;
+    const gst = total - exGst;
+    document.getElementById('exGstVal').textContent = fmt(exGst);
+    document.getElementById('gstVal').textContent = fmt(gst);
+    document.getElementById('totalVal').textContent = fmt(total);
+  }
+
+  function bindTextareaGrow() {
+    document.querySelectorAll('.notes-row textarea').forEach(t => {
+      if (t._bound) return;
+      t._bound = true;
+      const grow = () => { t.style.height = 'auto'; t.style.height = (t.scrollHeight) + 'px'; };
+      t.addEventListener('input', grow);
+      grow();
+    });
+  }
+
+  lineItemsBody.addEventListener('input', (e) => {
+    if (e.target.matches('[data-f="qty"], [data-f="price"]')) recalc();
+  });
+  lineItemsBody.addEventListener('click', (e) => {
+    if (e.target.matches('[data-del]')) removeLine(e.target.closest('.line-row'));
+  });
+  document.getElementById('addLineBtn').addEventListener('click', () => addLine());
+  document.getElementById('gstRate').addEventListener('input', recalc);
+
+  // ---------- Date formatting ----------
+  const issuedDateInput = document.getElementById('issuedDate');
+
+  issuedDateInput.addEventListener('blur', () => {
+    let val = issuedDateInput.value.trim();
+    if (val && !/^\d{2}\/\d{2}\/\d{4}$/.test(val)) {
+      const nums = val.replace(/\D/g, '');
+      if (nums.length === 8) {
+        val = `${nums.slice(0,2)}/${nums.slice(2,4)}/${nums.slice(4)}`;
+        issuedDateInput.value = val;
+      }
+    }
+  });
+
+  function todayISO() { return new Date().toISOString().slice(0, 10); }
+
+  function formatDateForDisplay(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  }
+
+  function resetToBlank() {
+    document.getElementById('invNumber').value = '00001';
+    document.getElementById('invOriginal').value = 'ORIGINAL';
+    document.getElementById('custCode').value = '';
+    document.getElementById('custName').value = '';
+    document.getElementById('custStreet').value = '';
+    document.getElementById('custSuburb').value = '';
+    const today = todayISO();
+    issuedDateInput.value = formatDateForDisplay(today);
+    document.getElementById('technician').value = '';
+    document.getElementById('finalisedBy').value = '';
+    document.getElementById('custNameRow').value = '';
+    document.getElementById('vMake').value = '';
+    document.getElementById('vSeries').value = '';
+    document.getElementById('vYear').value = '';
+    document.getElementById('vOdo').value = '';
+    document.getElementById('vModel').value = '';
+    document.getElementById('vRego').value = '';
+    document.getElementById('vVin').value = '';
+    document.getElementById('paidBy').value = '';
+    document.getElementById('woRef').value = '';
+    document.getElementById('gstRate').value = 10;
+    document.getElementById('pageOf').value = '1 of 1';
+    lineItemsBody.innerHTML = '';
+    addLine({ product: '', desc: '', qty: 1, price: 0, notes: '' });
+    recalc();
+  }
+
+  document.getElementById('newBtn').addEventListener('click', () => {
+    if (confirm('Start a new blank invoice? Unsaved changes will be lost.')) resetToBlank();
+  });
+
+  // ---------- Save / Load JSON ----------
+  function collectData() {
+    return {
+      biz: {
+        name: document.getElementById('bizName').value,
+        phone: document.getElementById('bizPhone').value,
+        area: document.getElementById('bizArea').value,
+        city: document.getElementById('bizCity').value,
+        email: document.getElementById('bizEmail').value,
+      },
+      invNumber: document.getElementById('invNumber').value,
+      invOriginal: document.getElementById('invOriginal').value,
+      custCode: document.getElementById('custCode').value,
+      custName: document.getElementById('custName').value,
+      custStreet: document.getElementById('custStreet').value,
+      custSuburb: document.getElementById('custSuburb').value,
+      issuedDate: issuedDateInput.value,
+      technician: document.getElementById('technician').value,
+      finalisedBy: document.getElementById('finalisedBy').value,
+      custNameRow: document.getElementById('custNameRow').value,
+      vMake: document.getElementById('vMake').value,
+      vSeries: document.getElementById('vSeries').value,
+      vYear: document.getElementById('vYear').value,
+      vOdo: document.getElementById('vOdo').value,
+      vModel: document.getElementById('vModel').value,
+      vRego: document.getElementById('vRego').value,
+      vVin: document.getElementById('vVin').value,
+      paidBy: document.getElementById('paidBy').value,
+      woRef: document.getElementById('woRef').value,
+      gstRate: document.getElementById('gstRate').value,
+      footerNote: document.getElementById('footerNote').value,
+      pageOf: document.getElementById('pageOf').value,
+      lineItems: Array.from(lineItemsBody.querySelectorAll('.line-row')).map(row => ({
+        product: row.querySelector('[data-f="product"]').value,
+        desc: row.querySelector('[data-f="desc"]').value,
+        qty: parseFloat(row.querySelector('[data-f="qty"]').value) || 0,
+        price: parseFloat(row.querySelector('[data-f="price"]').value) || 0,
+        notes: row.nextElementSibling.querySelector('[data-f="notes"]').value,
+      })),
+    };
+  }
+
+  function setVal(id, v) { document.getElementById(id).value = v ?? ''; }
+
+  function applyData(data) {
+    if (!data) return;
+    if (data.biz) {
+      setVal('bizName', data.biz.name); setVal('bizPhone', data.biz.phone);
+      setVal('bizArea', data.biz.area); setVal('bizCity', data.biz.city); setVal('bizEmail', data.biz.email);
+    }
+    setVal('invNumber', data.invNumber || '00001');
+    setVal('invOriginal', data.invOriginal || 'ORIGINAL');
+    setVal('custCode', data.custCode);
+    setVal('custName', data.custName);
+    setVal('custStreet', data.custStreet);
+    setVal('custSuburb', data.custSuburb);
+    issuedDateInput.value = data.issuedDate || formatDateForDisplay(todayISO());
+    setVal('technician', data.technician);
+    setVal('finalisedBy', data.finalisedBy);
+    setVal('custNameRow', data.custNameRow);
+    setVal('vMake', data.vMake); setVal('vSeries', data.vSeries); setVal('vYear', data.vYear); setVal('vOdo', data.vOdo);
+    setVal('vModel', data.vModel); setVal('vRego', data.vRego); setVal('vVin', data.vVin); setVal('paidBy', data.paidBy);
+    setVal('woRef', data.woRef);
+    setVal('gstRate', data.gstRate ?? 10);
+    setVal('footerNote', data.footerNote || 'Goods and services remain the property of Nexus Diagnostics until paid in full. Thanks for choosing Nexus Diagnostics.');
+    setVal('pageOf', data.pageOf || '1 of 1');
+
+    lineItemsBody.innerHTML = '';
+    const items = (data.lineItems && data.lineItems.length) ? data.lineItems : [{ product: '', desc: '', qty: 1, price: 0, notes: '' }];
+    items.forEach(addLine);
+    recalc();
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const data = collectData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const num = (data.invNumber || 'invoice').replace(/[^a-z0-9-]+/gi, '_');
+    a.href = url;
+    a.download = `invoice_${num}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  const fileInput = document.getElementById('fileInput');
+  document.getElementById('loadBtn').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        applyData(JSON.parse(e.target.result));
+      } catch (err) {
+        alert('Could not read that file — is it a valid invoice JSON export?');
+      }
+      fileInput.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+  // ---------- Init ----------
+  issuedDateInput.value = formatDateForDisplay(todayISO());
+  addLine({ product: 'ZLMECH', desc: 'Mechanical Labour', qty: 1, price: 110, notes: '' });
+  recalc();
+})();
+</script>
+
+</body>
+</html>
