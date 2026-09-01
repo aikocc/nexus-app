@@ -5,6 +5,8 @@ from extensions import db, csrf
 from models import Customer, Vehicle, Lead
 from routes import register_blueprints
 import logging
+from datetime import datetime, timedelta, time
+
 
 
 load_dotenv()
@@ -21,6 +23,36 @@ def create_app():
     csrf.init_app(app)
     
     register_blueprints(app)
+
+    @app.template_filter('strftime')
+    def format_time(value, format_str):
+        """Format a time object or minutes integer to string"""
+        if value is None:
+            return ''
+        
+        # If it's an integer, treat it as minutes since midnight
+        if isinstance(value, int):
+            hours = value // 60
+            minutes = value % 60
+            value = time(hours, minutes)
+        
+        # If it's a time object
+        if hasattr(value, 'strftime'):
+            return value.strftime(format_str)
+        
+        return str(value)
+
+    @app.template_filter('time')
+    def parse_time(time_str):
+        """Parse time string to time object"""
+        if isinstance(time_str, str):
+            return datetime.strptime(time_str, '%H:%M').time()
+        return time_str
+
+    @app.template_filter('int')
+    def to_int(value):
+        """Convert to int"""
+        return int(value)
     
     @app.errorhandler(404)
     def not_found_error(error):

@@ -1,12 +1,12 @@
 {% extends "admin/base_admin.html" %}
 
 {% block title %}Bookings - Nexus{% endblock %}
-{% set active_page = 'bookings' %}
-
 
 {% block extra_css %}
 <style>
-    /* ... keep all existing CSS ... */
+    /* ============================================
+       TABLE STYLES
+       ============================================ */
     .booking-table td {
         vertical-align: middle;
         padding: 12px 16px;
@@ -86,6 +86,9 @@
         font-size: 12px;
     }
     
+    /* ============================================
+       STATUS BADGES
+       ============================================ */
     .status-badge {
         display: inline-flex;
         align-items: center;
@@ -127,6 +130,9 @@
         color: #6B7280;
     }
     
+    /* ============================================
+       PRIORITY BADGES
+       ============================================ */
     .priority-badge {
         display: inline-flex;
         align-items: center;
@@ -164,6 +170,9 @@
         50% { opacity: 0.7; }
     }
     
+    /* ============================================
+       ROW COLORS BY STATUS
+       ============================================ */
     .booking-row {
         transition: background-color 0.2s ease;
     }
@@ -218,6 +227,9 @@
         background: #F9FAFB !important;
     }
     
+    /* ============================================
+       ACTION BUTTONS
+       ============================================ */
     .action-btn {
         transition: all 0.2s ease !important;
     }
@@ -264,6 +276,9 @@
         transform: scale(1.1);
     }
     
+    /* ============================================
+       STAT CARDS
+       ============================================ */
     .stat-card {
         transition: all 0.2s ease;
     }
@@ -289,6 +304,9 @@
         color: #10B981;
     }
     
+    /* ============================================
+       CALENDAR GRID
+       ============================================ */
     .calendar-grid {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
@@ -458,19 +476,237 @@
         color: #4B5563;
     }
     
-    .htmx-indicator {
-        opacity: 0;
-        transition: opacity 500ms ease-in;
-    }
+/* ============================================
+   DAY VIEW - TIME GRID WITH SPANNING BUBBLES
+   ============================================ */
+.day-grid {
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.day-grid-container {
+    display: grid;
+    /* grid-template-rows / columns set inline per-request above */
+    border-top: 1px solid #E5E7EB;
+}
+
+.time-label {
+    padding: 6px 12px;
+    border-right: 1px solid #F3F4F6;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 12px;
+    color: #6B7280;
+    background: #FAFBFC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.booking-bubble {
+    /* keep your existing bubble styling — background, border-left, padding, etc. */
+    margin: 2px;
+}
+
+.time-grid-header {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    background: #F9FAFB;
+    border-bottom: 2px solid #E5E7EB;
+    font-weight: 600;
+    font-size: 13px;
+    color: #4B5563;
+}
+
+.time-label-header {
+    padding: 10px 12px;
+    border-right: 1px solid #E5E7EB;
+    text-align: center;
+}
+
+.booking-grid-header {
+    padding: 10px 12px;
+}
+
+.time-label {
+    padding: 8px 12px;
+    border-right: 1px solid #F3F4F6;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #6B7280;
+    background: #FAFBFC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Booking Bubble - Spanning */
+.booking-bubble {
+    background: #FFFFFF;
+    border-radius: 8px;
+    padding: 8px 12px;
+    border-left: 4px solid #6B7280;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    grid-row: span 1;
+    overflow: hidden;
+}
+
+.booking-bubble:hover {
+    transform: translateX(4px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+}
+
+/* Status-specific bubble colors */
+.booking-bubble-pending {
+    border-left-color: #F59E0B;
+    background: #FFFBEB;
+}
+
+.booking-bubble-confirmed {
+    border-left-color: #3B82F6;
+    background: #EFF6FF;
+}
+
+.booking-bubble-in_progress {
+    border-left-color: #6366F1;
+    background: #EEF2FF;
+}
+
+.booking-bubble-completed {
+    border-left-color: #10B981;
+    background: #ECFDF5;
+    opacity: 0.85;
+}
+
+.booking-bubble-cancelled {
+    border-left-color: #EF4444;
+    background: #FEF2F2;
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+
+.booking-bubble-no_show {
+    border-left-color: #6B7280;
+    background: #F9FAFB;
+    opacity: 0.5;
+}
+
+.booking-bubble-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
+.booking-bubble-header strong {
+    font-size: 13px;
+    color: #1A1D26;
+}
+
+.booking-bubble-vehicle {
+    font-size: 11px;
+    font-weight: 500;
+    color: #6B7280;
+    background: #F3F4F6;
+    padding: 1px 8px;
+    border-radius: 4px;
+}
+
+.booking-bubble-details {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 2px;
+}
+
+.booking-bubble-details .uk-label {
+    font-size: 10px;
+    padding: 1px 6px;
+}
+
+.uk-label-xsmall {
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: 10px;
+}
+
+.booking-bubble-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.booking-bubble-time {
+    font-size: 10px;
+    color: #6B7280;
+}
+
+.booking-bubble-actions {
+    display: flex;
+    gap: 2px;
+}
+
+.bubble-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    background: transparent;
+    color: #6B7280;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.bubble-action:hover {
+    background: #F3F4F6;
+    color: #1A1D26;
+}
+
+/* Day Summary */
+.day-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 16px 20px;
+    background: #F9FAFB;
+    border-top: 1px solid #E5E7EB;
+}
+
+.day-summary > div {
+    text-align: center;
+}
+
+.day-summary .uk-text-meta {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.day-summary .uk-text-large {
+    display: block;
+    font-size: 24px;
+    margin-top: 4px;
+}
     
-    .htmx-request .htmx-indicator {
-        opacity: 1;
-    }
-    
-    .htmx-request.htmx-indicator {
-        opacity: 1;
-    }
-    
+    /* ============================================
+       LOADING
+       ============================================ */
     .loading-spinner {
         display: inline-block;
         width: 20px;
@@ -485,6 +721,26 @@
         to { transform: rotate(360deg); }
     }
     
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.7);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .loading-overlay.active {
+        display: flex;
+    }
+    
+    /* ============================================
+       TOAST NOTIFICATIONS
+       ============================================ */
     .toast-container {
         position: fixed;
         top: 20px;
@@ -533,58 +789,135 @@
         }
     }
     
-    @media (max-width: 860px) {
-        .calendar-grid {
-            gap: 4px;
-        }
-        .calendar-day {
-            min-height: 80px;
-            padding: 4px;
-        }
-        .calendar-day-number {
-            font-size: 0.7rem;
-        }
-        .calendar-booking {
-            font-size: 0.5rem;
-            padding: 1px 4px;
-        }
-        .calendar-booking-details {
-            font-size: 0.45rem;
-        }
-        .calendar-header {
-            font-size: 0.6rem;
-            padding: 4px 0;
-        }
+/* Responsive */
+@media (max-width: 860px) {
+    .time-grid-header,
+    .time-grid-row {
+        grid-template-columns: 70px 1fr;
     }
     
-    @media (max-width: 480px) {
-        .calendar-grid {
-            gap: 2px;
-        }
-        .calendar-day {
-            min-height: 60px;
-            padding: 2px;
-        }
-        .calendar-day-number {
-            font-size: 0.6rem;
-        }
-        .calendar-day-body {
-            max-height: 50px;
-        }
-        .calendar-booking {
-            font-size: 0.4rem;
-            padding: 1px 3px;
-            margin-bottom: 1px;
-        }
-        .calendar-booking-details {
-            display: none;
-        }
-        .calendar-badge {
-            font-size: 0.5rem;
-            min-width: 14px;
-            padding: 0 4px;
-        }
+    .time-label-header,
+    .booking-grid-header {
+        padding: 8px 6px;
+        font-size: 11px;
     }
+    
+    .time-label {
+        padding: 6px 4px;
+        font-size: 10px;
+    }
+    
+    .booking-slot-grid {
+        padding: 3px 4px;
+        gap: 3px;
+        grid-auto-rows: minmax(25px, auto);
+    }
+    
+    .booking-bubble {
+        padding: 6px 8px;
+    }
+    
+    .booking-bubble-header strong {
+        font-size: 11px;
+    }
+    
+    .booking-bubble-vehicle {
+        font-size: 9px;
+        padding: 1px 6px;
+    }
+    
+    .booking-bubble-details .uk-label {
+        font-size: 8px;
+        padding: 1px 4px;
+    }
+    
+    .booking-bubble-time {
+        font-size: 9px;
+    }
+    
+    .day-summary {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 12px 16px;
+    }
+    
+    .day-summary .uk-text-large {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .time-grid-header,
+    .time-grid-row {
+        grid-template-columns: 55px 1fr;
+    }
+    
+    .time-label-header,
+    .booking-grid-header {
+        font-size: 9px;
+        padding: 4px 3px;
+    }
+    
+    .time-label {
+        font-size: 8px;
+        padding: 3px 2px;
+    }
+    
+    .booking-slot-grid {
+        padding: 2px 3px;
+        gap: 2px;
+        grid-auto-rows: minmax(20px, auto);
+    }
+    
+    .booking-bubble {
+        padding: 4px 6px;
+    }
+    
+    .booking-bubble-header {
+        flex-wrap: wrap;
+        gap: 3px;
+    }
+    
+    .booking-bubble-header strong {
+        font-size: 10px;
+    }
+    
+    .booking-bubble-vehicle {
+        font-size: 8px;
+        padding: 0 5px;
+    }
+    
+    .booking-bubble-details {
+        gap: 2px;
+    }
+    
+    .booking-bubble-details .uk-label {
+        font-size: 7px;
+        padding: 0 4px;
+    }
+    
+    .booking-bubble-footer {
+        flex-wrap: wrap;
+        gap: 2px;
+    }
+    
+    .booking-bubble-time {
+        font-size: 8px;
+    }
+    
+    .booking-bubble-actions {
+        display: none;
+    }
+    
+    .day-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        padding: 8px 10px;
+    }
+    
+    .day-summary .uk-text-large {
+        font-size: 16px;
+    }
+}
 </style>
 {% endblock %}
 
@@ -605,15 +938,9 @@
 
     <!-- Filters and Search -->
     <div class="uk-card uk-card-default uk-card-body uk-margin-medium-bottom">
-        <form id="filter-form"
-              hx-get="{{ url_for('admin_bookings.list_bookings') }}"
-              hx-target="#booking-content"
-              hx-trigger="change, keyup delay:500ms, submit"
-              hx-push-url="true"
-              hx-indicator="#loading-indicator"
-              class="uk-grid uk-grid-small" 
-              uk-grid>
+        <form id="filter-form" class="uk-grid uk-grid-small" uk-grid>
             
+            <!-- Search -->
             <div class="uk-width-1-3@s">
                 <label class="uk-form-label" for="search">Search</label>
                 <div class="uk-inline uk-width-1-1">
@@ -627,6 +954,7 @@
                 </div>
             </div>
             
+            <!-- Status Filter -->
             <div class="uk-width-1-5@s">
                 <label class="uk-form-label" for="status">Status</label>
                 <select class="uk-select" id="status" name="status">
@@ -640,6 +968,7 @@
                 </select>
             </div>
 
+            <!-- Priority Filter -->
             <div class="uk-width-1-5@s">
                 <label class="uk-form-label" for="priority">Priority</label>
                 <select class="uk-select" id="priority" name="priority">
@@ -651,6 +980,7 @@
                 </select>
             </div>
 
+            <!-- Date Range -->
             <div class="uk-width-1-6@s">
                 <label class="uk-form-label" for="date_from">From Date</label>
                 <input type="date" class="uk-input" id="date_from" name="date_from" 
@@ -662,19 +992,23 @@
                        value="{{ request.args.get('date_to', '') }}">
             </div>
 
-            <input type="hidden" name="view" value="{{ request.args.get('view', 'list') }}">
-            <input type="hidden" name="month" value="{{ request.args.get('month', current_month) }}">
-            <input type="hidden" name="year" value="{{ request.args.get('year', current_year) }}">
+            <!-- Hidden inputs -->
+            <input type="hidden" id="hidden-view" name="view" value="{{ request.args.get('view', 'list') }}">
+            <input type="hidden" id="hidden-month" name="month" value="{{ request.args.get('month', current_month) }}">
+            <input type="hidden" id="hidden-year" name="year" value="{{ request.args.get('year', current_year) }}">
+            <input type="hidden" id="hidden-day" name="day" value="{{ request.args.get('day', day_date.day if day_date else current_month) }}">
 
+            <!-- Action Buttons -->
             <div class="uk-width-1-1 uk-margin-small-top">
                 <div class="uk-flex uk-flex-right">
-                    <button type="submit" class="uk-button uk-button-primary uk-margin-small-right">
+                    <button type="button" onclick="applyFilters()" class="uk-button uk-button-primary uk-margin-small-right">
                         <span uk-icon="icon: search; ratio: 0.8"></span> Filter
                     </button>
-                    <a href="{{ url_for('admin_bookings.list_bookings') }}" class="uk-button uk-button-default">
+                    <a href="{{ url_for('admin_bookings.list_bookings', view=request.args.get('view', 'list')) }}" 
+                       class="uk-button uk-button-default">
                         <span uk-icon="icon: refresh; ratio: 0.8"></span> Reset
                     </a>
-                    <span id="loading-indicator" class="htmx-indicator uk-margin-small-left">
+                    <span id="loading-indicator" style="display: none; margin-left: 10px;">
                         <span class="loading-spinner"></span>
                     </span>
                 </div>
@@ -682,37 +1016,39 @@
         </form>
     </div>
 
+    <!-- Toast Container -->
     <div id="toast-container" class="toast-container"></div>
 
+    <!-- View Tabs -->
     <div class="uk-margin-medium-bottom">
         <ul class="uk-tab" uk-tab>
             <li class="{% if request.args.get('view', 'list') == 'list' %}uk-active{% endif %}">
-                <a href="{{ url_for('admin_bookings.list_bookings', view='list') }}" 
-                   hx-get="{{ url_for('admin_bookings.list_bookings', view='list') }}"
-                   hx-target="#booking-content"
-                   hx-push-url="true"
-                   hx-indicator="#loading-indicator">
+                <a href="#" onclick="switchView('list'); return false;">
                     <span uk-icon="icon: list; ratio: 0.8"></span> 
                     Appointment List
                 </a>
             </li>
             <li class="{% if request.args.get('view') == 'calendar' %}uk-active{% endif %}">
-                <a href="{{ url_for('admin_bookings.list_bookings', view='calendar') }}"
-                   hx-get="{{ url_for('admin_bookings.list_bookings', view='calendar') }}"
-                   hx-target="#booking-content"
-                   hx-push-url="true"
-                   hx-indicator="#loading-indicator">
+                <a href="#" onclick="switchView('calendar'); return false;">
                     <span uk-icon="icon: calendar; ratio: 0.8"></span> 
                     Calendar View
+                </a>
+            </li>
+            <li class="{% if request.args.get('view') == 'day' %}uk-active{% endif %}">
+                <a href="#" onclick="switchView('day'); return false;">
+                    <span uk-icon="icon: clock; ratio: 0.8"></span> 
+                    Day View
                 </a>
             </li>
         </ul>
     </div>
 
+    <!-- Booking Content -->
     <div id="booking-content">
         {% include 'admin/bookings/_booking_list_content.html' %}
     </div>
 
+    <!-- Quick Stats -->
     <div class="uk-grid uk-grid-small uk-margin-medium-top" uk-grid>
         <div class="uk-width-1-4@s">
             <div class="uk-card uk-card-default uk-card-body uk-text-center stat-card">
@@ -740,46 +1076,15 @@
         </div>
     </div>
 </div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner" style="width: 40px; height: 40px;"></div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://unpkg.com/htmx.org@1.9.10"></script>
 <script>
-    // Configure HTMX
-    document.body.addEventListener('htmx:configRequest', function(evt) {
-        evt.detail.headers['X-CSRFToken'] = '{{ csrf_token() }}';
-    });
-
-    // After HTMX swap, update the URL manually
-    document.body.addEventListener('htmx:afterSwap', function(evt) {
-        if (window.UIkit) {
-            window.UIkit.update();
-        }
-        
-        // Get the URL from the request config - build it properly
-        const path = evt.detail.requestConfig.path;
-        const params = evt.detail.requestConfig.parameters;
-        
-        // Build the query string manually
-        let queryString = '';
-        if (params) {
-            const paramPairs = [];
-            for (const [key, value] of Object.entries(params)) {
-                paramPairs.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
-            }
-            queryString = paramPairs.join('&');
-        }
-        
-        const fullUrl = path + (queryString ? '?' + queryString : '');
-        console.log('HTMX afterSwap - Full URL:', fullUrl);
-        
-        // Update the browser URL without reloading the page
-        if (window.history && window.history.pushState) {
-            window.history.pushState({}, '', fullUrl);
-            console.log('URL updated to:', fullUrl);
-        }
-    });
-
     // Toast notification system
     function showToast(message, type = 'success') {
         const container = document.getElementById('toast-container');
@@ -805,47 +1110,103 @@
         {% endfor %}
     {% endwith %}
 
-    // Auto-submit form on select change using event delegation
-    document.addEventListener('change', function(e) {
-        if (e.target.matches('.uk-select, input[type="date"]')) {
-            const form = e.target.closest('form');
-            if (form) {
-                form.dispatchEvent(new Event('submit'));
+    // Show/hide loading indicator
+    function showLoading(show) {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) {
+            overlay.classList.toggle('active', show);
+        }
+        const indicator = document.getElementById('loading-indicator');
+        if (indicator) {
+            indicator.style.display = show ? 'inline-block' : 'none';
+        }
+    }
+
+    // Build URL with all current parameters
+    function buildUrl(params) {
+        const url = new URL('{{ url_for('admin_bookings.list_bookings') }}', window.location.origin);
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== '' && value !== null && value !== undefined) {
+                url.searchParams.set(key, value);
+            } else {
+                url.searchParams.delete(key);
             }
         }
-    });
+        return url.toString();
+    }
 
-    // Calendar navigation function
-    function navigateCalendar(direction) {
-        console.log('navigateCalendar called with direction:', direction);
+    // Get all filter values from the form
+    function getFilterParams() {
+        const form = document.getElementById('filter-form');
+        const formData = new FormData(form);
+        const params = {};
+        for (const [key, value] of formData.entries()) {
+            if (value !== '' && value !== null && value !== undefined) {
+                params[key] = value;
+            }
+        }
+        return params;
+    }
+
+    // Apply filters
+    function applyFilters() {
+        const params = getFilterParams();
+        const url = buildUrl(params);
+        loadContent(url);
+    }
+
+    // Switch view (list, calendar, or day)
+    function switchView(view) {
+        const params = getFilterParams();
+        params.view = view;
         
-        // Get the current URL
+        // Preserve month/year/day if they exist
         const currentUrl = new URL(window.location.href);
-        console.log('Current URL:', currentUrl.href);
+        if (currentUrl.searchParams.get('month')) {
+            params.month = currentUrl.searchParams.get('month');
+        }
+        if (currentUrl.searchParams.get('year')) {
+            params.year = currentUrl.searchParams.get('year');
+        }
+        if (currentUrl.searchParams.get('day')) {
+            params.day = currentUrl.searchParams.get('day');
+        }
         
-        // Get current month and year from URL
+        const url = buildUrl(params);
+        loadContent(url);
+    }
+
+    // Navigate to a specific page
+    function navigatePage(pageNum) {
+        const currentUrl = new URL(window.location.href);
+        const params = getFilterParams();
+        for (const [key, value] of currentUrl.searchParams) {
+            if (!params.hasOwnProperty(key)) {
+                params[key] = value;
+            }
+        }
+        params.page = pageNum;
+        const url = buildUrl(params);
+        loadContent(url);
+    }
+
+    // Navigate calendar month
+    function navigateCalendar(direction) {
+        const currentUrl = new URL(window.location.href);
         let month = parseInt(currentUrl.searchParams.get('month'));
         let year = parseInt(currentUrl.searchParams.get('year'));
         
-        console.log('Month from URL:', month, 'Year from URL:', year);
-        
-        // If no month/year in URL, use current date
         const today = new Date();
         if (isNaN(month)) {
             month = today.getMonth() + 1;
-            console.log('Month not in URL, using current:', month);
         }
         if (isNaN(year)) {
             year = today.getFullYear();
-            console.log('Year not in URL, using current:', year);
         }
         
-        // Calculate new month/year based on direction
         if (direction === 0) {
-            // Go to today
             month = today.getMonth() + 1;
             year = today.getFullYear();
-            console.log('Going to today:', month, year);
         } else {
             month += direction;
             if (month > 12) {
@@ -855,46 +1216,276 @@
                 month = 12;
                 year -= 1;
             }
-            console.log('New month after direction:', month, 'Year:', year);
         }
         
-        // Build the URL with updated parameters
-        const params = new URLSearchParams();
-        
-        // Copy ALL existing parameters
+        const params = getFilterParams();
         for (const [key, value] of currentUrl.searchParams) {
-            if (key !== 'month' && key !== 'year') {
-                params.set(key, value);
+            if (!params.hasOwnProperty(key) && key !== 'page') {
+                params[key] = value;
             }
         }
+        params.month = month;
+        params.year = year;
+        params.view = 'calendar';
         
-        // Set the new month and year
-        params.set('month', month);
-        params.set('year', year);
-        params.set('view', 'calendar');
+        const url = buildUrl(params);
+        loadContent(url);
+    }
+
+    // Navigate day view
+    function navigateDay(direction) {
+        const currentUrl = new URL(window.location.href);
+        let day = parseInt(currentUrl.searchParams.get('day'));
+        let month = parseInt(currentUrl.searchParams.get('month'));
+        let year = parseInt(currentUrl.searchParams.get('year'));
         
-        // Build the full URL
-        const url = currentUrl.pathname + '?' + params.toString();
-        console.log('Final URL to request:', url);
+        const today = new Date();
+        if (isNaN(day) || isNaN(month) || isNaN(year)) {
+            day = today.getDate();
+            month = today.getMonth() + 1;
+            year = today.getFullYear();
+        }
         
-        // Use HTMX to navigate
-        htmx.ajax('GET', url, {
-            target: '#booking-content',
-            swap: 'innerHTML',
-            pushUrl: true,
-            indicator: '#loading-indicator',
-            headers: {
-                'HX-Request': 'true'
+        if (direction === 0) {
+            day = today.getDate();
+            month = today.getMonth() + 1;
+            year = today.getFullYear();
+        } else {
+            const currentDate = new Date(year, month - 1, day);
+            currentDate.setDate(currentDate.getDate() + direction);
+            day = currentDate.getDate();
+            month = currentDate.getMonth() + 1;
+            year = currentDate.getFullYear();
+        }
+        
+        const params = getFilterParams();
+        for (const [key, value] of currentUrl.searchParams) {
+            if (!params.hasOwnProperty(key) && key !== 'page') {
+                params[key] = value;
             }
+        }
+        params.day = day;
+        params.month = month;
+        params.year = year;
+        params.view = 'day';
+        
+        const url = buildUrl(params);
+        loadContent(url);
+    }
+
+    // Load content via AJAX
+    function loadContent(url) {
+        console.log('Loading content from:', url);
+        showLoading(true);
+        
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.text();
+        })
+        .then(html => {
+            const contentContainer = document.getElementById('booking-content');
+            if (contentContainer) {
+                contentContainer.innerHTML = html;
+                window.history.pushState({}, '', url);
+                updateHiddenInputs();
+                if (window.UIkit) {
+                    window.UIkit.update();
+                }
+            }
+            showLoading(false);
+        })
+        .catch(error => {
+            console.error('Error loading content:', error);
+            showToast('Error loading content. Please try again.', 'error');
+            showLoading(false);
         });
     }
 
-    // Make it globally accessible
+    // Update hidden inputs with current URL parameters
+    function updateHiddenInputs() {
+        const currentUrl = new URL(window.location.href);
+        
+        const viewInput = document.getElementById('hidden-view');
+        if (viewInput) {
+            viewInput.value = currentUrl.searchParams.get('view') || 'list';
+        }
+        
+        const monthInput = document.getElementById('hidden-month');
+        if (monthInput) {
+            monthInput.value = currentUrl.searchParams.get('month') || '{{ current_month }}';
+        }
+        
+        const yearInput = document.getElementById('hidden-year');
+        if (yearInput) {
+            yearInput.value = currentUrl.searchParams.get('year') || '{{ current_year }}';
+        }
+        
+        const dayInput = document.getElementById('hidden-day');
+        if (dayInput) {
+            dayInput.value = currentUrl.searchParams.get('day') || '{{ day_date.day if day_date else current_month }}';
+        }
+        
+        // Update form field values to match URL
+        const searchInput = document.getElementById('search');
+        if (searchInput) {
+            searchInput.value = currentUrl.searchParams.get('search') || '';
+        }
+        
+        const statusSelect = document.getElementById('status');
+        if (statusSelect) {
+            statusSelect.value = currentUrl.searchParams.get('status') || '';
+        }
+        
+        const prioritySelect = document.getElementById('priority');
+        if (prioritySelect) {
+            prioritySelect.value = currentUrl.searchParams.get('priority') || '';
+        }
+        
+        const dateFrom = document.getElementById('date_from');
+        if (dateFrom) {
+            dateFrom.value = currentUrl.searchParams.get('date_from') || '';
+        }
+        
+        const dateTo = document.getElementById('date_to');
+        if (dateTo) {
+            dateTo.value = currentUrl.searchParams.get('date_to') || '';
+        }
+    }
+
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', function(event) {
+        loadContent(window.location.href);
+    });
+
+    // Handle enter key on form inputs
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const form = document.getElementById('filter-form');
+            if (form && form.contains(e.target)) {
+                e.preventDefault();
+                applyFilters();
+            }
+        }
+    });
+
+    // Auto-submit on select change
+    document.addEventListener('change', function(e) {
+        if (e.target.matches('.uk-select, input[type="date"]')) {
+            applyFilters();
+        }
+    });
+
+    // Update hidden inputs on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateHiddenInputs();
+    });
+
+    // Booking action functions
+    function confirmBooking(bookingId) {
+        if (confirm('Confirm this booking?')) {
+            fetch('{{ url_for('admin_bookings.confirm_booking', booking_id=0) }}'.replace('0', bookingId), {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error confirming booking.', 'error');
+            });
+        }
+    }
+
+    function completeBooking(bookingId) {
+        if (confirm('Mark this booking as completed?')) {
+            fetch('{{ url_for('admin_bookings.complete_booking', booking_id=0) }}'.replace('0', bookingId), {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error completing booking.', 'error');
+            });
+        }
+    }
+
+    function cancelBooking(bookingId) {
+        if (confirm('Cancel this booking?')) {
+            fetch('{{ url_for('admin_bookings.cancel_booking', booking_id=0) }}'.replace('0', bookingId), {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error cancelling booking.', 'error');
+            });
+        }
+    }
+
+    function deleteBooking(bookingId) {
+        if (confirm('Delete this booking? This action cannot be undone.')) {
+            fetch('{{ url_for('admin_bookings.delete_booking', booking_id=0) }}'.replace('0', bookingId), {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error deleting booking.', 'error');
+            });
+        }
+    }
+
+    // Make functions globally accessible
+    window.applyFilters = applyFilters;
+    window.switchView = switchView;
+    window.navigatePage = navigatePage;
     window.navigateCalendar = navigateCalendar;
+    window.navigateDay = navigateDay;
+    window.loadContent = loadContent;
+    window.confirmBooking = confirmBooking;
+    window.completeBooking = completeBooking;
+    window.cancelBooking = cancelBooking;
+    window.deleteBooking = deleteBooking;
 
-    // Handle calendar navigation clicks using onclick
-    // The onclick is in the HTML directly
-
-    console.log('Calendar navigation initialized');
+    console.log('Booking management initialized');
+    console.log('Current view:', '{{ request.args.get('view', 'list') }}');
 </script>
 {% endblock %}

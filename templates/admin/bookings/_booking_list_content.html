@@ -151,10 +151,7 @@
                                         <span uk-icon="icon: pencil; ratio: 0.7"></span>
                                     </a>
                                     {% if booking.status in ['pending', 'confirmed'] %}
-                                        <button hx-post="{{ url_for('admin_bookings.confirm_booking', booking_id=booking.id) }}"
-                                                hx-target="#booking-content"
-                                                hx-indicator="#loading-indicator"
-                                                hx-confirm="Confirm this booking?"
+                                        <button onclick="confirmBooking({{ booking.id }})" 
                                                 class="uk-button uk-button-success uk-button-small action-btn action-confirm"
                                                 title="Confirm"
                                                 uk-tooltip="Confirm">
@@ -162,10 +159,7 @@
                                         </button>
                                     {% endif %}
                                     {% if booking.status == 'in_progress' %}
-                                        <button hx-post="{{ url_for('admin_bookings.complete_booking', booking_id=booking.id) }}"
-                                                hx-target="#booking-content"
-                                                hx-indicator="#loading-indicator"
-                                                hx-confirm="Mark this booking as completed?"
+                                        <button onclick="completeBooking({{ booking.id }})" 
                                                 class="uk-button uk-button-success uk-button-small action-btn action-complete"
                                                 title="Complete"
                                                 uk-tooltip="Complete">
@@ -173,20 +167,14 @@
                                         </button>
                                     {% endif %}
                                     {% if booking.status not in ['completed', 'cancelled'] %}
-                                        <button hx-post="{{ url_for('admin_bookings.cancel_booking', booking_id=booking.id) }}"
-                                                hx-target="#booking-content"
-                                                hx-indicator="#loading-indicator"
-                                                hx-confirm="Cancel this booking?"
+                                        <button onclick="cancelBooking({{ booking.id }})" 
                                                 class="uk-button uk-button-danger uk-button-small action-btn action-cancel"
                                                 title="Cancel"
                                                 uk-tooltip="Cancel">
                                             <span uk-icon="icon: close; ratio: 0.7"></span>
                                         </button>
                                     {% endif %}
-                                    <button hx-delete="{{ url_for('admin_bookings.delete_booking', booking_id=booking.id) }}"
-                                            hx-target="#booking-content"
-                                            hx-indicator="#loading-indicator"
-                                            hx-confirm="Delete this booking? This action cannot be undone."
+                                    <button onclick="deleteBooking({{ booking.id }})" 
                                             class="uk-button uk-button-danger uk-button-small action-btn action-delete"
                                             title="Delete"
                                             uk-tooltip="Delete">
@@ -220,12 +208,7 @@
         <ul class="uk-pagination uk-flex-center">
             {% if pagination.has_prev %}
                 <li>
-                    <button class="uk-button uk-button-default uk-button-small"
-                            onclick="htmx.ajax('GET', '{{ url_for('admin_bookings.list_bookings') }}?view=list&page={{ pagination.prev_num }}', {
-                                target: '#booking-content',
-                                pushUrl: true,
-                                indicator: '#loading-indicator'
-                            });">
+                    <button class="uk-button uk-button-default uk-button-small" onclick="navigatePage({{ pagination.prev_num }})">
                         <span uk-pagination-previous></span>
                     </button>
                 </li>
@@ -239,12 +222,7 @@
                         <li class="uk-active"><span>{{ page_num }}</span></li>
                     {% else %}
                         <li>
-                            <button class="uk-button uk-button-default uk-button-small"
-                                    onclick="htmx.ajax('GET', '{{ url_for('admin_bookings.list_bookings') }}?view=list&page={{ page_num }}', {
-                                        target: '#booking-content',
-                                        pushUrl: true,
-                                        indicator: '#loading-indicator'
-                                    });">
+                            <button class="uk-button uk-button-default uk-button-small" onclick="navigatePage({{ page_num }})">
                                 {{ page_num }}
                             </button>
                         </li>
@@ -256,12 +234,7 @@
             
             {% if pagination.has_next %}
                 <li>
-                    <button class="uk-button uk-button-default uk-button-small"
-                            onclick="htmx.ajax('GET', '{{ url_for('admin_bookings.list_bookings') }}?view=list&page={{ pagination.next_num }}', {
-                                target: '#booking-content',
-                                pushUrl: true,
-                                indicator: '#loading-indicator'
-                            });">
+                    <button class="uk-button uk-button-default uk-button-small" onclick="navigatePage({{ pagination.next_num }})">
                         <span uk-pagination-next></span>
                     </button>
                 </li>
@@ -274,27 +247,28 @@
 </div>
 
 <!-- Calendar View -->
-{% else %}
+{% elif request.args.get('view') == 'calendar' %}
 <div class="uk-card uk-card-default">
     <div class="uk-card-body">
         <!-- Calendar Navigation -->
         <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
             <div>
                 <h3 class="uk-card-title">{{ calendar_month }} {{ calendar_year }}</h3>
+                {% if request.args.get('status') %}
+                    <span class="uk-label uk-label-primary uk-margin-left">Filter: {{ request.args.get('status')|title }}</span>
+                {% endif %}
+                {% if request.args.get('search') %}
+                    <span class="uk-label uk-margin-left">Search: {{ request.args.get('search') }}</span>
+                {% endif %}
             </div>
             <div class="uk-button-group">
-                <button class="uk-button uk-button-default uk-button-small" 
-                        onclick="navigateCalendar(-1)">
+                <button class="uk-button uk-button-default uk-button-small" onclick="navigateCalendar(-1)">
                     <span uk-icon="icon: chevron-left; ratio: 0.8"></span>
-                    Previous Month
                 </button>
-                <button class="uk-button uk-button-default uk-button-small" 
-                        onclick="navigateCalendar(0)">
-                    Current Month
+                <button class="uk-button uk-button-default uk-button-small" onclick="navigateCalendar(0)">
+                    Today
                 </button>
-                <button class="uk-button uk-button-default uk-button-small" 
-                        onclick="navigateCalendar(1)">
-                    Next Month
+                <button class="uk-button uk-button-default uk-button-small" onclick="navigateCalendar(1)">
                     <span uk-icon="icon: chevron-right; ratio: 0.8"></span>
                 </button>
             </div>
@@ -342,6 +316,176 @@
                     </div>
                 </div>
             {% endfor %}
+        </div>
+        
+        <!-- No results message -->
+        {% if calendar_days|selectattr('booking_count', 'greaterthan', 0)|list|length == 0 %}
+            <div class="uk-alert uk-alert-warning uk-margin-top">
+                <p>No bookings found matching the current filters.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<!-- Day View - Time Grid with Spanning Bubbles (Fixed) -->
+{% elif request.args.get('view') == 'day' %}
+<div class="uk-card uk-card-default">
+    <div class="uk-card-body">
+        <!-- Day Header -->
+        <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
+            <div>
+                <h3 class="uk-card-title">{{ day_date.strftime('%A, %B %d, %Y') }}</h3>
+                <p class="uk-text-muted uk-margin-remove">{{ day_bookings|length }} bookings</p>
+            </div>
+            <div class="uk-button-group">
+                <button class="uk-button uk-button-default uk-button-small" onclick="navigateDay(-1)">
+                    <span uk-icon="icon: chevron-left; ratio: 0.8"></span>
+                </button>
+                <button class="uk-button uk-button-default uk-button-small" onclick="navigateDay(0)">
+                    Today
+                </button>
+                <button class="uk-button uk-button-default uk-button-small" onclick="navigateDay(1)">
+                    <span uk-icon="icon: chevron-right; ratio: 0.8"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Active Filters -->
+        {% if request.args.get('status') or request.args.get('priority') or request.args.get('search') %}
+        <div class="uk-flex uk-flex-wrap uk-flex-middle uk-margin-bottom">
+            <span class="uk-text-small uk-text-muted uk-margin-small-right">Filters:</span>
+            {% if request.args.get('status') %}
+                <span class="uk-label uk-label-warning uk-margin-small-right">
+                    Status: {{ request.args.get('status')|title }}
+                </span>
+            {% endif %}
+            {% if request.args.get('priority') %}
+                <span class="uk-label uk-label-danger uk-margin-small-right">
+                    Priority: {{ request.args.get('priority')|title }}
+                </span>
+            {% endif %}
+            {% if request.args.get('search') %}
+                <span class="uk-label uk-margin-small-right">
+                    Search: {{ request.args.get('search') }}
+                </span>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Time Grid -->
+        <div class="day-grid">
+            {% if day_bookings %}
+                <!-- Group bookings by start time and calculate end time -->
+                {% set bookings_by_time = {} %}
+                {% for booking in day_bookings %}
+                    {% if booking.scheduled_time %}
+                        {% set time_key = booking.scheduled_time.strftime('%H:%M') %}
+                        {% set end_minutes = booking.scheduled_time.hour * 60 + booking.scheduled_time.minute + (booking.duration_minutes or 60) %}
+                        {% set span_slots = ((booking.duration_minutes or 60) / 30)|round(0, 'ceil')|int %}
+                        {% if span_slots < 1 %}
+                            {% set span_slots = 1 %}
+                        {% endif %}
+                        
+                        {% set booking_data = {
+                            'booking': booking,
+                            'span_slots': span_slots,
+                            'end_minutes': end_minutes
+                        } %}
+                        
+                        {% if bookings_by_time.get(time_key) %}
+                            {% set _ = bookings_by_time.update({time_key: bookings_by_time[time_key] + [booking_data]}) %}
+                        {% else %}
+                            {% set _ = bookings_by_time.update({time_key: [booking_data]}) %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                
+                <!-- Create a single grid for all time slots -->
+                <div class="day-grid-container"
+                    style="grid-template-rows: repeat({{ day_total_slots }}, minmax(40px, auto));
+                            grid-template-columns: 100px repeat({{ day_max_lanes }}, 1fr);">
+
+                    {% for i in range(day_total_slots) %}
+                        {% set hour = 8 + (i * 30) // 60 %}
+                        {% set minute = (i * 30) % 60 %}
+                        <div class="time-label" style="grid-column: 1; grid-row: {{ i + 1 }};">
+                            {{ '%02d:%02d'|format(hour, minute) }}
+                        </div>
+                    {% endfor %}
+
+                    {% for e in day_events %}
+                        {% set booking = e.booking %}
+                        <div class="booking-bubble booking-bubble-{{ booking.status }}"
+                            style="grid-column: {{ e.lane + 2 }}; grid-row: {{ e.start_slot + 1 }} / span {{ e.span }};"
+                            onclick="location.href='{{ url_for('admin_bookings.view_booking', booking_id=booking.id) }}'">
+                            <div class="booking-bubble-header">
+                                <strong>{{ booking.customer_name }}</strong>
+                                <span class="booking-bubble-vehicle">{{ booking.vehicle_rego }}</span>
+                            </div>
+                            <!-- rest of bubble content unchanged -->
+                            <div class="booking-bubble-details">
+                                <span class="uk-label uk-label-default uk-text-xsmall">{{ booking.service_type|replace('_', ' ')|title }}</span>
+                                <span class="uk-label uk-label-xsmall status-{{ booking.status }}">{{ booking.status|replace('_', ' ')|title }}</span>
+                            </div>
+                            <div class="booking-bubble-footer">
+                                <span class="booking-bubble-time">
+                                    {{ booking.scheduled_time.strftime('%I:%M %p') }}
+                                    {% if booking.duration_minutes %}
+                                        - 
+                                        {% set total_minutes = booking.scheduled_time.hour * 60 + booking.scheduled_time.minute + booking.duration_minutes %}
+                                        {% set end_hour = total_minutes // 60 %}
+                                        {% set end_minute = total_minutes % 60 %}
+                                        {% if end_hour >= 24 %}
+                                            {% set end_hour = end_hour - 24 %}
+                                        {% endif %}
+                                        {{ '%02d:%02d'|format(end_hour, end_minute) }}
+                                    {% endif %}
+                                </span>
+                                <div class="booking-bubble-actions">
+                                    <a href="{{ url_for('admin_bookings.view_booking', booking_id=booking.id) }}" 
+                                       class="bubble-action" title="View" uk-tooltip="View">
+                                        <span uk-icon="icon: eye; ratio: 0.6"></span>
+                                    </a>
+                                    <a href="{{ url_for('admin_bookings.edit_booking', booking_id=booking.id) }}" 
+                                       class="bubble-action" title="Edit" uk-tooltip="Edit">
+                                        <span uk-icon="icon: pencil; ratio: 0.6"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Day Summary -->
+                <div class="day-summary">
+                    <div>
+                        <span class="uk-text-meta">Total</span>
+                        <span class="uk-text-large uk-text-bold">{{ day_stats.total }}</span>
+                    </div>
+                    <div>
+                        <span class="uk-text-meta">Pending</span>
+                        <span class="uk-text-large uk-text-bold uk-text-warning">{{ day_stats.pending }}</span>
+                    </div>
+                    <div>
+                        <span class="uk-text-meta">Confirmed</span>
+                        <span class="uk-text-large uk-text-bold uk-text-primary">{{ day_stats.confirmed }}</span>
+                    </div>
+                    <div>
+                        <span class="uk-text-meta">Completed</span>
+                        <span class="uk-text-large uk-text-bold uk-text-success">{{ day_stats.completed }}</span>
+                    </div>
+                </div>
+
+            {% else %}
+                <!-- Empty State -->
+                <div class="uk-text-center uk-padding-large">
+                    <span uk-icon="icon: calendar; ratio: 4" class="uk-text-muted"></span>
+                    <h3 class="uk-margin-small-top">No bookings for this day</h3>
+                    <p class="uk-text-muted">Create a new booking to get started.</p>
+                    <a href="{{ url_for('admin_bookings.new_booking') }}" class="uk-button uk-button-primary uk-button-small uk-margin-top">
+                        <span uk-icon="icon: plus; ratio: 0.8"></span> Create Booking
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
