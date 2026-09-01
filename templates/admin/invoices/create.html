@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Invoice — Nexus Diagnostics</title>
+  <style>
+    :root {
+      --ink: #1a1a1a;
+      --grey-label: #7a7a7a;
+      --grey-line: #dcdcdc;
+      --grey-fill: #f7f7f7;
+      --accent: #0e7c66;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #eee;
+      margin: 0;
+      padding: 24px;
+      color: var(--ink);
+    }
+    form {
+      max-width: 65%;
+      margin: 0 auto;
+      background: #fff;
+      padding: 28px 32px 40px;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.12);
+    }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    h2 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--grey-label);
+      border-bottom: 1px solid var(--grey-line);
+      padding-bottom: 6px;
+      margin: 28px 0 14px;
+    }
+    .sub { color: var(--grey-label); font-size: 13px; margin-bottom: 20px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px 14px;
+    }
+    .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .field { display: flex; flex-direction: column; }
+    .field.span-2 { grid-column: span 2; }
+    .field.span-3 { grid-column: span 3; }
+    .field.span-4 { grid-column: span 4; }
+
+    label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--grey-label);
+      margin-bottom: 4px;
+    }
+    input[type=text], textarea {
+      font-family: inherit;
+      font-size: 13.5px;
+      padding: 7px 9px;
+      border: 1px solid var(--grey-line);
+      border-radius: 4px;
+      background: var(--grey-fill);
+      color: var(--ink);
+    }
+    textarea { resize: vertical; min-height: 46px; }
+    input:focus, textarea:focus { outline: 2px solid var(--accent); background: #fff; }
+
+    /* Read-only fields styling */
+    input[readonly] {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .item-block, .package-block {
+      border: 1px solid var(--grey-line);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      position: relative;
+      background: #fafafa;
+      transition: all 0.1s ease;
+    }
+    .item-block {
+      cursor: grab;
+    }
+    .item-block:active {
+      cursor: grabbing;
+    }
+    .item-block.dragging {
+      opacity: 0.5;
+      transform: scale(0.98);
+    }
+    .item-block.drag-over {
+      border-color: var(--accent);
+      border-width: 2px;
+      border-style: dashed;
+      background: #f0faf7;
+    }
+    .item-block .grid { grid-template-columns: 1.2fr 2fr 0.7fr 0.9fr 0.9fr; margin-bottom: 10px; }
+
+    .package-block {
+      background: #f5f8fa;
+      border-color: var(--accent);
+      border-width: 2px;
+    }
+    .package-block .package-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent);
+    }
+    .package-block .package-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .package-block .package-subtotal {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .package-block .package-items {
+      padding-left: 20px;
+      border-left: 3px solid var(--accent);
+    }
+    .package-block .package-item {
+      display: grid;
+      grid-template-columns: 1.2fr 2fr 0.7fr 0.9fr 0.9fr;
+      gap: 12px 14px;
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--grey-line);
+    }
+    .package-block .package-item:last-child {
+      border-bottom: none;
+    }
+    .package-block .package-item .field {
+      margin-bottom: 0;
+    }
+    .package-block .package-item input {
+      background: #fff;
+      border-color: #d0d0d0;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: #b3261e;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: underline;
+      z-index: 2;
+    }
+    .add-btn {
+      background: #fff;
+      border: 1px dashed var(--accent);
+      color: var(--accent);
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .add-btn:hover { background: #eafaf6; }
+
+    .submit-bar {
+      margin-top: 32px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    button[type=submit] {
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      padding: 12px 26px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button[type=submit]:hover { background: #333; }
+
+    .hint { font-size: 11.5px; color: var(--grey-label); margin-top: 3px; }
+
+    .action-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .action-btn {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 6px 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .action-btn:hover { background: #e0e0e0; }
+    .load-input {
+      font-size: 13px;
+      padding: 5px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .inline-flex {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .total-row.auto-total {
+      background: #f0f7f5;
+      border-color: var(--accent);
+    }
+    .total-row.auto-total input {
+      background: #fff;
+      font-weight: 500;
+    }
+    .gst-badge {
+      font-size: 10px;
+      color: var(--grey-label);
+      background: #eef;
+      padding: 1px 8px;
+      border-radius: 10px;
+      margin-left: 6px;
+      display: inline-block;
+    }
+    .amount-auto {
+      color: var(--accent);
+      font-size: 10px;
+      margin-top: 2px;
+    }
+    .drag-handle {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      color: #bbb;
+      font-size: 16px;
+      cursor: grab;
+      user-select: none;
+      z-index: 1;
+    }
+    .item-block .drag-handle {
+      display: block;
+    }
+    .item-block .remove-btn {
+      right: 12px;
+    }
+    .item-block {
+      padding-left: 40px;
+    }
+    .item-block .grid {
+      margin-bottom: 10px;
+    }
+    .item-block .field:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Note mode styles */
+    .item-block.note-mode .item-fields {
+      display: none;
+    }
+    .item-block.note-mode .note-fields {
+      display: block !important;
+    }
+    .item-block:not(.note-mode) .note-fields {
+      display: none;
+    }
+
+    .type-selector {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--grey-line);
+    }
+    .type-selector label {
+      font-size: 12px;
+      text-transform: none;
+      color: var(--grey-label);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .type-selector input[type="radio"] {
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .type-selector label.active {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .note-fields textarea {
+      min-height: 80px;
+    }
+
+    .note-badge {
+      display: inline-block;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--grey-label);
+      background: #f0f0f0;
+      padding: 1px 8px;
+      border-radius: 10px;
+      margin-left: 8px;
+    }
+
+    .line-number-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--grey-label);
+      background: var(--grey-fill);
+      padding: 2px 10px;
+      border-radius: 12px;
+      margin-right: 8px;
+      border: 1px solid var(--grey-line);
+    }
+
+    /* Total rows - static */
+    .total-row {
+      border: 1px solid var(--grey-line);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      background: #fafafa;
+    }
+    .total-row .grid { grid-template-columns: 2fr 1fr; }
+    .total-row.auto-total {
+      background: #f0f7f5;
+      border-color: var(--accent);
+    }
+    .total-row.auto-total input {
+      background: #fff;
+      font-weight: 500;
+    }
+    .total-row.final-total {
+      background: #e6f2ef;
+      border-color: var(--accent);
+      margin-top: 14px;
+    }
+    .total-row.final-total input {
+      font-weight: 600;
+    }
+
+    .package-remove-item {
+      background: none;
+      border: none;
+      color: #b3261e;
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .add-package-item-btn {
+      background: none;
+      border: 1px dashed var(--accent);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .add-package-item-btn:hover { background: #eafaf6; }
+    
+    /* Package fields - hidden by default */
+    .package-fields {
+      display: none;
+    }
+    .item-block.package-mode .package-fields {
+      display: block !important;
+    }
+    .item-block.package-mode .item-fields {
+      display: none;
+    }
+    .item-block.package-mode .note-fields {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<form method="POST" action="{{ url_for('admin_invoices.create_invoice') }}" id="invoiceForm">
+
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+    <div>
+      <h1>New Tax Invoice</h1>
+      <p class="sub">Fill in the job details below to generate the invoice. <span class="gst-badge">All amounts GST inclusive</span></p>
+    </div>
+    <div class="action-group">
+      <button type="button" class="action-btn" id="saveJsonBtn">💾 Save JSON</button>
+      <div class="inline-flex">
+        <input type="file" id="loadJsonInput" accept=".json" class="load-input" style="max-width:140px;">
+        <button type="button" class="action-btn" id="loadJsonBtn">📂 Load</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUSINESS -->
+  <h2>Business</h2>
+  <div class="grid">
+    <div class="field span-2">
+      <label>Business Name</label>
+      <input type="text" name="business_name" value="{{ business.name }}">
+    </div>
+    <div class="field">
+      <label>Phone</label>
+      <input type="text" name="business_phone" value="{{ business.phone }}">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="text" name="business_email" value="{{ business.email }}">
+    </div>
+    <div class="field span-2">
+      <label>Service Area</label>
+      <input type="text" name="business_service_area" value="{{ business.service_area }}">
+    </div>
+    <div class="field span-2">
+      <label>City / State</label>
+      <input type="text" name="business_city_state" value="{{ business.city_state }}">
+    </div>
+  </div>
+
+  <!-- CUSTOMER -->
+  <h2>Customer</h2>
+  <div class="grid">
+    <div class="field">
+      <label>Customer Code</label>
+      <input type="text" name="customer_code">
+    </div>
+    <div class="field span-3">
+      <label>Customer Name</label>
+      <input type="text" name="customer_name">
+    </div>
+    <div class="field span-4">
+      <label>Address (one line per row)</label>
+      <textarea name="customer_address"></textarea>
+    </div>
+  </div>
+
+  <!-- INVOICE -->
+  <h2>Invoice</h2>
+  <div class="grid">
+    <div class="field">
+      <label>Type</label>
+      <input type="text" name="invoice_type" value="ORIGINAL">
+    </div>
+    <div class="field span-2">
+      <label>Title</label>
+      <input type="text" name="invoice_title" value="TAX INVOICE">
+    </div>
+    <div class="field">
+      <label>Invoice Number</label>
+      <input type="text" name="invoice_number" value="00000">
+    </div>
+  </div>
+
+  <!-- JOB -->
+  <h2>Job</h2>
+  <div class="grid">
+    <div class="field">
+      <label>Issued</label>
+      <input type="text" name="issued" placeholder="dd/mm/yy">
+    </div>
+    <div class="field">
+      <label>Technician</label>
+      <input type="text" name="technician">
+    </div>
+    <div class="field">
+      <label>Finalised By</label>
+      <input type="text" name="finalised_by">
+    </div>
+    <div class="field">
+      <label>Customer Name (job header)</label>
+      <input type="text" name="job_customer_name">
+    </div>
+    <div class="field">
+      <label>Work Order No.</label>
+      <input type="text" name="work_order">
+    </div>
+  </div>
+
+  <!-- VEHICLE -->
+  <h2>Vehicle</h2>
+  <div class="grid">
+    <div class="field">
+      <label>Make</label>
+      <input type="text" name="vehicle_make">
+    </div>
+    <div class="field">
+      <label>Series</label>
+      <input type="text" name="vehicle_series">
+    </div>
+    <div class="field">
+      <label>Year</label>
+      <input type="text" name="vehicle_year">
+    </div>
+    <div class="field">
+      <label>Odometer</label>
+      <input type="text" name="vehicle_odometer">
+    </div>
+    <div class="field">
+      <label>Model</label>
+      <input type="text" name="vehicle_model">
+    </div>
+    <div class="field">
+      <label>Registration No.</label>
+      <input type="text" name="vehicle_registration">
+    </div>
+    <div class="field">
+      <label>VIN No.</label>
+      <input type="text" name="vehicle_vin">
+    </div>
+    <div class="field">
+      <label>Paid By</label>
+      <input type="text" name="paid_by">
+    </div>
+  </div>
+
+  <!-- LINE ITEMS & NOTES & PACKAGES -->
+  <h2>Line Items, Notes &amp; Packages <span class="gst-badge">GST inclusive</span></h2>
+  <div id="items-container">
+    <!-- Default line item -->
+    <div class="item-block" draggable="true" data-line-number="1" data-type="item">
+      <span class="drag-handle">⠿</span>
+      <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
+      
+      <div style="margin-bottom: 10px; font-size: 12px; color: var(--grey-label);">
+        <span class="line-number-badge">Line #1</span>
+      </div>
+      
+      <div class="type-selector">
+        <label class="active">
+          <input type="radio" name="item_type_0" value="item" checked onchange="toggleItemType(this, 0)"> 
+          📦 Line Item
+        </label>
+        <label>
+          <input type="radio" name="item_type_0" value="note" onchange="toggleItemType(this, 0)"> 
+          📝 Note
+        </label>
+        <label>
+          <input type="radio" name="item_type_0" value="package" onchange="toggleItemType(this, 0)"> 
+          📦 Package
+        </label>
+      </div>
+      
+      <input type="hidden" name="item_type[]" value="item" class="item-type-hidden">
+      
+      <!-- Line item fields -->
+      <div class="item-fields">
+        <div class="grid">
+          <div class="field">
+            <label>Product</label>
+            <input type="text" name="item_product[]">
+          </div>
+          <div class="field">
+            <label>Description</label>
+            <input type="text" name="item_description[]">
+          </div>
+          <div class="field">
+            <label>Qty</label>
+            <input type="text" name="item_qty[]" value="0.00" class="qty-input">
+          </div>
+          <div class="field">
+            <label>Price (inc GST)</label>
+            <input type="text" name="item_price[]" value="0.00" class="price-input">
+          </div>
+          <div class="field">
+            <label>Amount (inc GST)</label>
+            <input type="text" name="item_amount[]" value="0.00" class="amount-input">
+            <div class="amount-auto">auto-calculated</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Note field -->
+      <div class="note-fields">
+        <div class="field">
+          <label>Note <span class="note-badge">full width</span></label>
+          <textarea name="item_note_text[]" placeholder="Enter your note here..." rows="3"></textarea>
+        </div>
+      </div>
+      
+      <!-- Package fields -->
+      <div class="package-fields">
+        <div class="field">
+          <label>Package Title</label>
+          <input type="text" name="package_title[]" placeholder="e.g. Basic Service Package" class="package-title-input">
+        </div>
+        <div style="margin-top: 10px;">
+          <label style="font-size:11px; text-transform:uppercase; color:var(--grey-label);">Package Items</label>
+          <div class="package-items">
+            <div class="package-item">
+              <div class="field">
+                <input type="text" name="package_item_product[]" placeholder="Product">
+              </div>
+              <div class="field">
+                <input type="text" name="package_item_description[]" placeholder="Description">
+              </div>
+              <div class="field">
+                <input type="text" name="package_item_qty[]" value="1.00" class="package-qty">
+              </div>
+              <div class="field">
+                <input type="text" name="package_item_price[]" value="0.00" class="package-price">
+              </div>
+              <div class="field">
+                <input type="text" name="package_item_amount[]" value="0.00" class="package-amount" readonly>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="add-package-item-btn" onclick="addPackageItem(this)">+ Add package item</button>
+        </div>
+        <div style="margin-top: 10px; text-align: right; font-weight: 600; color: var(--accent);">
+          Package Subtotal: <span class="package-subtotal-display">$0.00</span>
+          <input type="hidden" name="package_subtotal[]" class="package-subtotal" value="0.00">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px;">
+    <button type="button" class="add-btn" onclick="addItem('item')">+ Add line item</button>
+    <button type="button" class="add-btn" onclick="addItem('note')">+ Add note</button>
+    <button type="button" class="add-btn" onclick="addItem('package')" style="border-color: var(--accent); color: var(--accent);">+ Add package</button>
+  </div>
+
+  <!-- TOTALS - Static, Read Only -->
+  <h2>Totals</h2>
+  <p class="hint">All amounts are GST inclusive. Totals are calculated automatically.</p>
+  
+  <div class="total-row auto-total">
+    <div class="grid">
+      <div class="field">
+        <label>Ex GST Amount</label>
+        <input type="text" name="total_label[]" value="Ex GST Amount" readonly style="background:transparent; border:none; font-weight:500;">
+      </div>
+      <div class="field">
+        <label>Value</label>
+        <input type="text" name="total_value[]" placeholder="$0.00" class="ex-gst-value" readonly>
+      </div>
+    </div>
+  </div>
+  
+  <div class="total-row auto-total">
+    <div class="grid">
+      <div class="field">
+        <label>GST (10%)</label>
+        <input type="text" name="total_label[]" value="GST (10%)" readonly style="background:transparent; border:none; font-weight:500;">
+      </div>
+      <div class="field">
+        <label>Value</label>
+        <input type="text" name="total_value[]" placeholder="$0.00" class="gst-value" readonly>
+      </div>
+    </div>
+  </div>
+
+  <div class="total-row final-total">
+    <div class="grid">
+      <div class="field">
+        <label>Final Total</label>
+        <input type="text" name="total_final_label" value="Total (inc GST)" id="finalTotalLabel" readonly style="background:transparent; border:none; font-weight:600;">
+      </div>
+      <div class="field">
+        <label>Value</label>
+        <input type="text" name="total_final_value" placeholder="$0.00" id="finalTotalValue" readonly style="font-weight:600;">
+      </div>
+    </div>
+  </div>
+
+  <!-- BANK DETAILS -->
+  <h2>Bank Details</h2>
+  <div class="grid">
+    <div class="field span-2">
+      <label>Account Name</label>
+      <input type="text" name="bank_account_name">
+    </div>
+    <div class="field">
+      <label>BSB</label>
+      <input type="text" name="bank_bsb">
+    </div>
+    <div class="field">
+      <label>Account Number</label>
+      <input type="text" name="bank_account_number">
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <h2>Footer</h2>
+  <div class="field">
+    <label>Footer Note</label>
+    <textarea name="footer_note">Goods and services remain the property of {{ business.name.split(' — ')[0] }} until paid in full. Thanks for choosing {{ business.name.split(' — ')[0] }}.</textarea>
+  </div>
+
+  <div class="submit-bar">
+    <button type="submit">Generate Invoice</button>
+  </div>
+</form>
+
+<!-- Templates -->
+<template id="item-template">
+  <div class="item-block" draggable="true" data-type="item">
+    <span class="drag-handle">⠿</span>
+    <button type="button" class="remove-btn" onclick="removeBlock(this)">Remove</button>
+    
+    <div style="margin-bottom: 10px; font-size: 12px; color: var(--grey-label);">
+      <span class="line-number-badge">Line #<span class="line-number-text"></span></span>
+    </div>
+    
+    <div class="type-selector">
+      <label class="active">
+        <input type="radio" name="item_type_{index}" value="item" checked onchange="toggleItemType(this, {index})"> 
+        📦 Line Item
+      </label>
+      <label>
+        <input type="radio" name="item_type_{index}" value="note" onchange="toggleItemType(this, {index})"> 
+        📝 Note
+      </label>
+      <label>
+        <input type="radio" name="item_type_{index}" value="package" onchange="toggleItemType(this, {index})"> 
+        📦 Package
+      </label>
+    </div>
+    
+    <input type="hidden" name="item_type[]" value="item" class="item-type-hidden">
+    
+    <!-- Line item fields -->
+    <div class="item-fields">
+      <div class="grid">
+        <div class="field">
+          <label>Product</label>
+          <input type="text" name="item_product[]">
+        </div>
+        <div class="field">
+          <label>Description</label>
+          <input type="text" name="item_description[]">
+        </div>
+        <div class="field">
+          <label>Qty</label>
+          <input type="text" name="item_qty[]" class="qty-input">
+        </div>
+        <div class="field">
+          <label>Price (inc GST)</label>
+          <input type="text" name="item_price[]" class="price-input">
+        </div>
+        <div class="field">
+          <label>Amount (inc GST)</label>
+          <input type="text" name="item_amount[]" class="amount-input">
+          <div class="amount-auto">auto-calculated</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Note field -->
+    <div class="note-fields">
+      <div class="field">
+        <label>Note <span class="note-badge">full width</span></label>
+        <textarea name="item_note_text[]" placeholder="Enter your note here..." rows="3"></textarea>
+      </div>
+    </div>
+    
+    <!-- Package fields -->
+    <div class="package-fields">
+      <div class="field">
+        <label>Package Title</label>
+        <input type="text" name="package_title[]" placeholder="e.g. Basic Service Package" class="package-title-input">
+      </div>
+      <div style="margin-top: 10px;">
+        <label style="font-size:11px; text-transform:uppercase; color:var(--grey-label);">Package Items</label>
+        <div class="package-items">
+          <div class="package-item">
+            <div class="field">
+              <input type="text" name="package_item_product[]" placeholder="Product">
+            </div>
+            <div class="field">
+              <input type="text" name="package_item_description[]" placeholder="Description">
+            </div>
+            <div class="field">
+              <input type="text" name="package_item_qty[]" value="1.00" class="package-qty">
+            </div>
+            <div class="field">
+              <input type="text" name="package_item_price[]" value="0.00" class="package-price">
+            </div>
+            <div class="field">
+              <input type="text" name="package_item_amount[]" value="0.00" class="package-amount" readonly>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="add-package-item-btn" onclick="addPackageItem(this)">+ Add package item</button>
+      </div>
+      <div style="margin-top: 10px; text-align: right; font-weight: 600; color: var(--accent);">
+        Package Subtotal: <span class="package-subtotal-display">$0.00</span>
+        <input type="hidden" name="package_subtotal[]" class="package-subtotal" value="0.00">
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  let itemCounter = 0;
+
+  // ----- UPDATE LINE NUMBERS -----
+  function updateLineNumbers() {
+    const container = document.getElementById('items-container');
+    const blocks = container.querySelectorAll('.item-block');
+    blocks.forEach((block, index) => {
+      const lineNumber = index + 1;
+      const badge = block.querySelector('.line-number-badge');
+      const textSpan = block.querySelector('.line-number-text');
+      if (badge) {
+        badge.textContent = `Line #${lineNumber}`;
+      }
+      if (textSpan) {
+        textSpan.textContent = lineNumber;
+      }
+      block.dataset.lineNumber = lineNumber;
+      
+      const radios = block.querySelectorAll('.type-selector input[type="radio"]');
+      radios.forEach(radio => {
+        radio.name = `item_type_${index}`;
+        radio.setAttribute('onchange', `toggleItemType(this, ${index})`);
+      });
+      
+      const hidden = block.querySelector('.item-type-hidden');
+      if (hidden) {
+        const checkedRadio = block.querySelector('.type-selector input[type="radio"]:checked');
+        if (checkedRadio) {
+          hidden.value = checkedRadio.value;
+        }
+      }
+    });
+    itemCounter = blocks.length;
+  }
+
+  // ----- TOGGLE BETWEEN ITEM, NOTE, AND PACKAGE -----
+  function toggleItemType(radio, index) {
+    const block = radio.closest('.item-block');
+    const type = radio.value;
+    
+    const hidden = block.querySelector('.item-type-hidden');
+    if (hidden) hidden.value = type;
+    
+    // Update data-type attribute
+    block.dataset.type = type;
+    
+    // Remove all mode classes
+    block.classList.remove('note-mode', 'package-mode');
+    
+    // Show/hide fields
+    const itemFields = block.querySelector('.item-fields');
+    const noteFields = block.querySelector('.note-fields');
+    const packageFields = block.querySelector('.package-fields');
+    
+    if (itemFields) itemFields.style.display = 'none';
+    if (noteFields) noteFields.style.display = 'none';
+    if (packageFields) packageFields.style.display = 'none';
+    
+    if (type === 'item') {
+      if (itemFields) itemFields.style.display = 'block';
+    } else if (type === 'note') {
+      if (noteFields) noteFields.style.display = 'block';
+      block.classList.add('note-mode');
+    } else if (type === 'package') {
+      if (packageFields) packageFields.style.display = 'block';
+      block.classList.add('package-mode');
+      // Calculate package subtotal
+      calculatePackageSubtotal(block);
+    }
+    
+    const labels = block.querySelectorAll('.type-selector label');
+    labels.forEach(label => {
+      label.classList.remove('active');
+      const input = label.querySelector('input[type="radio"]');
+      if (input && input.checked) label.classList.add('active');
+    });
+    
+    calculateTotals();
+  }
+
+  // ----- CALCULATE PACKAGE SUBTOTAL -----
+  function calculatePackageSubtotal(block) {
+    const items = block.querySelectorAll('.package-item');
+    let subtotal = 0;
+    
+    items.forEach(item => {
+      const qty = parseFloat(item.querySelector('.package-qty').value) || 0;
+      const price = parseFloat(item.querySelector('.package-price').value) || 0;
+      const amount = qty * price;
+      const amountInput = item.querySelector('.package-amount');
+      amountInput.value = amount.toFixed(2);
+      subtotal += amount;
+    });
+    
+    const display = block.querySelector('.package-subtotal-display');
+    const hidden = block.querySelector('.package-subtotal');
+    if (display) display.textContent = '$' + subtotal.toFixed(2);
+    if (hidden) hidden.value = subtotal.toFixed(2);
+    
+    return subtotal;
+  }
+
+  // ----- ADD PACKAGE ITEM -----
+  function addPackageItem(btn) {
+    const container = btn.closest('.package-items');
+    const template = container.querySelector('.package-item');
+    const clone = template.cloneNode(true);
+    
+    // Clear values
+    clone.querySelectorAll('input').forEach(input => {
+      if (input.classList.contains('package-qty')) input.value = '1.00';
+      else if (input.classList.contains('package-price')) input.value = '0.00';
+      else if (input.classList.contains('package-amount')) input.value = '0.00';
+      else input.value = '';
+    });
+    
+    // Add event listeners to the new item
+    const qty = clone.querySelector('.package-qty');
+    const price = clone.querySelector('.package-price');
+    qty.addEventListener('input', function() {
+      const block = this.closest('.item-block');
+      calculatePackageSubtotal(block);
+      calculateTotals();
+    });
+    price.addEventListener('input', function() {
+      const block = this.closest('.item-block');
+      calculatePackageSubtotal(block);
+      calculateTotals();
+    });
+    
+    container.appendChild(clone);
+    
+    // Recalculate subtotal
+    const block = btn.closest('.item-block');
+    calculatePackageSubtotal(block);
+    calculateTotals();
+  }
+
+  // ----- DRAG AND DROP -----
+  let draggedElement = null;
+
+  function initDragDrop() {
+    const container = document.getElementById('items-container');
+    if (!container) return;
+
+    container.addEventListener('dragstart', function(e) {
+      const target = e.target.closest('.item-block');
+      if (!target) return;
+      draggedElement = target;
+      target.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', '');
+    });
+
+    container.addEventListener('dragend', function(e) {
+      const target = e.target.closest('.item-block');
+      if (target) {
+        target.classList.remove('dragging');
+        target.classList.remove('drag-over');
+      }
+      document.querySelectorAll('.item-block').forEach(el => el.classList.remove('drag-over'));
+      updateLineNumbers();
+    });
+
+    container.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const target = e.target.closest('.item-block');
+      if (!target || target === draggedElement) return;
+      
+      container.querySelectorAll('.item-block').forEach(el => {
+        if (el !== target) el.classList.remove('drag-over');
+      });
+      target.classList.add('drag-over');
+    });
+
+    container.addEventListener('dragleave', function(e) {
+      const target = e.target.closest('.item-block');
+      if (target) target.classList.remove('drag-over');
+    });
+
+    container.addEventListener('drop', function(e) {
+      e.preventDefault();
+      const target = e.target.closest('.item-block');
+      if (!target || !draggedElement || target === draggedElement) {
+        document.querySelectorAll('.item-block').forEach(el => el.classList.remove('drag-over', 'dragging'));
+        return;
+      }
+
+      const children = Array.from(container.children);
+      const draggedIndex = children.indexOf(draggedElement);
+      const targetIndex = children.indexOf(target);
+
+      if (draggedIndex < targetIndex) {
+        target.parentNode.insertBefore(draggedElement, target.nextSibling);
+      } else {
+        target.parentNode.insertBefore(draggedElement, target);
+      }
+
+      document.querySelectorAll('.item-block').forEach(el => el.classList.remove('drag-over', 'dragging'));
+      draggedElement = null;
+      updateLineNumbers();
+      calculateTotals();
+    });
+  }
+
+  // ----- AUTO CALCULATION -----
+  function calculateTotals() {
+    const amountInputs = document.querySelectorAll('.amount-input');
+    let totalIncGst = 0;
+    
+    amountInputs.forEach(input => {
+      const block = input.closest('.item-block');
+      if (block && !block.classList.contains('note-mode') && block.dataset.type !== 'package') {
+        const val = parseFloat(input.value.replace(/[^0-9.\-]/g, ''));
+        if (!isNaN(val)) totalIncGst += val;
+      }
+    });
+    
+    // Add package subtotals
+    const packageSubtotals = document.querySelectorAll('.package-subtotal');
+    packageSubtotals.forEach(input => {
+      const val = parseFloat(input.value) || 0;
+      totalIncGst += val;
+    });
+
+    const divisor = 1.1;
+    const totalExGst = totalIncGst / divisor;
+    const gstAmount = totalIncGst - totalExGst;
+
+    const fmt = (num) => '$' + num.toFixed(2);
+
+    const exGstInput = document.querySelector('.ex-gst-value');
+    if (exGstInput) exGstInput.value = fmt(totalExGst);
+
+    const gstInput = document.querySelector('.gst-value');
+    if (gstInput) gstInput.value = fmt(gstAmount);
+
+    const finalTotal = document.getElementById('finalTotalValue');
+    if (finalTotal) finalTotal.value = fmt(totalIncGst);
+  }
+
+  function calculateItemAmount(block) {
+    if (block.classList.contains('note-mode')) return false;
+    if (block.dataset.type === 'package') {
+      return calculatePackageSubtotal(block);
+    }
+    
+    const qty = block.querySelector('.qty-input');
+    const price = block.querySelector('.price-input');
+    const amount = block.querySelector('.amount-input');
+    if (qty && price && amount) {
+      const qtyVal = parseFloat(qty.value.replace(/[^0-9.\-]/g, ''));
+      const priceVal = parseFloat(price.value.replace(/[^0-9.\-]/g, ''));
+      if (!isNaN(qtyVal) && !isNaN(priceVal) && qtyVal >= 0 && priceVal >= 0) {
+        const calcAmount = qtyVal * priceVal;
+        amount.value = calcAmount.toFixed(2);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function calcHandler(e) {
+    const block = e.target.closest('.item-block');
+    if (block && !block.classList.contains('note-mode')) {
+      const changedField = e.target;
+      if (changedField.classList.contains('qty-input') || changedField.classList.contains('price-input')) {
+        calculateItemAmount(block);
+      }
+      if (changedField.classList.contains('package-qty') || changedField.classList.contains('package-price')) {
+        calculatePackageSubtotal(block);
+      }
+    }
+    calculateTotals();
+  }
+
+  function attachCalcListeners(container) {
+    const items = container ? container.querySelectorAll('.qty-input, .price-input, .amount-input, .package-qty, .package-price') : 
+                             document.querySelectorAll('.qty-input, .price-input, .amount-input, .package-qty, .package-price');
+    items.forEach(el => {
+      el.removeEventListener('input', calcHandler);
+      el.addEventListener('input', calcHandler);
+    });
+  }
+
+  // ----- ADD ITEMS -----
+  window.addItem = function(type) {
+    type = type || 'item';
+    const tpl = document.getElementById('item-template');
+    const html = tpl.innerHTML;
+    const index = itemCounter;
+    let processedHtml = html.replace(/{index}/g, index);
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = processedHtml;
+    const newBlock = tempDiv.firstElementChild;
+    
+    // Set the type
+    const radio = newBlock.querySelector(`.type-selector input[value="${type}"]`);
+    if (radio) {
+      radio.checked = true;
+      toggleItemType(radio, index);
+    }
+    
+    document.getElementById('items-container').appendChild(newBlock);
+    itemCounter++;
+    
+    attachCalcListeners(newBlock);
+    calculateItemAmount(newBlock);
+    calculateTotals();
+    updateLineNumbers();
+    initDragDrop();
+  };
+
+  // ----- REMOVE BLOCK -----
+  window.removeBlock = function(btn) {
+    const container = btn.closest('.item-block');
+    if (!container) return;
+    
+    const parentList = container.parentElement;
+    if (parentList.children.length > 1) {
+      container.remove();
+      updateLineNumbers();
+      calculateTotals();
+    } else {
+      container.querySelectorAll('input, textarea').forEach(el => {
+        if (el.classList.contains('ex-gst-value') || el.classList.contains('gst-value') || el.id === 'finalTotalValue') {
+          // don't clear auto totals
+        } else {
+          el.value = '';
+        }
+      });
+      calculateTotals();
+    }
+  };
+
+  // ----- JSON SAVE/LOAD -----
+  function getFormData() {
+    const form = document.getElementById('invoiceForm');
+    const data = {};
+
+    const simpleFields = form.querySelectorAll('input[name]:not([name$="[]"]):not([name*="item_"]):not([name*="package_"]), textarea[name]:not([name$="[]"]):not([name*="item_"]):not([name*="package_"])');
+    simpleFields.forEach(el => {
+      data[el.name] = el.value;
+    });
+
+    const itemTypeHidden = form.querySelectorAll('.item-type-hidden');
+    data.item_types = Array.from(itemTypeHidden).map(el => el.value);
+
+    const arrayFields = ['item_product', 'item_description', 'item_qty', 'item_price', 'item_amount', 'item_note_text', 
+                         'package_title', 'package_item_product', 'package_item_description', 'package_item_qty', 
+                         'package_item_price', 'package_item_amount', 'package_subtotal'];
+    arrayFields.forEach(field => {
+      const inputs = form.querySelectorAll(`input[name="${field}[]"], textarea[name="${field}[]"]`);
+      data[field] = Array.from(inputs).map(el => el.value);
+    });
+
+    const totalLabels = form.querySelectorAll('input[name="total_label[]"]');
+    const totalValues = form.querySelectorAll('input[name="total_value[]"]');
+    data.total_labels = Array.from(totalLabels).map(el => el.value);
+    data.total_values = Array.from(totalValues).map(el => el.value);
+
+    const finalLabel = form.querySelector('input[name="total_final_label"]');
+    const finalValue = form.querySelector('input[name="total_final_value"]');
+    if (finalLabel) data.total_final_label = finalLabel.value;
+    if (finalValue) data.total_final_value = finalValue.value;
+
+    const bankFields = ['bank_account_name', 'bank_bsb', 'bank_account_number'];
+    bankFields.forEach(field => {
+      const el = form.querySelector(`[name="${field}"]`);
+      if (el) data[field] = el.value;
+    });
+
+    return data;
+  }
+
+  function setFormData(data) {
+    const form = document.getElementById('invoiceForm');
+
+    const simpleFields = form.querySelectorAll('input[name]:not([name$="[]"]):not([name*="item_"]):not([name*="package_"]), textarea[name]:not([name$="[]"]):not([name*="item_"]):not([name*="package_"])');
+    simpleFields.forEach(el => {
+      if (data[el.name] !== undefined) el.value = data[el.name];
+    });
+
+    const bankFields = ['bank_account_name', 'bank_bsb', 'bank_account_number'];
+    bankFields.forEach(field => {
+      const el = form.querySelector(`[name="${field}"]`);
+      if (el && data[field] !== undefined) el.value = data[field];
+    });
+
+    // Rebuild items
+    let itemCount = 0;
+    if (data.item_product && Array.isArray(data.item_product)) {
+      itemCount = data.item_product.length;
+    }
+    const container = document.getElementById('items-container');
+    while (container.children.length > 1) {
+      container.lastChild.remove();
+    }
+    if (itemCount > 0) {
+      const firstBlock = container.children[0];
+      setItemBlock(firstBlock, data, 0);
+      for (let i = 1; i < itemCount; i++) {
+        const type = data.item_types && data.item_types[i] ? data.item_types[i] : 'item';
+        window.addItem(type);
+        const blocks = container.children;
+        setItemBlock(blocks[blocks.length - 1], data, i);
+      }
+    } else {
+      const firstBlock = container.children[0];
+      firstBlock.querySelectorAll('input, textarea').forEach(el => el.value = '');
+    }
+
+    updateLineNumbers();
+
+    // Totals
+    const totalLabels = data.total_labels || [];
+    const totalValues = data.total_values || [];
+    if (totalLabels.length >= 2) {
+      const rows = document.querySelectorAll('.total-row.auto-total');
+      if (rows.length >= 2) {
+        setTotalRow(rows[0], totalLabels[0], totalValues[0]);
+        setTotalRow(rows[1], totalLabels[1], totalValues[1]);
+      }
+    }
+
+    const finalLabel = form.querySelector('input[name="total_final_label"]');
+    const finalValue = form.querySelector('input[name="total_final_value"]');
+    if (finalLabel && data.total_final_label !== undefined) finalLabel.value = data.total_final_label;
+    if (finalValue && data.total_final_value !== undefined) finalValue.value = data.total_final_value;
+
+    document.querySelectorAll('.item-block').forEach(block => {
+      calculateItemAmount(block);
+      if (block.dataset.type === 'package') {
+        calculatePackageSubtotal(block);
+      }
+    });
+    calculateTotals();
+  }
+
+  function setItemBlock(block, data, idx) {
+    const hidden = block.querySelector('.item-type-hidden');
+    const type = data.item_types && data.item_types[idx] ? data.item_types[idx] : 'item';
+    if (hidden) hidden.value = type;
+    
+    const radios = block.querySelectorAll('.type-selector input[type="radio"]');
+    radios.forEach(radio => {
+      if (radio.value === type) {
+        radio.checked = true;
+        toggleItemType(radio, idx);
+      }
+    });
+
+    const map = {
+      'item_product[]': 'item_product',
+      'item_description[]': 'item_description',
+      'item_qty[]': 'item_qty',
+      'item_price[]': 'item_price',
+      'item_amount[]': 'item_amount',
+      'item_note_text[]': 'item_note_text',
+      'package_title[]': 'package_title',
+      'package_item_product[]': 'package_item_product',
+      'package_item_description[]': 'package_item_description',
+      'package_item_qty[]': 'package_item_qty',
+      'package_item_price[]': 'package_item_price',
+      'package_item_amount[]': 'package_item_amount',
+      'package_subtotal[]': 'package_subtotal'
+    };
+    Object.keys(map).forEach(name => {
+      const field = map[name];
+      const el = block.querySelector(`[name="${name}"]`);
+      if (el && data[field] && Array.isArray(data[field]) && data[field][idx] !== undefined) {
+        el.value = data[field][idx];
+      } else if (el) {
+        el.value = '';
+      }
+    });
+  }
+
+  function setTotalRow(row, label, value) {
+    const labelInput = row.querySelector('input[name="total_label[]"]');
+    const valueInput = row.querySelector('input[name="total_value[]"]');
+    if (labelInput) labelInput.value = label || '';
+    if (valueInput) valueInput.value = value || '';
+  }
+
+  // ----- JSON BUTTONS -----
+  document.getElementById('saveJsonBtn').addEventListener('click', function() {
+    const data = getFormData();
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'invoice_data.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('loadJsonBtn').addEventListener('click', function() {
+    const fileInput = document.getElementById('loadJsonInput');
+    if (!fileInput.files || fileInput.files.length === 0) {
+      alert('Please select a JSON file first.');
+      return;
+    }
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        setFormData(data);
+      } catch (err) {
+        alert('Invalid JSON file: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  // ----- INIT -----
+  document.addEventListener('DOMContentLoaded', function() {
+    itemCounter = document.querySelectorAll('.item-block').length;
+    attachCalcListeners();
+    document.querySelectorAll('.item-block').forEach(block => {
+      calculateItemAmount(block);
+      if (block.dataset.type === 'package') {
+        calculatePackageSubtotal(block);
+      }
+    });
+    calculateTotals();
+    updateLineNumbers();
+    initDragDrop();
+  });
+
+  // Expose functions globally
+  window.calculateTotals = calculateTotals;
+  window.calculateItemAmount = calculateItemAmount;
+  window.calculatePackageSubtotal = calculatePackageSubtotal;
+  window.toggleItemType = toggleItemType;
+  window.updateLineNumbers = updateLineNumbers;
+  window.addPackageItem = addPackageItem;
+  window.addItem = addItem;
+  window.removeBlock = removeBlock;
+</script>
+
+</body>
+</html>

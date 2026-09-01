@@ -9,7 +9,7 @@ admin_vehicles_bp = Blueprint('admin_vehicles', __name__, url_prefix='/admin/veh
 @admin_vehicles_bp.route('/')
 def list_vehicles():
     vehicles = Vehicle.query.all()
-    return render_template('admin/vehicles.html', vehicles=vehicles)
+    return render_template('admin/vehicles/list.html', vehicles=vehicles)
 
 
 @admin_vehicles_bp.route('/new', methods=['GET', 'POST'])
@@ -20,7 +20,7 @@ def create_vehicle():
         customer = Customer.query.get(form.customer_id.data)
         if not customer:
             flash('Please select a valid customer.', 'error')
-            return render_template('admin/vehicle_form.html', form=form, title='New Vehicle')
+            return render_template('admin/vehicles/edit.html', form=form, title='New Vehicle')
         
         vehicle = Vehicle(
             customer_id=form.customer_id.data,
@@ -47,7 +47,7 @@ def create_vehicle():
         flash('Vehicle created successfully!', 'success')
         return redirect(url_for('admin_vehicles.list_vehicles'))
     
-    return render_template('admin/vehicle_form.html', form=form, title='New Vehicle')
+    return render_template('admin/vehicles/edit.html', form=form, title='New Vehicle')
 
 
 @admin_vehicles_bp.route('/<int:vehicle_id>/edit', methods=['GET', 'POST'])
@@ -96,7 +96,7 @@ def edit_vehicle(vehicle_id):
         flash('Vehicle updated successfully!', 'success')
         return redirect(url_for('admin_vehicles.list_vehicles'))
     
-    return render_template('admin/vehicle_form.html', form=form, title='Edit Vehicle', vehicle=vehicle)
+    return render_template('admin/vehicles/edit.html', form=form, title='Edit Vehicle', vehicle=vehicle)
 
 
 @admin_vehicles_bp.route('/<int:vehicle_id>/delete', methods=['POST'])

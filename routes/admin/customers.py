@@ -21,7 +21,7 @@ def list_customers():
     else:
         customers = Customer.query.all()
     
-    return render_template('admin/customers.html', customers=customers, search=search)
+    return render_template('admin/customers/list.html', customers=customers, search=search)
 
 
 @admin_customers_bp.route('/new', methods=['GET', 'POST'])
@@ -50,7 +50,7 @@ def create_customer():
         flash('Customer created successfully!', 'success')
         return redirect(url_for('admin_customers.list_customers'))
     
-    return render_template('admin/customer_form.html', form=form, title='New Customer')
+    return render_template('admin/customers/edit.html', form=form, title='New Customer')
 
 
 @admin_customers_bp.route('/<int:customer_id>/edit', methods=['GET', 'POST'])
@@ -78,7 +78,7 @@ def edit_customer(customer_id):
         flash('Customer updated successfully!', 'success')
         return redirect(url_for('admin_customers.list_customers'))
     
-    return render_template('admin/customer_form.html', form=form, title='Edit Customer', customer=customer)
+    return render_template('admin/customers/edit.html', form=form, title='Edit Customer', customer=customer)
 
 
 @admin_customers_bp.route('/<int:customer_id>/delete', methods=['POST'])

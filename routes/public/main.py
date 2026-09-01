@@ -3,7 +3,7 @@ from flask import Blueprint, render_template
 from forms.public.booking_form import BookingForm
 from flask import request, jsonify, flash, redirect, url_for
 from extensions import db
-from models import Leads
+from models import Lead
 
 public_bp = Blueprint('public', __name__)
 
@@ -41,7 +41,7 @@ def create_booking():
             'notes': form.notes.data
         }
 
-        db.session.add(Leads(**booking_data))
+        db.session.add(Lead(**booking_data))
         db.session.commit()
         
         # Check if it's an AJAX request

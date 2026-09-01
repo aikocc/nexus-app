@@ -1,0 +1,348 @@
+<!-- List View -->
+{% if request.args.get('view', 'list') == 'list' %}
+<div class="uk-card uk-card-default">
+    <div class="uk-card-body uk-padding-remove">
+        <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-hover uk-table-middle uk-table-divider booking-table">
+                <thead>
+                    <tr>
+                        <th class="uk-width-small">#</th>
+                        <th class="uk-width-medium">Booking #</th>
+                        <th class="uk-width-medium">Customer</th>
+                        <th class="uk-width-medium">Vehicle</th>
+                        <th class="uk-width-small">Service</th>
+                        <th class="uk-width-medium">Scheduled</th>
+                        <th class="uk-width-small">Status</th>
+                        <th class="uk-width-small">Priority</th>
+                        <th class="uk-width-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if bookings %}
+                        {% for booking in bookings %}
+                        <tr class="booking-row booking-row-{{ booking.status }}">
+                            <td>
+                                <span class="row-number">{{ loop.index + (page - 1) * per_page }}</span>
+                            </td>
+                            
+                            <td>
+                                <strong>
+                                    <a href="{{ url_for('admin_bookings.view_booking', booking_id=booking.id) }}" class="booking-link">
+                                        {{ booking.booking_number }}
+                                    </a>
+                                </strong>
+                            </td>
+                            
+                            <td>
+                                <div class="customer-info">
+                                    <strong class="customer-name">{{ booking.customer_name }}</strong>
+                                    {% if booking.customer_email %}
+                                        <br>
+                                        <span class="uk-text-meta customer-email">
+                                            <span uk-icon="icon: mail; ratio: 0.6"></span>
+                                            {{ booking.customer_email }}
+                                        </span>
+                                    {% endif %}
+                                    {% if booking.customer_phone %}
+                                        <br>
+                                        <span class="uk-text-meta customer-phone">
+                                            <span uk-icon="icon: receiver; ratio: 0.6"></span>
+                                            {{ booking.customer_phone }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <div class="vehicle-info">
+                                    <strong class="vehicle-name">{{ booking.vehicle_make }} {{ booking.vehicle_model }}</strong>
+                                    {% if booking.vehicle_rego %}
+                                        <br>
+                                        <span class="vehicle-rego">
+                                            <span uk-icon="icon: car; ratio: 0.6"></span>
+                                            {{ booking.vehicle_rego }}
+                                        </span>
+                                    {% endif %}
+                                    {% if booking.vehicle_year %}
+                                        <br>
+                                        <span class="uk-text-meta vehicle-year">{{ booking.vehicle_year }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <span class="service-type">{{ booking.service_type|replace('_', ' ')|title }}</span>
+                            </td>
+                            
+                            <td>
+                                {% if booking.scheduled_date %}
+                                    <div class="scheduled-info">
+                                        <strong class="scheduled-date">
+                                            <span uk-icon="icon: calendar; ratio: 0.6"></span>
+                                            {{ booking.scheduled_date.strftime('%d/%m/%Y') }}
+                                        </strong>
+                                        {% if booking.scheduled_time %}
+                                            <br>
+                                            <span class="uk-text-meta scheduled-time">
+                                                <span uk-icon="icon: clock; ratio: 0.6"></span>
+                                                {{ booking.scheduled_time.strftime('%I:%M %p') }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="uk-text-muted">Not scheduled</span>
+                                {% endif %}
+                            </td>
+                            
+                            <td>
+                                {% set status_classes = {
+                                    'pending': 'status-pending',
+                                    'confirmed': 'status-confirmed',
+                                    'in_progress': 'status-in-progress',
+                                    'completed': 'status-completed',
+                                    'cancelled': 'status-cancelled',
+                                    'no_show': 'status-no-show'
+                                } %}
+                                {% set status_icons = {
+                                    'pending': 'clock',
+                                    'confirmed': 'check',
+                                    'in_progress': 'cog',
+                                    'completed': 'check',
+                                    'cancelled': 'close',
+                                    'no_show': 'ban'
+                                } %}
+                                <span class="status-badge {{ status_classes.get(booking.status, '') }}">
+                                    <span uk-icon="icon: {{ status_icons.get(booking.status, '') }}; ratio: 0.6"></span>
+                                    {{ booking.status|replace('_', ' ')|title }}
+                                </span>
+                            </td>
+                            
+                            <td>
+                                {% set priority_classes = {
+                                    'low': 'priority-low',
+                                    'normal': 'priority-normal',
+                                    'high': 'priority-high',
+                                    'urgent': 'priority-urgent'
+                                } %}
+                                {% set priority_icons = {
+                                    'low': 'arrow-down',
+                                    'normal': 'minus',
+                                    'high': 'arrow-up',
+                                    'urgent': 'bolt'
+                                } %}
+                                <span class="priority-badge {{ priority_classes.get(booking.priority, '') }}">
+                                    <span uk-icon="icon: {{ priority_icons.get(booking.priority, '') }}; ratio: 0.6"></span>
+                                    {{ booking.priority|title }}
+                                </span>
+                            </td>
+                            
+                            <td>
+                                <div class="uk-button-group">
+                                    <a href="{{ url_for('admin_bookings.view_booking', booking_id=booking.id) }}" 
+                                       class="uk-button uk-button-default uk-button-small action-btn action-view" 
+                                       title="View"
+                                       uk-tooltip="View">
+                                        <span uk-icon="icon: eye; ratio: 0.7"></span>
+                                    </a>
+                                    <a href="{{ url_for('admin_bookings.edit_booking', booking_id=booking.id) }}" 
+                                       class="uk-button uk-button-default uk-button-small action-btn action-edit" 
+                                       title="Edit"
+                                       uk-tooltip="Edit">
+                                        <span uk-icon="icon: pencil; ratio: 0.7"></span>
+                                    </a>
+                                    {% if booking.status in ['pending', 'confirmed'] %}
+                                        <button hx-post="{{ url_for('admin_bookings.confirm_booking', booking_id=booking.id) }}"
+                                                hx-target="#booking-content"
+                                                hx-indicator="#loading-indicator"
+                                                hx-confirm="Confirm this booking?"
+                                                class="uk-button uk-button-success uk-button-small action-btn action-confirm"
+                                                title="Confirm"
+                                                uk-tooltip="Confirm">
+                                            <span uk-icon="icon: check; ratio: 0.7"></span>
+                                        </button>
+                                    {% endif %}
+                                    {% if booking.status == 'in_progress' %}
+                                        <button hx-post="{{ url_for('admin_bookings.complete_booking', booking_id=booking.id) }}"
+                                                hx-target="#booking-content"
+                                                hx-indicator="#loading-indicator"
+                                                hx-confirm="Mark this booking as completed?"
+                                                class="uk-button uk-button-success uk-button-small action-btn action-complete"
+                                                title="Complete"
+                                                uk-tooltip="Complete">
+                                            <span uk-icon="icon: check; ratio: 0.7"></span>
+                                        </button>
+                                    {% endif %}
+                                    {% if booking.status not in ['completed', 'cancelled'] %}
+                                        <button hx-post="{{ url_for('admin_bookings.cancel_booking', booking_id=booking.id) }}"
+                                                hx-target="#booking-content"
+                                                hx-indicator="#loading-indicator"
+                                                hx-confirm="Cancel this booking?"
+                                                class="uk-button uk-button-danger uk-button-small action-btn action-cancel"
+                                                title="Cancel"
+                                                uk-tooltip="Cancel">
+                                            <span uk-icon="icon: close; ratio: 0.7"></span>
+                                        </button>
+                                    {% endif %}
+                                    <button hx-delete="{{ url_for('admin_bookings.delete_booking', booking_id=booking.id) }}"
+                                            hx-target="#booking-content"
+                                            hx-indicator="#loading-indicator"
+                                            hx-confirm="Delete this booking? This action cannot be undone."
+                                            class="uk-button uk-button-danger uk-button-small action-btn action-delete"
+                                            title="Delete"
+                                            uk-tooltip="Delete">
+                                        <span uk-icon="icon: trash; ratio: 0.7"></span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="uk-text-center uk-padding-large">
+                                <div class="uk-text-muted">
+                                    <span uk-icon="icon: file; ratio: 3"></span>
+                                    <p class="uk-margin-medium-top">No bookings found</p>
+                                    <a href="{{ url_for('admin_bookings.new_booking') }}" class="uk-button uk-button-primary uk-button-small">
+                                        <span uk-icon="icon: plus; ratio: 0.8"></span> Create your first booking
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    {% if pagination and pagination.pages > 1 %}
+    <div class="uk-card-footer">
+        <ul class="uk-pagination uk-flex-center">
+            {% if pagination.has_prev %}
+                <li>
+                    <button class="uk-button uk-button-default uk-button-small"
+                            onclick="htmx.ajax('GET', '{{ url_for('admin_bookings.list_bookings') }}?view=list&page={{ pagination.prev_num }}', {
+                                target: '#booking-content',
+                                pushUrl: true,
+                                indicator: '#loading-indicator'
+                            });">
+                        <span uk-pagination-previous></span>
+                    </button>
+                </li>
+            {% else %}
+                <li class="uk-disabled"><span><span uk-pagination-previous></span></span></li>
+            {% endif %}
+            
+            {% for page_num in pagination.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                        <li class="uk-active"><span>{{ page_num }}</span></li>
+                    {% else %}
+                        <li>
+                            <button class="uk-button uk-button-default uk-button-small"
+                                    onclick="htmx.ajax('GET', '{{ url_for('admin_bookings.list_bookings') }}?view=list&page={{ page_num }}', {
+                                        target: '#booking-content',
+                                        pushUrl: true,
+                                        indicator: '#loading-indicator'
+                                    });">
+                                {{ page_num }}
+                            </button>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="uk-disabled"><span>…</span></li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if pagination.has_next %}
+                <li>
+                    <button class="uk-button uk-button-default uk-button-small"
+                            onclick="htmx.ajax('GET', '{{ url_for('admin_bookings.list_bookings') }}?view=list&page={{ pagination.next_num }}', {
+                                target: '#booking-content',
+                                pushUrl: true,
+                                indicator: '#loading-indicator'
+                            });">
+                        <span uk-pagination-next></span>
+                    </button>
+                </li>
+            {% else %}
+                <li class="uk-disabled"><span><span uk-pagination-next></span></span></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Calendar View -->
+{% else %}
+<div class="uk-card uk-card-default">
+    <div class="uk-card-body">
+        <!-- Calendar Navigation -->
+        <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
+            <div>
+                <h3 class="uk-card-title">{{ calendar_month }} {{ calendar_year }}</h3>
+            </div>
+            <div class="uk-button-group">
+                <button class="uk-button uk-button-default uk-button-small" 
+                        onclick="navigateCalendar(-1)">
+                    <span uk-icon="icon: chevron-left; ratio: 0.8"></span>
+                    Previous Month
+                </button>
+                <button class="uk-button uk-button-default uk-button-small" 
+                        onclick="navigateCalendar(0)">
+                    Current Month
+                </button>
+                <button class="uk-button uk-button-default uk-button-small" 
+                        onclick="navigateCalendar(1)">
+                    Next Month
+                    <span uk-icon="icon: chevron-right; ratio: 0.8"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="calendar-grid">
+            <div class="calendar-header">Mon</div>
+            <div class="calendar-header">Tue</div>
+            <div class="calendar-header">Wed</div>
+            <div class="calendar-header">Thu</div>
+            <div class="calendar-header">Fri</div>
+            <div class="calendar-header">Sat</div>
+            <div class="calendar-header">Sun</div>
+
+            {% for day in calendar_days %}
+                <div class="calendar-day {% if day.is_today %}calendar-day-today{% endif %} {% if not day.is_current_month %}calendar-day-other-month{% endif %}">
+                    <div class="calendar-day-header">
+                        <span class="calendar-day-number {% if day.is_today %}calendar-day-number-today{% endif %}">
+                            {% if day.day > 0 %}
+                                {{ day.day }}
+                            {% else %}
+                                &nbsp;
+                            {% endif %}
+                        </span>
+                        {% if day.day > 0 and day.booking_count > 0 %}
+                            <span class="calendar-badge">{{ day.booking_count }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="calendar-day-body">
+                        {% if day.day > 0 %}
+                            {% for booking in day.bookings %}
+                                <div class="calendar-booking calendar-booking-{{ booking.status }}"
+                                     onclick="location.href='{{ url_for('admin_bookings.view_booking', booking_id=booking.id) }}'">
+                                    <div class="calendar-booking-name">{{ booking.customer_name }}</div>
+                                    <div class="calendar-booking-details">
+                                        <span>{{ booking.vehicle_rego }}</span>
+                                        {% if booking.scheduled_time %}
+                                            <span>{{ booking.scheduled_time.strftime('%I:%M %p') }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}

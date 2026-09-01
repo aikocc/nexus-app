@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tax Invoice {{ invoice.number }} — {{ business.name }}</title>
+<style>
+  :root{
+    --ink:#1a1a1a;
+    --grey-label:#7a7a7a;
+    --grey-line:#dcdcdc;
+    --grey-fill:#f4f4f4;
+    --accent:#0e7c66;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #e7e7e7;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: var(--ink);
+  }
+
+  /* ---------- A4 PAGE ---------- */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 10mm auto;
+    background: #ffffff;
+    padding: 16mm 14mm;
+    position: relative;
+    box-shadow: 0 0 8px rgba(0,0,0,0.15);
+  }
+
+  .page:not(:last-child) {
+    page-break-after: always;
+    break-after: page;
+  }
+
+  @media print {
+    html, body { background: #ffffff; }
+    .page {
+      margin: 0;
+      box-shadow: none;
+      width: 210mm;
+      min-height: 297mm;
+      padding: 14mm 14mm;
+    }
+    .page:not(:last-child) {
+      page-break-after: always;
+      break-after: page;
+    }
+    @page { 
+      size: A4; 
+      margin: 0;
+    }
+  }
+
+  /* ---------- HEADER ---------- */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 10px;
+  }
+  .biz-name {
+    font-size: 19px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+  }
+  .biz-phone {
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .biz-phone .icon { margin-right: 4px; }
+  .header-right {
+    text-align: right;
+    font-size: 12.5px;
+    color: #4a4a4a;
+    line-height: 1.6;
+  }
+
+  .rule { border: none; border-top: 1px solid var(--grey-line); margin: 0; }
+
+  /* ---------- CUSTOMER / INVOICE BLOCK ---------- */
+  .cust-invoice {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 0;
+  }
+  .cust-block { font-size: 13px; line-height: 1.7; }
+  .cust-code { color: var(--grey-label); font-size: 11.5px; text-transform: none; margin-bottom: 2px; }
+  .cust-name { font-weight: 700; font-size: 14px; }
+
+  .invoice-block { text-align: right; }
+  .invoice-tag {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--grey-label);
+  }
+  .invoice-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 2px 0;
+  }
+  .invoice-number {
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  /* ---------- META GRID ---------- */
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 14px 0;
+    row-gap: 14px;
+  }
+  .meta-grid .label {
+    font-size: 10.5px;
+    letter-spacing: 0.4px;
+    color: var(--grey-label);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .meta-grid .value {
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
+  /* ---------- LINE ITEMS TABLE ---------- */
+  .items-head {
+    display: grid;
+    grid-template-columns: 1.1fr 3.4fr 0.7fr 0.9fr 0.9fr;
+    font-size: 10.5px;
+    letter-spacing: 0.4px;
+    color: var(--grey-label);
+    text-transform: uppercase;
+    padding: 8px 0 8px 0;
+    border-bottom: 2px solid var(--ink);
+  }
+  .items-head .num { text-align: right; }
+
+  .work-order {
+    font-size: 12px;
+    text-decoration: underline;
+    padding: 2px 0 2px 0;
+  }
+
+  /* Standard item row */
+  .item-row {
+    display: grid;
+    grid-template-columns: 1.1fr 3.4fr 0.7fr 0.9fr 0.9fr;
+    font-size: 13px;
+    padding: 10px 0 10px 0;
+    border-bottom: 1px solid var(--grey-line);
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .item-row .num { text-align: right; }
+  .item-row .product { font-weight: 600; }
+
+  /* Note-only row - spans full width */
+  .note-row {
+    grid-column: 1 / -1;
+    font-size: 12px;
+    color: #4a4a4a;
+    padding: 8px 0 8px 0;
+    border-bottom: 1px solid var(--grey-line);
+    font-style: italic;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .note-row .note-label {
+    font-size: 10px;
+    color: var(--grey-label);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-right: 8px;
+  }
+
+  /* ---------- TOTALS + BANK INLINE ---------- */
+  .totals-bank-wrap {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    padding-top: 16px;
+    align-items: stretch;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .totals-box {
+    width: 62mm;
+    border: 1px solid var(--ink);
+    flex-shrink: 0;
+    margin-left: auto;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .totals-box .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--grey-line);
+  }
+  .totals-box .row:last-child { border-bottom: none; }
+  .totals-box .row.total {
+    font-weight: 800;
+    font-size: 14.5px;
+  }
+
+  .bank-inline {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--grey-label);
+    padding: 8px 0;
+    flex-shrink: 0;
+    min-width: 120px;
+    margin-right: 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .bank-inline .bank-label {
+    font-size: 10px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--grey-label);
+    margin-bottom: 2px;
+  }
+  .bank-inline .bank-value {
+    font-size: 12px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .bank-inline .bank-col {
+    line-height: 1.6;
+  }
+  .bank-inline .bank-col .highlight {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .bank-inline .bank-ref {
+    margin-top: 6px;
+    font-size: 10px;
+    color: var(--grey-label);
+  }
+
+  /* ---------- FOOTER ---------- */
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 11px;
+    color: var(--grey-label);
+    border-top: 1px solid var(--grey-line);
+    margin-top: 24px;
+    padding-top: 10px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .footer-left {
+    max-width: 60%;
+  }
+  .footer-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .page-number {
+    text-align: center;
+    font-size: 10px;
+    color: var(--grey-label);
+    margin-top: 10px;
+    padding-top: 5px;
+    border-top: 1px dashed var(--grey-line);
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="page">
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <p class="biz-name">{{ business.name }}</p>
+      <p class="biz-phone"><span class="icon">☎</span>{{ business.phone }}</p>
+    </div>
+    <div class="header-right">
+      {{ business.service_area }}<br>
+      {{ business.city_state }}<br>
+      {{ business.email }}
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- CUSTOMER + INVOICE NUMBER -->
+  <div class="cust-invoice">
+    <div class="cust-block">
+      <div class="cust-code">Customer Code: {{ customer.code }}</div>
+      <div class="cust-name">{{ customer.name }}</div>
+      {% for line in customer.address %}
+      <div>{{ line }}</div>
+      {% endfor %}
+    </div>
+    <div class="invoice-block">
+      <div class="invoice-tag">{{ invoice.type }}</div>
+      <div class="invoice-title">{{ invoice.title }}</div>
+      <div class="invoice-number">{{ invoice.number }}</div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- JOB META -->
+  <div class="meta-grid">
+    <div>
+      <div class="label">Issued</div>
+      <div class="value">{{ job.issued }}</div>
+    </div>
+    <div>
+      <div class="label">Technician</div>
+      <div class="value">{{ job.technician | upper }}</div>
+    </div>
+    <div>
+      <div class="label">Finalised By</div>
+      <div class="value">{{ job.finalised_by | upper }}</div>
+    </div>
+    <div>
+      <div class="label">Customer Name</div>
+      <div class="value">{{ job.customer_name | upper }}</div>
+    </div>
+
+    <div>
+      <div class="label">Vehicle Make</div>
+      <div class="value">{{ vehicle.make | upper }}</div>
+    </div>
+    <div>
+      <div class="label">Vehicle Series</div>
+      <div class="value">{{ vehicle.series | upper }}</div>
+    </div>
+    <div>
+      <div class="label">Year</div>
+      <div class="value">{{ vehicle.year }}</div>
+    </div>
+    <div>
+      <div class="label">Odometer</div>
+      <div class="value">{{ vehicle.odometer }}</div>
+    </div>
+
+    <div>
+      <div class="label">Vehicle Model</div>
+      <div class="value">{{ vehicle.model | upper }}</div>
+    </div>
+    <div>
+      <div class="label">Registration No.</div>
+      <div class="value">{{ vehicle.registration | upper }}</div>
+    </div>
+    <div>
+      <div class="label">VIN No.</div>
+      <div class="value">{{ vehicle.vin | upper }}</div>
+    </div>
+    <div>
+      <div class="label">Paid By</div>
+      <div class="value">{{ vehicle.paid_by | upper }}</div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- LINE ITEMS HEADER -->
+  <div class="items-head">
+    <div>Product</div>
+    <div>Description</div>
+    <div class="num">Qty</div>
+    <div class="num">Price</div>
+    <div class="num">Amount</div>
+  </div>
+
+  {% if work_order %}
+  <div class="work-order">W/ORDER: {{ work_order }}</div>
+  {% endif %}
+
+  <!-- LINE ITEMS - Page 1 -->
+  {% for item in items_page1 %}
+    {% if item.is_note %}
+      <!-- This is a standalone note row -->
+      <div class="note-row">
+        <span class="note-label">Note:</span> {{ item.note_text }}
+      </div>
+    {% else %}
+      <!-- This is a regular line item -->
+      <div class="item-row">
+        <div class="product">{{ item.product | upper }}</div>
+        <div>{{ item.description | upper }}</div>
+        <div class="num">{{ item.qty }}</div>
+        <div class="num">{{ item.price }}</div>
+        <div class="num">${{ item.amount }}</div>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+  <!-- TOTALS + BANK INLINE (show on page 1 if only one page) -->
+  {% if total_pages == 1 %}
+  <div class="totals-bank-wrap">
+    <!-- Bank details on the left -->
+    <div class="bank-inline">
+      <div class="bank-col">
+        <div class="bank-label">Bank Details</div>
+        <div><span class="bank-value">{{ bank.account_name }}</span></div>
+        <div><span class="bank-label">BSB</span> <span class="bank-value">{{ bank.bsb }}</span></div>
+        <div><span class="bank-label">Account</span> <span class="bank-value">{{ bank.account_number }}</span></div>
+      </div>
+      <div class="bank-ref">
+        <span class="bank-label">Reference</span><br>
+        <span class="bank-value highlight">Invoice #{{ invoice.number }}</span>
+      </div>
+    </div>
+
+    <!-- Totals box on the right -->
+    <div class="totals-box">
+      {% for row in totals %}
+      <div class="row{% if row.total %} total{% endif %}">
+        <span>{{ row.label | upper }}</span><span>{{ row.value }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">{{ footer_note }}</div>
+    <div class="footer-right">{{ page_info }}</div>
+  </div>
+  {% endif %}
+
+  <div class="page-number">Page 1 of {{ total_pages }}</div>
+</div>
+
+<!-- PAGES 2+ (only render if there are more items) -->
+{% if total_pages > 1 %}
+  {% for page_num in range(2, total_pages + 1) %}
+  <div class="page">
+    <!-- LINE ITEMS HEADER -->
+    <div class="items-head">
+      <div>Product</div>
+      <div>Description</div>
+      <div class="num">Qty</div>
+      <div class="num">Price</div>
+      <div class="num">Amount</div>
+    </div>
+
+    <!-- LINE ITEMS - Page {{ page_num }} -->
+    {% set page_key = 'items_page' + page_num|string %}
+    {% for item in page_data[page_key] %}
+      {% if item.is_note %}
+        <!-- This is a standalone note row -->
+        <div class="note-row">
+          <span class="note-label">Note:</span> {{ item.note_text }}
+        </div>
+      {% else %}
+        <!-- This is a regular line item -->
+        <div class="item-row">
+          <div class="product">{{ item.product | upper }}</div>
+          <div>{{ item.description | upper }}</div>
+          <div class="num">{{ item.qty }}</div>
+          <div class="num">{{ item.price }}</div>
+          <div class="num">${{ item.amount }}</div>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <!-- Only show totals on the last page -->
+    {% if page_num == total_pages %}
+    <div class="totals-bank-wrap">
+      <!-- Bank details on the left -->
+      <div class="bank-inline">
+        <div class="bank-col">
+          <div class="bank-label">Bank Details</div>
+          <div><span class="bank-value">{{ bank.account_name }}</span></div>
+          <div><span class="bank-label">BSB</span> <span class="bank-value">{{ bank.bsb }}</span></div>
+          <div><span class="bank-label">Account</span> <span class="bank-value">{{ bank.account_number }}</span></div>
+        </div>
+        <div class="bank-ref">
+          <span class="bank-label">Reference</span><br>
+          <span class="bank-value highlight">Invoice #{{ invoice.number }}</span>
+        </div>
+      </div>
+
+      <!-- Totals box on the right -->
+      <div class="totals-box">
+        {% for row in totals %}
+        <div class="row{% if row.total %} total{% endif %}">
+          <span>{{ row.label | upper }}</span><span>{{ row.value }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- FOOTER (only on the last page) -->
+    <div class="footer">
+      <div class="footer-left">{{ footer_note }}</div>
+      <div class="footer-right">{{ page_info }}</div>
+    </div>
+    {% endif %}
+
+    <div class="page-number">Page {{ page_num }} of {{ total_pages }}</div>
+  </div>
+  {% endfor %}
+{% endif %}
+
+</body>
+</html>

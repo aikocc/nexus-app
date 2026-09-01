@@ -21,8 +21,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ 1 }}" class="sidebar-link {% if active_page == 'bookings' %}active{% endif %}">
-                        <span class="sidebar-icon">⛔</span> Bookings
+                    <a href="{{ url_for('admin_bookings.list_bookings') }}" class="sidebar-link {% if active_page == 'bookings' %}active{% endif %}">
+                        <span class="sidebar-icon">📋</span> Bookings
                     </a>
                 </li>
                 <li>
