@@ -1,0 +1,267 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}New Booking - Nexus{% endblock %}
+
+{% block admin_content %}
+<div class="uk-container uk-container-expand">
+    <!-- Page Header -->
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-medium-bottom">
+        <div>
+            <h1 class="uk-heading-small uk-margin-remove">New Booking</h1>
+            <p class="uk-text-muted uk-margin-remove">Create a new vehicle service booking</p>
+        </div>
+        <div>
+            <a href="{{ url_for('admin_bookings.list_bookings') }}" 
+               class="uk-button uk-button-default">
+                <span uk-icon="icon: arrow-left; ratio: 0.8"></span> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Create Form -->
+    <div class="uk-card uk-card-default">
+        <div class="uk-card-body">
+            <form method="POST" action="{{ url_for('admin_bookings.new_booking') }}" 
+                  class="uk-grid uk-grid-medium" uk-grid>
+                
+                {{ form.hidden_tag() }}
+                
+                <!-- Copy the same form fields from edit.html -->
+                <!-- Customer Information -->
+                <div class="uk-width-1-1">
+                    <h3 class="uk-card-title uk-margin-small-bottom">
+                        <span uk-icon="icon: user; ratio: 0.8"></span>
+                        Customer Information
+                    </h3>
+                    <hr class="uk-divider-small">
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="customer_name">Customer Name *</label>
+                        <div class="uk-form-controls">
+                            {{ form.customer_name(class="uk-input", placeholder="Full name") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="customer_email">Email</label>
+                        <div class="uk-form-controls">
+                            {{ form.customer_email(class="uk-input", placeholder="email@example.com") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="customer_phone">Phone</label>
+                        <div class="uk-form-controls">
+                            {{ form.customer_phone(class="uk-input", placeholder="Phone number") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="customer_address">Address</label>
+                        <div class="uk-form-controls">
+                            {{ form.customer_address(class="uk-input", placeholder="Street address") }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Information -->
+                <div class="uk-width-1-1 uk-margin-medium-top">
+                    <h3 class="uk-card-title uk-margin-small-bottom">
+                        <span uk-icon="icon: car; ratio: 0.8"></span>
+                        Vehicle Information
+                    </h3>
+                    <hr class="uk-divider-small">
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="vehicle_rego">Registration *</label>
+                        <div class="uk-form-controls">
+                            {{ form.vehicle_rego(class="uk-input", placeholder="e.g., ABC123") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="vehicle_rego_state">Registration State</label>
+                        <div class="uk-form-controls">
+                            {{ form.vehicle_rego_state(class="uk-input", placeholder="e.g., NSW") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-3@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="vehicle_make">Make *</label>
+                        <div class="uk-form-controls">
+                            {{ form.vehicle_make(class="uk-input", placeholder="e.g., Toyota") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-3@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="vehicle_model">Model *</label>
+                        <div class="uk-form-controls">
+                            {{ form.vehicle_model(class="uk-input", placeholder="e.g., Camry") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-3@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="vehicle_year">Year</label>
+                        <div class="uk-form-controls">
+                            {{ form.vehicle_year(class="uk-input", placeholder="e.g., 2020") }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Details -->
+                <div class="uk-width-1-1 uk-margin-medium-top">
+                    <h3 class="uk-card-title uk-margin-small-bottom">
+                        <span uk-icon="icon: settings; ratio: 0.8"></span>
+                        Service Details
+                    </h3>
+                    <hr class="uk-divider-small">
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="service_type">Service Type *</label>
+                        <div class="uk-form-controls">
+                            {{ form.service_type(class="uk-select") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="duration_minutes">Duration (minutes)</label>
+                        <div class="uk-form-controls">
+                            {{ form.duration_minutes(class="uk-input", placeholder="60") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-1">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="service_description">Service Description</label>
+                        <div class="uk-form-controls">
+                            {{ form.service_description(class="uk-textarea", rows="3", placeholder="Describe the service") }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scheduling -->
+                <div class="uk-width-1-1 uk-margin-medium-top">
+                    <h3 class="uk-card-title uk-margin-small-bottom">
+                        <span uk-icon="icon: calendar; ratio: 0.8"></span>
+                        Scheduling
+                    </h3>
+                    <hr class="uk-divider-small">
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="scheduled_date">Scheduled Date</label>
+                        <div class="uk-form-controls">
+                            {{ form.scheduled_date(class="uk-input", type="date") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="scheduled_time">Scheduled Time</label>
+                        <div class="uk-form-controls">
+                            {{ form.scheduled_time(class="uk-input", type="time") }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status & Priority -->
+                <div class="uk-width-1-1 uk-margin-medium-top">
+                    <h3 class="uk-card-title uk-margin-small-bottom">
+                        <span uk-icon="icon: bolt; ratio: 0.8"></span>
+                        Status & Priority
+                    </h3>
+                    <hr class="uk-divider-small">
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="status">Status</label>
+                        <div class="uk-form-controls">
+                            {{ form.status(class="uk-select") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="priority">Priority</label>
+                        <div class="uk-form-controls">
+                            {{ form.priority(class="uk-select") }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="uk-width-1-1 uk-margin-medium-top">
+                    <h3 class="uk-card-title uk-margin-small-bottom">
+                        <span uk-icon="icon: file-text; ratio: 0.8"></span>
+                        Notes
+                    </h3>
+                    <hr class="uk-divider-small">
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="customer_notes">Customer Notes</label>
+                        <div class="uk-form-controls">
+                            {{ form.customer_notes(class="uk-textarea", rows="3", placeholder="Any notes from the customer") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uk-width-1-2@s">
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="special_instructions">Special Instructions</label>
+                        <div class="uk-form-controls">
+                            {{ form.special_instructions(class="uk-textarea", rows="3", placeholder="Special instructions for the workshop") }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="uk-width-1-1 uk-margin-medium-top">
+                    <hr class="uk-divider-small">
+                    <div class="uk-flex uk-flex-between">
+                        <div>
+                            <a href="{{ url_for('admin_bookings.list_bookings') }}" 
+                               class="uk-button uk-button-default">
+                                <span uk-icon="icon: close; ratio: 0.8"></span> Cancel
+                            </a>
+                        </div>
+                        <div>
+                            <button type="submit" class="uk-button uk-button-primary">
+                                <span uk-icon="icon: plus; ratio: 0.8"></span> Create Booking
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

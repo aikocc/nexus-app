@@ -52,6 +52,20 @@ def create_customer():
     
     return render_template('admin/customers/edit.html', form=form, title='New Customer')
 
+@admin_customers_bp.route('/<int:customer_id>')
+def view_customer(customer_id):
+    """View a single customer"""
+    customer = Customer.query.get_or_404(customer_id)
+    vehicles = customer.vehicles.all()
+    bookings = customer.bookings
+    
+    return render_template(
+        'admin/customers/view.html',
+        customer=customer,
+        vehicles=vehicles,
+        bookings=bookings
+    )
+
 
 @admin_customers_bp.route('/<int:customer_id>/edit', methods=['GET', 'POST'])
 def edit_customer(customer_id):

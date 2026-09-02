@@ -1,0 +1,1714 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Booking #{{ booking.booking_number }} - Nexus{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ============================================
+       VIEW BOOKING STYLES
+       ============================================ */
+    .booking-header {
+        background: linear-gradient(135deg, #F8FAFB 0%, #F1F3F5 100%);
+        border-radius: 12px;
+        padding: 24px 32px;
+        border: 1px solid #E5E7EB;
+        margin-bottom: 24px;
+    }
+    
+    .booking-status-badge {
+        font-size: 14px;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .booking-status-badge.status-pending {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+    
+    .booking-status-badge.status-confirmed {
+        background: #DBEAFE;
+        color: #1E40AF;
+    }
+    
+    .booking-status-badge.status-in-progress {
+        background: #E0E7FF;
+        color: #3730A3;
+    }
+    
+    .booking-status-badge.status-completed {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+    
+    .booking-status-badge.status-cancelled {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+    
+    .booking-status-badge.status-no-show {
+        background: #F3F4F6;
+        color: #6B7280;
+    }
+    
+    .booking-priority-badge {
+        font-size: 14px;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .booking-priority-badge.priority-low {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+    
+    .booking-priority-badge.priority-normal {
+        background: #DBEAFE;
+        color: #1E40AF;
+    }
+    
+    .booking-priority-badge.priority-high {
+        background: #FEF3C7;
+        color: #92400E;
+    }
+    
+    .booking-priority-badge.priority-urgent {
+        background: #FEE2E2;
+        color: #991B1B;
+        animation: pulse-urgent 2s infinite;
+    }
+    
+    @keyframes pulse-urgent {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .detail-card {
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        padding: 20px;
+        height: 100%;
+        background: #FFFFFF;
+        transition: all 0.2s ease;
+    }
+    
+    .detail-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+    }
+    
+    .detail-card .detail-label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6B7280;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+    
+    .detail-card .detail-value {
+        font-size: 15px;
+        color: #1A1D26;
+        font-weight: 500;
+    }
+    
+    .detail-card .detail-value .uk-icon {
+        color: #6B7280;
+        margin-right: 6px;
+    }
+    
+    .timeline-item {
+        display: flex;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid #F3F4F6;
+        align-items: flex-start;
+    }
+    
+    .timeline-item:last-child {
+        border-bottom: none;
+    }
+    
+    .timeline-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 16px;
+    }
+    
+    .timeline-icon.created {
+        background: #DBEAFE;
+        color: #1E40AF;
+    }
+    
+    .timeline-icon.confirmed {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+    
+    .timeline-icon.completed {
+        background: #D1FAE5;
+        color: #065F46;
+    }
+    
+    .timeline-icon.cancelled {
+        background: #FEE2E2;
+        color: #991B1B;
+    }
+    
+    .timeline-content {
+        flex: 1;
+    }
+    
+    .timeline-title {
+        font-weight: 600;
+        color: #1A1D26;
+        font-size: 14px;
+    }
+    
+    .timeline-date {
+        font-size: 12px;
+        color: #6B7280;
+    }
+    
+    .previous-booking-item {
+        padding: 8px 12px;
+        background: #F9FAFB;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .previous-booking-item:hover {
+        background: #F1F3F5;
+        transform: translateX(4px);
+    }
+    
+    .previous-booking-item .booking-date {
+        font-size: 13px;
+        color: #4B5563;
+    }
+    
+    .previous-booking-item .booking-status-small {
+        font-size: 11px;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+    
+    /* ============================================
+       COLLAPSIBLE CARD STYLES
+       ============================================ */
+    /* All cards in the sidebar should have consistent spacing */
+    .uk-card,
+    .collapsible-card {
+        margin-bottom: 16px;
+    }
+    
+    .collapsible-card {
+        border: 1px solid #E5E7EB;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        background: #FFFFFF;
+    }
+    
+    .collapsible-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .collapsible-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 20px;
+        background: #F9FAFB;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        user-select: none;
+        gap: 12px;
+    }
+    
+    .collapsible-card-header:hover {
+        background: #F1F3F5;
+    }
+    
+    .collapsible-card-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .collapsible-card-title-text {
+        font-weight: 600;
+        font-size: 15px;
+        color: #1A1D26;
+        white-space: nowrap;
+    }
+    
+    .collapsible-card-title .uk-icon {
+        color: #6B7280;
+        flex-shrink: 0;
+    }
+    
+    .collapsible-card-header .card-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+    
+    .collapsible-card-header .card-actions .uk-button {
+        padding: 4px 14px;
+        font-size: 12px;
+        min-height: 30px;
+    }
+    
+    .collapsible-card-header .toggle-icon {
+        transition: transform 0.3s ease;
+        color: #6B7280;
+        flex-shrink: 0;
+    }
+    
+    .collapsible-card-header .toggle-icon.collapsed {
+        transform: rotate(-90deg);
+    }
+    
+    .collapsible-card-body {
+        padding: 20px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .collapsible-card-body.collapsed {
+        display: none;
+    }
+    
+    /* Edit mode indicator */
+    .collapsible-card.edit-mode {
+        border-left: 4px solid #00B894;
+        border-color: #00B894;
+    }
+    
+    .collapsible-card.edit-mode .collapsible-card-header {
+        background: #F0FDF9;
+    }
+    
+    /* No edit card */
+    .collapsible-card.no-edit .card-actions .uk-button {
+        display: none;
+    }
+    
+    /* Quick actions */
+    .quick-action-btn {
+        width: 100%;
+        justify-content: center;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 40px;
+    }
+    
+    .action-bar {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .action-bar .uk-button {
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 80px;
+        justify-content: center;
+    }
+    
+    .save-cancel-buttons .uk-button {
+        min-width: 120px;
+        justify-content: center;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 860px) {
+        .booking-header {
+            padding: 16px 20px;
+        }
+        
+        .action-bar {
+            margin-top: 12px;
+            width: 100%;
+        }
+        
+        .action-bar .uk-button {
+            flex: 1;
+            justify-content: center;
+            min-width: unset;
+        }
+        
+        .detail-card {
+            padding: 16px;
+        }
+        
+        .collapsible-card-header {
+            flex-wrap: wrap;
+            padding: 12px 16px;
+        }
+        
+        .collapsible-card-header .card-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+        
+        .collapsible-card-title {
+            width: 100%;
+        }
+        
+        .collapsible-card-title-text {
+            white-space: normal;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .booking-header {
+            padding: 12px 16px;
+        }
+        
+        .booking-status-badge {
+            font-size: 12px;
+            padding: 4px 12px;
+        }
+        
+        .detail-card .detail-value {
+            font-size: 13px;
+        }
+        
+        .action-bar .uk-button {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        
+        .collapsible-card-title-text {
+            font-size: 13px;
+        }
+        
+        .collapsible-card-header .card-actions .uk-button {
+            font-size: 11px;
+            padding: 3px 10px;
+            min-height: 26px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block admin_content %}
+<div class="uk-container uk-container-expand">
+    <!-- Page Header -->
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-medium-bottom">
+        <div>
+            <h1 class="uk-heading-small uk-margin-remove">Booking #{{ booking.booking_number }}</h1>
+            <p class="uk-text-muted uk-margin-remove">
+                Created {{ booking.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                {% if booking.updated_at and booking.updated_at != booking.created_at %}
+                    | Updated {{ booking.updated_at.strftime('%b %d, %Y at %I:%M %p') }}
+                {% endif %}
+            </p>
+        </div>
+        <div class="action-bar">
+            <a href="{{ url_for('admin_bookings.list_bookings') }}" class="uk-button uk-button-default">
+                <span uk-icon="icon: arrow-left; ratio: 0.8"></span> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Status & Priority Banner -->
+    <div class="booking-header" id="status-banner">
+        <div class="uk-grid uk-grid-small uk-flex uk-flex-middle" uk-grid>
+            <div class="uk-width-auto">
+                <span class="booking-status-badge status-{{ booking.status }}">
+                    <span uk-icon="icon: 
+                        {% if booking.status == 'pending' %}clock
+                        {% elif booking.status == 'confirmed' %}check
+                        {% elif booking.status == 'in_progress' %}cog
+                        {% elif booking.status == 'completed' %}check
+                        {% elif booking.status == 'cancelled' %}close
+                        {% else %}ban{% endif %}; ratio: 0.8"></span>
+                    {{ booking.status|replace('_', ' ')|title }}
+                </span>
+            </div>
+            <div class="uk-width-auto">
+                <span class="booking-priority-badge priority-{{ booking.priority }}">
+                    <span uk-icon="icon: 
+                        {% if booking.priority == 'low' %}arrow-down
+                        {% elif booking.priority == 'normal' %}minus
+                        {% elif booking.priority == 'high' %}arrow-up
+                        {% else %}bolt{% endif %}; ratio: 0.8"></span>
+                    {{ booking.priority|title }}
+                </span>
+            </div>
+            <div class="uk-width-expand uk-text-right@s">
+                <span class="uk-text-meta">
+                    <span uk-icon="icon: calendar; ratio: 0.7"></span>
+                    {% if booking.scheduled_date %}
+                        {{ booking.scheduled_date.strftime('%b %d, %Y') }}
+                        {% if booking.scheduled_time %}
+                            at {{ booking.scheduled_time.strftime('%I:%M %p') }}
+                        {% endif %}
+                    {% else %}
+                        Not scheduled
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Combined View/Edit Form -->
+    <form id="booking-form" method="POST" action="{{ url_for('admin_bookings.update_booking', booking_id=booking.id) }}">
+        {{ form.hidden_tag() }}
+        
+        <div class="uk-grid uk-grid-medium" uk-grid>
+            <!-- Left Column - Details -->
+            <div class="uk-width-2-3@m">
+                <!-- Customer Card -->
+                <div class="collapsible-card" id="customer-card">
+                    <div class="collapsible-card-header" onclick="toggleCard('customer-card')">
+                        <div class="collapsible-card-title">
+                            <span uk-icon="icon: user; ratio: 0.8"></span>
+                            <span class="collapsible-card-title-text">Customer Information</span>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" onclick="event.stopPropagation(); toggleCardEdit('customer-card')" 
+                                    class="uk-button uk-button-primary uk-button-small">
+                                <span uk-icon="icon: pencil; ratio: 0.7"></span>
+                                <span class="edit-btn-text">Edit</span>
+                            </button>
+                            <span class="toggle-icon" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+                        </div>
+                    </div>
+                    <div class="collapsible-card-body">
+                        <!-- Lookup Customer (visible in edit mode) -->
+                        <div class="edit-mode" style="display: none; margin-bottom: 16px;">
+                            <div class="uk-grid uk-grid-small" uk-grid>
+                                <div class="uk-width-1-1">
+                                    <div class="detail-card" style="border: 2px dashed #00B894; background: #F0FDF9;">
+                                        <span class="detail-label">
+                                            <span uk-icon="icon: search; ratio: 0.7"></span>
+                                            Lookup Existing Customer
+                                        </span>
+                                        <div class="uk-flex uk-flex-middle" style="gap: 8px;">
+                                            <div class="uk-width-expand">
+                                                <input type="text" 
+                                                    id="customer-lookup" 
+                                                    class="uk-input" 
+                                                    placeholder="Search by name, email, or phone..."
+                                                    autocomplete="off">
+                                            </div>
+                                            <button type="button" 
+                                                    onclick="lookupCustomer()" 
+                                                    class="uk-button uk-button-primary">
+                                                <span uk-icon="icon: search; ratio: 0.7"></span> Search
+                                            </button>
+                                        </div>
+                                        <div id="customer-search-results" style="display: none; margin-top: 8px;">
+                                            <div class="uk-card uk-card-default uk-card-small">
+                                                <div class="uk-card-body" style="padding: 8px;" id="customer-results-list">
+                                                    <!-- Results will be populated here -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="uk-text-small uk-text-muted uk-margin-small-top">
+                                            <span uk-icon="icon: info; ratio: 0.6"></span>
+                                            Search for an existing customer to auto-fill their details
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="uk-grid uk-grid-small" uk-grid>
+                            <div class="uk-width-1-2@s">
+                                <div class="detail-card">
+                                    <span class="detail-label">Name *</span>
+                                    <div class="detail-value view-mode">
+                                        <span uk-icon="icon: user; ratio: 0.7"></span>
+                                        <span id="display-customer-name">{{ booking.customer_name }}</span>
+                                        {% if customer %}
+                                            <br>
+                                            <a href="{{ url_for('admin_customers.edit_customer', customer_id=customer.id) }}" 
+                                            class="uk-text-small uk-link-muted">
+                                                <span uk-icon="icon: user; ratio: 0.6"></span>
+                                                View Customer Profile
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="edit-mode" style="display: none;">
+                                        {{ form.customer_name(class="uk-input", placeholder="Full name", id="customer_name") }}
+                                        {% if form.customer_name.errors %}
+                                            <div class="uk-text-danger uk-text-small">
+                                                {% for error in form.customer_name.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-2@s">
+                                <div class="detail-card">
+                                    <span class="detail-label">Contact</span>
+                                    <div class="detail-value view-mode">
+                                        {% if booking.customer_email %}
+                                            <div>
+                                                <span uk-icon="icon: mail; ratio: 0.7"></span>
+                                                <a href="mailto:{{ booking.customer_email }}">{{ booking.customer_email }}</a>
+                                            </div>
+                                        {% endif %}
+                                        {% if booking.customer_phone %}
+                                            <div>
+                                                <span uk-icon="icon: receiver; ratio: 0.7"></span>
+                                                <a href="tel:{{ booking.customer_phone }}">{{ booking.customer_phone }}</a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="edit-mode" style="display: none;">
+                                        {{ form.customer_email(class="uk-input uk-margin-small-bottom", placeholder="email@example.com", id="customer_email") }}
+                                        {{ form.customer_phone(class="uk-input", placeholder="Phone number", id="customer_phone") }}
+                                        {% if form.customer_email.errors %}
+                                            <div class="uk-text-danger uk-text-small">
+                                                {% for error in form.customer_email.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-1">
+                                <div class="detail-card">
+                                    <span class="detail-label">Address</span>
+                                    <div class="detail-value view-mode">
+                                        <span uk-icon="icon: location; ratio: 0.7"></span>
+                                        {% if booking.customer_address %}
+                                            {{ booking.customer_address }}
+                                        {% else %}
+                                            <span class="uk-text-muted">No address provided</span>
+                                        {% endif %}
+                                        {% if booking.customer_suburb %}
+                                            <br>{{ booking.customer_suburb }}
+                                        {% endif %}
+                                        {% if booking.customer_postcode %}
+                                            {{ booking.customer_postcode }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="edit-mode" style="display: none;">
+                                        {{ form.customer_address(class="uk-textarea", rows="2", placeholder="Street address", id="customer_address") }}
+                                        {{ form.customer_suburb(class="uk-input uk-margin-small-top", placeholder="Suburb", id="customer_suburb") }}
+                                        {{ form.customer_postcode(class="uk-input uk-margin-small-top", placeholder="Postcode", id="customer_postcode") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Card -->
+                <div class="collapsible-card" id="vehicle-card">
+                    <div class="collapsible-card-header" onclick="toggleCard('vehicle-card')">
+                        <div class="collapsible-card-title">
+                            <span uk-icon="icon: car; ratio: 0.8"></span>
+                            <span class="collapsible-card-title-text">Vehicle Information</span>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" onclick="event.stopPropagation(); toggleCardEdit('vehicle-card')" 
+                                    class="uk-button uk-button-primary uk-button-small">
+                                <span uk-icon="icon: pencil; ratio: 0.7"></span>
+                                <span class="edit-btn-text">Edit</span>
+                            </button>
+                            <span class="toggle-icon" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+                        </div>
+                    </div>
+                    <div class="collapsible-card-body">
+                        <!-- Lookup Vehicle (visible in edit mode) -->
+                        <div class="edit-mode" style="display: none; margin-bottom: 16px;">
+                            <div class="uk-grid uk-grid-small" uk-grid>
+                                <div class="uk-width-1-1">
+                                    <div class="detail-card" style="border: 2px dashed #00B894; background: #F0FDF9;">
+                                        <span class="detail-label">
+                                            <span uk-icon="icon: search; ratio: 0.7"></span>
+                                            Lookup Existing Vehicle
+                                        </span>
+                                        <div class="uk-flex uk-flex-middle" style="gap: 8px;">
+                                            <div class="uk-width-expand">
+                                                <input type="text" 
+                                                    id="vehicle-lookup" 
+                                                    class="uk-input" 
+                                                    placeholder="Search by registration, make, or model..."
+                                                    autocomplete="off">
+                                            </div>
+                                            <button type="button" 
+                                                    onclick="lookupVehicle()" 
+                                                    class="uk-button uk-button-primary">
+                                                <span uk-icon="icon: search; ratio: 0.7"></span> Search
+                                            </button>
+                                        </div>
+                                        <div id="vehicle-search-results" style="display: none; margin-top: 8px;">
+                                            <div class="uk-card uk-card-default uk-card-small">
+                                                <div class="uk-card-body" style="padding: 8px;" id="vehicle-results-list">
+                                                    <!-- Results will be populated here -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="uk-text-small uk-text-muted uk-margin-small-top">
+                                            <span uk-icon="icon: info; ratio: 0.6"></span>
+                                            Search for an existing vehicle to auto-fill its details
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="uk-grid uk-grid-small" uk-grid>
+                            <div class="uk-width-1-2@s">
+                                <div class="detail-card">
+                                    <span class="detail-label">Vehicle *</span>
+                                    <div class="detail-value view-mode">
+                                        <span uk-icon="icon: car; ratio: 0.7"></span>
+                                        {{ booking.vehicle_make }} {{ booking.vehicle_model }}
+                                        {% if booking.vehicle_year %}
+                                            ({{ booking.vehicle_year }})
+                                        {% endif %}
+                                        {% if vehicle %}
+                                            <br>
+                                            <a href="{{ url_for('admin_vehicles.edit_vehicle', vehicle_id=vehicle.id) }}" 
+                                            class="uk-text-small uk-link-muted">
+                                                <span uk-icon="icon: car; ratio: 0.6"></span>
+                                                View Vehicle Details
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="edit-mode" style="display: none;">
+                                        {{ form.vehicle_make(class="uk-input uk-margin-small-bottom", placeholder="Make", id="vehicle_make") }}
+                                        {{ form.vehicle_model(class="uk-input uk-margin-small-bottom", placeholder="Model", id="vehicle_model") }}
+                                        {{ form.vehicle_year(class="uk-input", placeholder="Year", id="vehicle_year") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-2@s">
+                                <div class="detail-card">
+                                    <span class="detail-label">Registration *</span>
+                                    <div class="detail-value view-mode">
+                                        <span uk-icon="icon: tag; ratio: 0.7"></span>
+                                        {{ booking.vehicle_rego }}
+                                        {% if booking.vehicle_rego_state %}
+                                            ({{ booking.vehicle_rego_state }})
+                                        {% endif %}
+                                        {% if booking.vehicle_vin %}
+                                            <br>
+                                            <span class="uk-text-meta uk-text-small">VIN: {{ booking.vehicle_vin }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="edit-mode" style="display: none;">
+                                        {{ form.vehicle_rego(class="uk-input uk-margin-small-bottom", placeholder="Registration", id="vehicle_rego") }}
+                                        {{ form.vehicle_rego_state(class="uk-input uk-margin-small-bottom", placeholder="State", id="vehicle_rego_state") }}
+                                        {{ form.vehicle_vin(class="uk-input", placeholder="VIN", id="vehicle_vin") }}
+                                        {{ form.vehicle_description(class="uk-textarea uk-margin-small-top", rows="2", placeholder="Vehicle description", id="vehicle_description") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Card -->
+                <div class="collapsible-card" id="service-card">
+                    <div class="collapsible-card-header" onclick="toggleCard('service-card')">
+                        <div class="collapsible-card-title">
+                            <span uk-icon="icon: settings; ratio: 0.8"></span>
+                            <span class="collapsible-card-title-text">Service Details</span>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" onclick="event.stopPropagation(); toggleCardEdit('service-card')" 
+                                    class="uk-button uk-button-primary uk-button-small">
+                                <span uk-icon="icon: pencil; ratio: 0.7"></span>
+                                <span class="edit-btn-text">Edit</span>
+                            </button>
+                            <span class="toggle-icon" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+                        </div>
+                    </div>
+                    <div class="collapsible-card-body">
+                        <div class="uk-grid uk-grid-small" uk-grid>
+                            <div class="uk-width-1-2@s">
+                                <div class="detail-card">
+                                    <span class="detail-label">Service Type *</span>
+                                    <div class="detail-value view-mode">
+                                        <span uk-icon="icon: wrench; ratio: 0.7"></span>
+                                        {{ booking.service_type|replace('_', ' ')|title }}
+                                    </div>
+                                    <div class="edit-mode" style="display: none;">
+                                        {{ form.service_type(class="uk-select") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-2@s">
+                                <div class="detail-card">
+                                    <span class="detail-label">Duration</span>
+                                    <div class="detail-value view-mode">
+                                        <span uk-icon="icon: clock; ratio: 0.7"></span>
+                                        {{ booking.duration_minutes }} minutes
+                                    </div>
+                                    <div class="edit-mode" style="display: none;">
+                                        {{ form.duration_minutes(class="uk-input", placeholder="60") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-1">
+                                <div class="detail-card">
+                                    <span class="detail-label">Service Description</span>
+                                    <div class="detail-value view-mode">
+                                        {% if booking.service_description %}
+                                            {{ booking.service_description }}
+                                        {% else %}
+                                            <span class="uk-text-muted">No description provided</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="edit-mode" style="display: none;">
+                                        {{ form.service_description(class="uk-textarea", rows="3") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-2@s">
+                                <div class="detail-card">
+                                    <span class="detail-label">Customer Notes</span>
+                                    <div class="detail-value view-mode">
+                                        {% if booking.customer_notes %}
+                                            {{ booking.customer_notes }}
+                                        {% else %}
+                                            <span class="uk-text-muted">No notes provided</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="edit-mode" style="display: none;">
+                                        {{ form.customer_notes(class="uk-textarea", rows="3") }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-2@s">
+                                <div class="detail-card" style="border-left: 4px solid #F59E0B;">
+                                    <span class="detail-label">Special Instructions</span>
+                                    <div class="detail-value view-mode">
+                                        {% if booking.special_instructions %}
+                                            {{ booking.special_instructions }}
+                                        {% else %}
+                                            <span class="uk-text-muted">No special instructions</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="edit-mode" style="display: none;">
+                                        {{ form.special_instructions(class="uk-textarea", rows="3") }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Sidebar -->
+            <div class="uk-width-1-3@m">
+                <!-- Quick Actions -->
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <h3 class="uk-card-title">
+                            <span uk-icon="icon: bolt; ratio: 0.8"></span>
+                            Quick Actions
+                        </h3>
+                    </div>
+                    <div class="uk-card-body">
+                        <div class="uk-flex uk-flex-column uk-flex-middle uk-width-1-1" uk-grid>
+                            {% if booking.status in ['pending', 'confirmed'] %}
+                            <div class="uk-width-1-1">
+                                <form action="{{ url_for('admin_bookings.confirm_booking', booking_id=booking.id) }}" 
+                                      method="POST" style="width: 100%;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="uk-button uk-button-success quick-action-btn">
+                                        <span uk-icon="icon: check; ratio: 0.8"></span>
+                                        Confirm Booking
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
+                            
+                            {% if booking.status == 'in_progress' %}
+                            <div class="uk-width-1-1">
+                                <form action="{{ url_for('admin_bookings.complete_booking', booking_id=booking.id) }}" 
+                                      method="POST" style="width: 100%;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="uk-button uk-button-success quick-action-btn">
+                                        <span uk-icon="icon: check; ratio: 0.8"></span>
+                                        Mark as Completed
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
+                            
+                            {% if booking.status not in ['completed', 'cancelled'] %}
+                            <div class="uk-width-1-1">
+                                <form action="{{ url_for('admin_bookings.cancel_booking', booking_id=booking.id) }}" 
+                                      method="POST" style="width: 100%;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="uk-button uk-button-danger quick-action-btn" 
+                                            onclick="return confirm('Are you sure you want to cancel this booking?')">
+                                        <span uk-icon="icon: close; ratio: 0.8"></span>
+                                        Cancel Booking
+                                    </button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scheduling Card -->
+                <div class="collapsible-card" id="schedule-card">
+                    <div class="collapsible-card-header" onclick="toggleCard('schedule-card')">
+                        <div class="collapsible-card-title">
+                            <span uk-icon="icon: calendar; ratio: 0.8"></span>
+                            <span class="collapsible-card-title-text">Scheduling</span>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" onclick="event.stopPropagation(); toggleCardEdit('schedule-card')" 
+                                    class="uk-button uk-button-primary uk-button-small">
+                                <span uk-icon="icon: pencil; ratio: 0.7"></span>
+                                <span class="edit-btn-text">Edit</span>
+                            </button>
+                            <span class="toggle-icon" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+                        </div>
+                    </div>
+                    <div class="collapsible-card-body">
+                        <div class="uk-grid uk-grid-small" uk-grid>
+                            <div class="uk-width-1-2">
+                                <span class="uk-text-meta uk-text-small">Preferred Date</span>
+                                <div class="view-mode">
+                                    {% if booking.preferred_date %}
+                                        {{ booking.preferred_date.strftime('%b %d, %Y') }}
+                                    {% else %}
+                                        <span class="uk-text-muted">Not set</span>
+                                    {% endif %}
+                                </div>
+                                <div class="edit-mode" style="display: none;">
+                                    {{ form.preferred_date(class="uk-input", type="date") }}
+                                </div>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <span class="uk-text-meta uk-text-small">Preferred Time</span>
+                                <div class="view-mode">
+                                    {% if booking.preferred_time_slot %}
+                                        {{ booking.preferred_time_slot|replace('_', ' ')|title }}
+                                    {% else %}
+                                        <span class="uk-text-muted">Not set</span>
+                                    {% endif %}
+                                </div>
+                                <div class="edit-mode" style="display: none;">
+                                    {{ form.preferred_time_slot(class="uk-select") }}
+                                </div>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <span class="uk-text-meta uk-text-small">Scheduled Date</span>
+                                <div class="view-mode">
+                                    {% if booking.scheduled_date %}
+                                        {{ booking.scheduled_date.strftime('%b %d, %Y') }}
+                                    {% else %}
+                                        <span class="uk-text-muted">Not scheduled</span>
+                                    {% endif %}
+                                </div>
+                                <div class="edit-mode" style="display: none;">
+                                    {{ form.scheduled_date(class="uk-input", type="date") }}
+                                </div>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <span class="uk-text-meta uk-text-small">Scheduled Time</span>
+                                <div class="view-mode">
+                                    {% if booking.scheduled_time %}
+                                        {{ booking.scheduled_time.strftime('%I:%M %p') }}
+                                    {% else %}
+                                        <span class="uk-text-muted">Not scheduled</span>
+                                    {% endif %}
+                                </div>
+                                <div class="edit-mode" style="display: none;">
+                                    {{ form.scheduled_time(class="uk-input", type="time") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <h3 class="uk-card-title">
+                            <span uk-icon="icon: history; ratio: 0.8"></span>
+                            Timeline
+                        </h3>
+                    </div>
+                    <div class="uk-card-body uk-padding-remove">
+                        <div class="uk-padding-small">
+                            <div class="timeline-item">
+                                <div class="timeline-icon created">
+                                    <span uk-icon="icon: plus; ratio: 0.8"></span>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Booking Created</div>
+                                    <div class="timeline-date">{{ booking.created_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
+                                </div>
+                            </div>
+                            
+                            {% if booking.confirmed_at %}
+                            <div class="timeline-item">
+                                <div class="timeline-icon confirmed">
+                                    <span uk-icon="icon: check; ratio: 0.8"></span>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Booking Confirmed</div>
+                                    <div class="timeline-date">{{ booking.confirmed_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if booking.completed_at %}
+                            <div class="timeline-item">
+                                <div class="timeline-icon completed">
+                                    <span uk-icon="icon: check; ratio: 0.8"></span>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Booking Completed</div>
+                                    <div class="timeline-date">{{ booking.completed_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if booking.cancelled_at %}
+                            <div class="timeline-item">
+                                <div class="timeline-icon cancelled">
+                                    <span uk-icon="icon: close; ratio: 0.8"></span>
+                                </div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">Booking Cancelled</div>
+                                    <div class="timeline-date">{{ booking.cancelled_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Previous Bookings -->
+                {% if previous_bookings %}
+                <div class="uk-card uk-card-default">
+                    <div class="uk-card-header">
+                        <h3 class="uk-card-title">
+                            <span uk-icon="icon: list; ratio: 0.8"></span>
+                            Previous Bookings
+                        </h3>
+                    </div>
+                    <div class="uk-card-body uk-padding-remove">
+                        <div class="uk-padding-small">
+                            {% for prev in previous_bookings %}
+                            <a href="{{ url_for('admin_bookings.view_booking', booking_id=prev.id) }}" 
+                               class="previous-booking-item" style="text-decoration: none;">
+                                <div>
+                                    <div class="booking-date">{{ prev.scheduled_date.strftime('%b %d, %Y') }}</div>
+                                    <div class="uk-text-small uk-text-muted">{{ prev.service_type|replace('_', ' ')|title }}</div>
+                                </div>
+                                <span class="booking-status-small status-{{ prev.status }}">
+                                    {{ prev.status|replace('_', ' ')|title }}
+                                </span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Booking Info Card -->
+                <div class="collapsible-card no-edit" id="info-card">
+                    <div class="collapsible-card-header" onclick="toggleCard('info-card')">
+                        <div class="collapsible-card-title">
+                            <span uk-icon="icon: info; ratio: 0.8"></span>
+                            <span class="collapsible-card-title-text">Booking Info</span>
+                        </div>
+                        <div class="card-actions">
+                            <span class="toggle-icon" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+                        </div>
+                    </div>
+                    <div class="collapsible-card-body">
+                        <div class="uk-grid uk-grid-small" uk-grid>
+                            <div class="uk-width-1-2">
+                                <span class="uk-text-meta uk-text-small">Booking #</span>
+                                <div class="uk-text-bold">{{ booking.booking_number }}</div>
+                            </div>
+                            <div class="uk-width-1-2">
+                                <span class="uk-text-meta uk-text-small">ID</span>
+                                <div class="uk-text-bold">#{{ booking.id }}</div>
+                            </div>
+                            <div class="uk-width-1-1">
+                                <span class="uk-text-meta uk-text-small">Status</span>
+                                <div class="edit-mode" style="display: none;">
+                                    {{ form.status(class="uk-select") }}
+                                </div>
+                                <div class="view-mode">
+                                    <span class="booking-status-badge status-{{ booking.status }}" style="font-size: 12px; padding: 2px 12px;">
+                                        {{ booking.status|replace('_', ' ')|title }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-1">
+                                <span class="uk-text-meta uk-text-small">Priority</span>
+                                <div class="edit-mode" style="display: none;">
+                                    {{ form.priority(class="uk-select") }}
+                                </div>
+                                <div class="view-mode">
+                                    <span class="booking-priority-badge priority-{{ booking.priority }}" style="font-size: 12px; padding: 2px 12px;">
+                                        {{ booking.priority|title }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="uk-width-1-1">
+                                <span class="uk-text-meta uk-text-small">Last Updated</span>
+                                <div>{{ booking.updated_at.strftime('%b %d, %Y at %I:%M %p') }}</div>
+                            </div>
+                            {% if lead %}
+                            <div class="uk-width-1-1">
+                                <span class="uk-text-meta uk-text-small">Source</span>
+                                <div>
+                                    <span uk-icon="icon: file-text; ratio: 0.7"></span>
+                                    From Lead #{{ lead.id }}
+                                    <a href="{{ url_for('admin_leads.view_lead', lead_id=lead.id) }}" 
+                                       class="uk-text-small uk-link-muted">View Lead</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Service Location Card -->
+                <div class="collapsible-card" id="location-card">
+                    <div class="collapsible-card-header" onclick="toggleCard('location-card')">
+                        <div class="collapsible-card-title">
+                            <span uk-icon="icon: location; ratio: 0.8"></span>
+                            <span class="collapsible-card-title-text">Service Location</span>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" onclick="event.stopPropagation(); toggleCardEdit('location-card')" 
+                                    class="uk-button uk-button-primary uk-button-small">
+                                <span uk-icon="icon: pencil; ratio: 0.7"></span>
+                                <span class="edit-btn-text">Edit</span>
+                            </button>
+                            <span class="toggle-icon" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+                        </div>
+                    </div>
+                    <div class="collapsible-card-body">
+                        <div class="view-mode">
+                            {% if booking.service_address %}
+                                {{ booking.service_address }}
+                            {% else %}
+                                <span class="uk-text-muted">No service address provided</span>
+                            {% endif %}
+                            {% if booking.service_suburb %}
+                                <br>{{ booking.service_suburb }}
+                            {% endif %}
+                            {% if booking.service_postcode %}
+                                {{ booking.service_postcode }}
+                            {% endif %}
+                        </div>
+                        <div class="edit-mode" style="display: none;">
+                            {{ form.service_address(class="uk-textarea", rows="2", placeholder="Service address") }}
+                            {{ form.service_suburb(class="uk-input uk-margin-small-top", placeholder="Suburb") }}
+                            {{ form.service_postcode(class="uk-input uk-margin-small-top", placeholder="Postcode") }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Save/Update Buttons (hidden by default, shown when any card is in edit mode) -->
+        <div class="uk-margin-medium-top" id="global-save-container" style="display: none;">
+            <div class="uk-card uk-card-default">
+                <div class="uk-card-body">
+                    <div class="uk-flex uk-flex-between uk-flex-middle save-cancel-buttons">
+                        <div>
+                            <button type="button" onclick="cancelAllEdits()" class="uk-button uk-button-default">
+                                <span uk-icon="icon: close; ratio: 0.8"></span> Cancel All
+                            </button>
+                        </div>
+                        <div>
+                            <button type="submit" class="uk-button uk-button-primary">
+                                <span uk-icon="icon: check; ratio: 0.8"></span> Save All Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Delete Button -->
+    <div class="uk-margin-medium-top uk-text-right">
+        <form action="{{ url_for('admin_bookings.delete_booking', booking_id=booking.id) }}" 
+              method="POST" style="display: inline;" 
+              onsubmit="return confirm('Are you sure you want to delete this booking? This action cannot be undone.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="uk-button uk-button-danger">
+                <span uk-icon="icon: trash; ratio: 0.8"></span>
+                Delete Booking
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+    // Vehicle lookup function
+    function lookupVehicle() {
+        const searchInput = document.getElementById('vehicle-lookup');
+        const resultsContainer = document.getElementById('vehicle-search-results');
+        const resultsList = document.getElementById('vehicle-results-list');
+        const query = searchInput.value.trim();
+        
+        if (!query || query.length < 2) {
+            resultsContainer.style.display = 'none';
+            if (query.length < 2 && query.length > 0) {
+                resultsList.innerHTML = `
+                    <div class="uk-text-center uk-text-muted uk-padding-small">
+                        <span uk-icon="icon: info; ratio: 1.5"></span>
+                        <p class="uk-margin-small-top">Type at least 2 characters to search</p>
+                    </div>
+                `;
+                resultsContainer.style.display = 'block';
+            }
+            return;
+        }
+        
+        // Show loading state
+        resultsList.innerHTML = '<div class="uk-text-center uk-text-muted"><span class="loading-spinner" style="width: 16px; height: 16px;"></span> Searching...</div>';
+        resultsContainer.style.display = 'block';
+        
+        // Make API request to your existing endpoint
+        fetch(`/api/vehicles/search?q=${encodeURIComponent(query)}&limit=10`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data || data.length === 0) {
+                resultsList.innerHTML = `
+                    <div class="uk-text-center uk-text-muted uk-padding-small">
+                        <span uk-icon="icon: car; ratio: 1.5"></span>
+                        <p class="uk-margin-small-top">No vehicles found</p>
+                        <p class="uk-text-small">Try a different search term</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Build results list
+            let html = '';
+            data.forEach(vehicle => {
+                const vehicleInfo = `${vehicle.make} ${vehicle.model}${vehicle.year ? ' (' + vehicle.year + ')' : ''}`;
+                const regoInfo = vehicle.registration_no ? `${vehicle.registration_no}` : '';
+                const customerInfo = vehicle.customer_name ? `Owner: ${vehicle.customer_name}` : '';
+                
+                html += `
+                    <div class="vehicle-result-item" 
+                        onclick="selectVehicle(${vehicle.id})"
+                        style="padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #F3F4F6; transition: background 0.2s;">
+                        <div class="uk-flex uk-flex-between">
+                            <div>
+                                <strong>${vehicleInfo}</strong>
+                                ${regoInfo ? `<br><span class="uk-text-meta uk-text-small">${regoInfo}</span>` : ''}
+                                ${customerInfo ? `<br><span class="uk-text-meta uk-text-small">${customerInfo}</span>` : ''}
+                                ${vehicle.fuel_type ? `<br><span class="uk-text-meta uk-text-small">Fuel: ${vehicle.fuel_type}</span>` : ''}
+                            </div>
+                            <div>
+                                <span class="uk-badge" style="background: #3B82F6; color: white;">
+                                    ${vehicle.vin ? 'VIN: ' + vehicle.vin.substring(0, 8) + '...' : 'No VIN'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsList.innerHTML = html;
+            resultsContainer.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error searching vehicles:', error);
+            resultsList.innerHTML = `
+                <div class="uk-text-center uk-text-danger uk-padding-small">
+                    <span uk-icon="icon: warning; ratio: 1.5"></span>
+                    <p class="uk-margin-small-top">Error searching vehicles</p>
+                    <p class="uk-text-small">Please try again</p>
+                </div>
+            `;
+        });
+    }
+
+    // Select a vehicle from search results
+    function selectVehicle(vehicleId) {
+        const resultsList = document.getElementById('vehicle-results-list');
+        resultsList.innerHTML = '<div class="uk-text-center uk-text-muted"><span class="loading-spinner" style="width: 16px; height: 16px;"></span> Loading vehicle...</div>';
+        
+        // Make API request to get vehicle details
+        fetch(`/api/vehicles/${vehicleId}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(vehicle => {
+            // Populate form fields
+            const makeField = document.getElementById('vehicle_make');
+            const modelField = document.getElementById('vehicle_model');
+            const yearField = document.getElementById('vehicle_year');
+            const regoField = document.getElementById('vehicle_rego');
+            const regoStateField = document.getElementById('vehicle_rego_state');
+            const vinField = document.getElementById('vehicle_vin');
+            const descField = document.getElementById('vehicle_description');
+            const colorField = document.getElementById('vehicle_color');
+            const fuelField = document.getElementById('vehicle_fuel_type');
+            const transField = document.getElementById('vehicle_transmission');
+            const notesField = document.getElementById('vehicle_notes');
+            
+            if (makeField) makeField.value = vehicle.make || '';
+            if (modelField) modelField.value = vehicle.model || '';
+            if (yearField) yearField.value = vehicle.year || '';
+            if (regoField) regoField.value = vehicle.registration_no || '';
+            if (regoStateField) regoStateField.value = vehicle.rego_state || '';
+            if (vinField) vinField.value = vehicle.vin || '';
+            if (descField) descField.value = `${vehicle.make} ${vehicle.model}${vehicle.year ? ' (' + vehicle.year + ')' : ''}`;
+            if (colorField) colorField.value = vehicle.color || '';
+            if (fuelField) fuelField.value = vehicle.fuel_type || '';
+            if (transField) transField.value = vehicle.transmission || '';
+            if (notesField) notesField.value = vehicle.notes || '';
+            
+            // Hide results
+            document.getElementById('vehicle-search-results').style.display = 'none';
+            document.getElementById('vehicle-lookup').value = '';
+            
+            // Show success toast
+            showToast(`Vehicle "${vehicle.make} ${vehicle.model}" loaded successfully!`, 'success');
+            
+            // If the vehicle has a customer, also update the customer fields
+            if (vehicle.customer_id && vehicle.customer_name) {
+                // Check if customer fields exist and are empty before populating
+                const nameField = document.getElementById('customer_name');
+                const emailField = document.getElementById('customer_email');
+                const phoneField = document.getElementById('customer_phone');
+                const addressField = document.getElementById('customer_address');
+                
+                // Only populate if customer fields exist and are empty
+                if (nameField && !nameField.value) {
+                    // Fetch customer details
+                    fetch(`/api/customers/${vehicle.customer_id}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(customer => {
+                        if (nameField && !nameField.value) nameField.value = customer.name || '';
+                        if (emailField && !emailField.value) emailField.value = customer.email || '';
+                        if (phoneField && !phoneField.value) phoneField.value = customer.phone || customer.mobile || '';
+                        if (addressField && !addressField.value) addressField.value = customer.address || '';
+                    })
+                    .catch(error => console.error('Error loading customer:', error));
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error loading vehicle:', error);
+            showToast('Error loading vehicle details', 'error');
+            document.getElementById('vehicle-search-results').style.display = 'none';
+        });
+    }
+
+    // Debounce search for vehicle
+    let vehicleSearchTimeout;
+
+    function debouncedVehicleLookup() {
+        clearTimeout(vehicleSearchTimeout);
+        vehicleSearchTimeout = setTimeout(lookupVehicle, 300);
+    }
+
+    // Enter key support for vehicle lookup
+    document.addEventListener('DOMContentLoaded', function() {
+        const vehicleLookupInput = document.getElementById('vehicle-lookup');
+        if (vehicleLookupInput) {
+            vehicleLookupInput.addEventListener('input', debouncedVehicleLookup);
+            vehicleLookupInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(vehicleSearchTimeout);
+                    lookupVehicle();
+                }
+            });
+        }
+    });
+
+    // Close vehicle results when clicking outside
+    document.addEventListener('click', function(e) {
+        const resultsContainer = document.getElementById('vehicle-search-results');
+        const lookupInput = document.getElementById('vehicle-lookup');
+        if (resultsContainer && lookupInput) {
+            if (!resultsContainer.contains(e.target) && !lookupInput.contains(e.target)) {
+                resultsContainer.style.display = 'none';
+            }
+        }
+    });
+
+    // Also close vehicle results when switching to view mode
+    const originalVehicleToggleCardEdit = window.toggleCardEdit;
+    window.toggleCardEdit = function(cardId) {
+        if (originalVehicleToggleCardEdit) {
+            originalVehicleToggleCardEdit(cardId);
+        }
+        // Close results when toggling edit mode
+        const customerResults = document.getElementById('customer-search-results');
+        const vehicleResults = document.getElementById('vehicle-search-results');
+        if (customerResults) customerResults.style.display = 'none';
+        if (vehicleResults) vehicleResults.style.display = 'none';
+    };
+
+    // Customer lookup function
+    function lookupCustomer() {
+        const searchInput = document.getElementById('customer-lookup');
+        const resultsContainer = document.getElementById('customer-search-results');
+        const resultsList = document.getElementById('customer-results-list');
+        const query = searchInput.value.trim();
+        
+        if (!query || query.length < 2) {
+            resultsContainer.style.display = 'none';
+            if (query.length < 2 && query.length > 0) {
+                resultsList.innerHTML = `
+                    <div class="uk-text-center uk-text-muted uk-padding-small">
+                        <span uk-icon="icon: info; ratio: 1.5"></span>
+                        <p class="uk-margin-small-top">Type at least 2 characters to search</p>
+                    </div>
+                `;
+                resultsContainer.style.display = 'block';
+            }
+            return;
+        }
+        
+        // Show loading state
+        resultsList.innerHTML = '<div class="uk-text-center uk-text-muted"><span class="loading-spinner" style="width: 16px; height: 16px;"></span> Searching...</div>';
+        resultsContainer.style.display = 'block';
+        
+        // Make API request to your existing endpoint
+        fetch(`/api/customers/search?q=${encodeURIComponent(query)}&limit=10`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data || data.length === 0) {
+                resultsList.innerHTML = `
+                    <div class="uk-text-center uk-text-muted uk-padding-small">
+                        <span uk-icon="icon: user; ratio: 1.5"></span>
+                        <p class="uk-margin-small-top">No customers found</p>
+                        <p class="uk-text-small">Try a different search term</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Build results list
+            let html = '';
+            data.forEach(customer => {
+                const name = customer.company ? `${customer.name} (${customer.company})` : customer.name;
+                const contactInfo = customer.email || customer.phone || customer.mobile || '';
+                
+                html += `
+                    <div class="customer-result-item" 
+                        onclick="selectCustomer(${customer.id})"
+                        style="padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #F3F4F6; transition: background 0.2s;">
+                        <div class="uk-flex uk-flex-between">
+                            <div>
+                                <strong>${name}</strong>
+                                ${contactInfo ? `<br><span class="uk-text-meta uk-text-small">${contactInfo}</span>` : ''}
+                                ${customer.address ? `<br><span class="uk-text-meta uk-text-small">${customer.address}</span>` : ''}
+                            </div>
+                            <div>
+                                <span class="uk-badge uk-badge-primary" style="background: #00B894; color: white;">
+                                    ${customer.vehicle_count || 0} vehicles
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsList.innerHTML = html;
+            resultsContainer.style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error searching customers:', error);
+            resultsList.innerHTML = `
+                <div class="uk-text-center uk-text-danger uk-padding-small">
+                    <span uk-icon="icon: warning; ratio: 1.5"></span>
+                    <p class="uk-margin-small-top">Error searching customers</p>
+                    <p class="uk-text-small">Please try again</p>
+                </div>
+            `;
+        });
+    }
+
+    // Select a customer from search results
+    function selectCustomer(customerId) {
+        // Show loading on the results
+        const resultsList = document.getElementById('customer-results-list');
+        resultsList.innerHTML = '<div class="uk-text-center uk-text-muted"><span class="loading-spinner" style="width: 16px; height: 16px;"></span> Loading customer...</div>';
+        
+        // Make API request to get customer details
+        fetch(`/api/customers/${customerId}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(customer => {
+            // Populate form fields
+            const nameField = document.getElementById('customer_name');
+            const emailField = document.getElementById('customer_email');
+            const phoneField = document.getElementById('customer_phone');
+            const addressField = document.getElementById('customer_address');
+            const suburbField = document.getElementById('customer_suburb');
+            const postcodeField = document.getElementById('customer_postcode');
+            
+            if (nameField) nameField.value = customer.name || '';
+            if (emailField) emailField.value = customer.email || '';
+            if (phoneField) phoneField.value = customer.phone || customer.mobile || '';
+            if (addressField) addressField.value = customer.address || '';
+            if (suburbField) suburbField.value = customer.city || '';
+            if (postcodeField) postcodeField.value = customer.postal_code || '';
+            
+            // Hide results
+            document.getElementById('customer-search-results').style.display = 'none';
+            document.getElementById('customer-lookup').value = '';
+            
+            // Show success toast
+            showToast(`Customer "${customer.name}" loaded successfully!`, 'success');
+        })
+        .catch(error => {
+            console.error('Error loading customer:', error);
+            showToast('Error loading customer details', 'error');
+            document.getElementById('customer-search-results').style.display = 'none';
+        });
+    }
+
+    // Debounce search for better performance
+    let searchTimeout;
+
+    function debouncedLookup() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(lookupCustomer, 300);
+    }
+
+    // Enter key support for lookup
+    document.addEventListener('DOMContentLoaded', function() {
+        const lookupInput = document.getElementById('customer-lookup');
+        if (lookupInput) {
+            lookupInput.addEventListener('input', debouncedLookup);
+            lookupInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(searchTimeout);
+                    lookupCustomer();
+                }
+            });
+        }
+    });
+
+    // Close results when clicking outside
+    document.addEventListener('click', function(e) {
+        const resultsContainer = document.getElementById('customer-search-results');
+        const lookupInput = document.getElementById('customer-lookup');
+        if (resultsContainer && lookupInput) {
+            if (!resultsContainer.contains(e.target) && !lookupInput.contains(e.target)) {
+                resultsContainer.style.display = 'none';
+            }
+        }
+    });
+
+    // Also close results when switching to view mode
+    const originalToggleCardEdit = window.toggleCardEdit;
+    window.toggleCardEdit = function(cardId) {
+        if (originalToggleCardEdit) {
+            originalToggleCardEdit(cardId);
+        }
+        // Close results when toggling edit mode
+        const resultsContainer = document.getElementById('customer-search-results');
+        if (resultsContainer) {
+            resultsContainer.style.display = 'none';
+        }
+    };
+
+    // Toggle card collapse/expand
+    function toggleCard(cardId) {
+        const card = document.getElementById(cardId);
+        const body = card.querySelector('.collapsible-card-body');
+        const icon = card.querySelector('.toggle-icon');
+        
+        body.classList.toggle('collapsed');
+        icon.classList.toggle('collapsed');
+    }
+
+    // Toggle edit mode for a specific card
+    function toggleCardEdit(cardId) {
+        const card = document.getElementById(cardId);
+        
+        // If card has no-edit class, don't allow editing
+        if (card.classList.contains('no-edit')) {
+            return;
+        }
+        
+        const viewElements = card.querySelectorAll('.view-mode');
+        const editElements = card.querySelectorAll('.edit-mode');
+        const editBtn = card.querySelector('.edit-btn-text');
+        const saveContainer = document.getElementById('global-save-container');
+        
+        // Toggle visibility
+        viewElements.forEach(el => {
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        editElements.forEach(el => {
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        // Toggle card edit mode class
+        card.classList.toggle('edit-mode');
+        
+        // Update button text
+        if (editBtn.textContent === 'Edit') {
+            editBtn.textContent = 'Save';
+        } else {
+            editBtn.textContent = 'Edit';
+        }
+        
+        // Check if any card is in edit mode to show/hide save button
+        const cardsInEditMode = document.querySelectorAll('.collapsible-card.edit-mode');
+        if (cardsInEditMode.length > 0) {
+            saveContainer.style.display = 'block';
+        } else {
+            saveContainer.style.display = 'none';
+        }
+    }
+
+    // Cancel all edits
+    function cancelAllEdits() {
+        const cards = document.querySelectorAll('.collapsible-card.edit-mode');
+        cards.forEach(card => {
+            const viewElements = card.querySelectorAll('.view-mode');
+            const editElements = card.querySelectorAll('.edit-mode');
+            const editBtn = card.querySelector('.edit-btn-text');
+            
+            viewElements.forEach(el => {
+                el.style.display = 'block';
+            });
+            
+            editElements.forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            card.classList.remove('edit-mode');
+            editBtn.textContent = 'Edit';
+        });
+        
+        document.getElementById('global-save-container').style.display = 'none';
+    }
+
+    // Handle form submission with validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('booking-form');
+        
+        // If there are validation errors, auto-expand all cards and show edit modes
+        {% if form.errors %}
+            const cards = document.querySelectorAll('.collapsible-card');
+            cards.forEach(card => {
+                // Expand the card
+                const body = card.querySelector('.collapsible-card-body');
+                const icon = card.querySelector('.toggle-icon');
+                body.classList.remove('collapsed');
+                icon.classList.remove('collapsed');
+                
+                // If there are errors in this card, show edit mode
+                const hasErrors = card.querySelector('.uk-form-danger') !== null;
+                if (hasErrors) {
+                    const viewElements = card.querySelectorAll('.view-mode');
+                    const editElements = card.querySelectorAll('.edit-mode');
+                    const editBtn = card.querySelector('.edit-btn-text');
+                    
+                    viewElements.forEach(el => el.style.display = 'none');
+                    editElements.forEach(el => el.style.display = 'block');
+                    card.classList.add('edit-mode');
+                    editBtn.textContent = 'Save';
+                }
+            });
+            
+            const anyEditMode = document.querySelectorAll('.collapsible-card.edit-mode').length > 0;
+            if (anyEditMode) {
+                document.getElementById('global-save-container').style.display = 'block';
+            }
+        {% endif %}
+    });
+</script>
+{% endblock %}

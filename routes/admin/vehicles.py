@@ -49,6 +49,20 @@ def create_vehicle():
     
     return render_template('admin/vehicles/edit.html', form=form, title='New Vehicle')
 
+@admin_vehicles_bp.route('/<int:vehicle_id>')
+def view_vehicle(vehicle_id):
+    """View a single vehicle"""
+    vehicle = Vehicle.query.get_or_404(vehicle_id)
+    customer = vehicle.customer
+    bookings = vehicle.bookings
+    
+    return render_template(
+        'admin/vehicles/view.html',
+        vehicle=vehicle,
+        customer=customer,
+        bookings=bookings
+    )
+
 
 @admin_vehicles_bp.route('/<int:vehicle_id>/edit', methods=['GET', 'POST'])
 def edit_vehicle(vehicle_id):

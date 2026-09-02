@@ -19,8 +19,6 @@ def search_vehicles():
         db.or_(
             Vehicle.registration_no.ilike(search_pattern),
             Vehicle.vin.ilike(search_pattern),
-            Vehicle.make.ilike(search_pattern),
-            Vehicle.model.ilike(search_pattern)
         )
     ).limit(limit).all()
     

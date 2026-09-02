@@ -36,18 +36,11 @@
                             <td>
                                 <div class="customer-info">
                                     <strong class="customer-name">{{ booking.customer_name }}</strong>
-                                    {% if booking.customer_email %}
+                                    {% if booking.customer_address %}
                                         <br>
                                         <span class="uk-text-meta customer-email">
-                                            <span uk-icon="icon: mail; ratio: 0.6"></span>
-                                            {{ booking.customer_email }}
-                                        </span>
-                                    {% endif %}
-                                    {% if booking.customer_phone %}
-                                        <br>
-                                        <span class="uk-text-meta customer-phone">
-                                            <span uk-icon="icon: receiver; ratio: 0.6"></span>
-                                            {{ booking.customer_phone }}
+                                            <span uk-icon="icon: location; ratio: 0.6"></span>
+                                            {{ booking.customer_address }}
                                         </span>
                                     {% endif %}
                                 </div>
@@ -55,17 +48,17 @@
                             
                             <td>
                                 <div class="vehicle-info">
-                                    <strong class="vehicle-name">{{ booking.vehicle_make }} {{ booking.vehicle_model }}</strong>
+                                    {% if booking.vehicle_year %}
+                                        <strong class="vehicle-name">{{ booking.vehicle_year }} {{ booking.vehicle_make }} {{ booking.vehicle_model }}</strong>
+                                    {% else %}
+                                        <strong class="vehicle-name">{{ booking.vehicle_make }} {{ booking.vehicle_model }}</strong>
+                                    {% endif %}
                                     {% if booking.vehicle_rego %}
                                         <br>
                                         <span class="vehicle-rego">
                                             <span uk-icon="icon: car; ratio: 0.6"></span>
                                             {{ booking.vehicle_rego }}
                                         </span>
-                                    {% endif %}
-                                    {% if booking.vehicle_year %}
-                                        <br>
-                                        <span class="uk-text-meta vehicle-year">{{ booking.vehicle_year }}</span>
                                     {% endif %}
                                 </div>
                             </td>
@@ -144,12 +137,11 @@
                                        uk-tooltip="View">
                                         <span uk-icon="icon: eye; ratio: 0.7"></span>
                                     </a>
-                                    <a href="{{ url_for('admin_bookings.edit_booking', booking_id=booking.id) }}" 
-                                       class="uk-button uk-button-default uk-button-small action-btn action-edit" 
-                                       title="Edit"
-                                       uk-tooltip="Edit">
-                                        <span uk-icon="icon: pencil; ratio: 0.7"></span>
-                                    </a>
+                                    <button onclick="deleteBooking({{ booking.id }})" 
+                                        class="uk-button uk-button-danger uk-button-small action-btn action-delete"
+                                        title="Delete"
+                                        uk-tooltip="Delete">
+                                    <span uk-icon="icon: trash; ratio: 0.7"></span>
                                     {% if booking.status in ['pending', 'confirmed'] %}
                                         <button onclick="confirmBooking({{ booking.id }})" 
                                                 class="uk-button uk-button-success uk-button-small action-btn action-confirm"
@@ -174,12 +166,7 @@
                                             <span uk-icon="icon: close; ratio: 0.7"></span>
                                         </button>
                                     {% endif %}
-                                    <button onclick="deleteBooking({{ booking.id }})" 
-                                            class="uk-button uk-button-danger uk-button-small action-btn action-delete"
-                                            title="Delete"
-                                            uk-tooltip="Delete">
-                                        <span uk-icon="icon: trash; ratio: 0.7"></span>
-                                    </button>
+                                </button>
                                 </div>
                             </td>
                         </tr>
@@ -444,10 +431,6 @@
                                     <a href="{{ url_for('admin_bookings.view_booking', booking_id=booking.id) }}" 
                                        class="bubble-action" title="View" uk-tooltip="View">
                                         <span uk-icon="icon: eye; ratio: 0.6"></span>
-                                    </a>
-                                    <a href="{{ url_for('admin_bookings.edit_booking', booking_id=booking.id) }}" 
-                                       class="bubble-action" title="Edit" uk-tooltip="Edit">
-                                        <span uk-icon="icon: pencil; ratio: 0.6"></span>
                                     </a>
                                 </div>
                             </div>

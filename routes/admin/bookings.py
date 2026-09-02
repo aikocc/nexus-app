@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from models import Booking, Customer, Vehicle, Lead
-from forms.admin.booking_forms import BookingForm
+from forms.admin.booking_forms import BookingForm, BookingSearchForm
 from extensions import db
 from datetime import datetime, timedelta
 import calendar, math
@@ -294,14 +294,8 @@ def list_bookings():
             day_max_lanes=day_max_lanes
         )
 
-
-# ============================================
-# OTHER ROUTES
-# ============================================
-
 @admin_bookings_bp.route('/new', methods=['GET', 'POST'])
 def new_booking():
-    """Create a new booking"""
     form = BookingForm()
     
     # Pre-populate from lead if provided
@@ -323,6 +317,9 @@ def new_booking():
         booking = Booking()
         form.populate_obj(booking)
         
+        # Generate booking number
+        booking.booking_number = booking.generate_booking_number()
+        
         # Try to link to existing customer
         customer = None
         if form.customer_search.data:
@@ -337,6 +334,13 @@ def new_booking():
         
         if customer:
             booking.link_to_customer(customer)
+        else:
+            # Create new customer if email exists
+            if form.customer_email.data:
+                # Check if customer already exists
+                existing = Customer.query.filter_by(email=form.customer_email.data).first()
+                if existing:
+                    booking.link_to_customer(existing)
         
         # Try to link to existing vehicle
         vehicle = None
@@ -364,24 +368,81 @@ def new_booking():
 
 @admin_bookings_bp.route('/<int:booking_id>')
 def view_booking(booking_id):
-    """View a booking"""
+    """View a single booking with combined view/edit functionality"""
     booking = Booking.query.get_or_404(booking_id)
-    return render_template('admin/bookings/view.html', booking=booking)
+    
+    # Get related data
+    customer = booking.customer
+    vehicle = booking.vehicle
+    lead = booking.lead
+    
+    # Get booking history (previous bookings for same customer)
+    previous_bookings = []
+    if customer:
+        previous_bookings = Booking.query.filter(
+            Booking.customer_id == customer.id,
+            Booking.id != booking_id
+        ).order_by(Booking.scheduled_date.desc()).limit(5).all()
+    
+    # If no customer linked but we have email, try to find previous bookings
+    elif booking.customer_email:
+        previous_bookings = Booking.query.filter(
+            Booking.customer_email == booking.customer_email,
+            Booking.id != booking_id
+        ).order_by(Booking.scheduled_date.desc()).limit(5).all()
+    
+    # Create form instance for the combined view/edit page
+    form = BookingForm(obj=booking)
+    
+    return render_template(
+        'admin/bookings/view.html',
+        booking=booking,
+        customer=customer,
+        vehicle=vehicle,
+        lead=lead,
+        previous_bookings=previous_bookings,
+        form=form
+    )
 
-
-@admin_bookings_bp.route('/<int:booking_id>/edit', methods=['GET', 'POST'])
-def edit_booking(booking_id):
-    """Edit a booking"""
+@admin_bookings_bp.route('/<int:booking_id>/update', methods=['POST'])
+def update_booking(booking_id):
+    """Update a booking from the combined view/edit page"""
     booking = Booking.query.get_or_404(booking_id)
     form = BookingForm(obj=booking)
     
     if form.validate_on_submit():
         form.populate_obj(booking)
+        booking.updated_at = datetime.utcnow()
         db.session.commit()
         flash('Booking updated successfully!', 'success')
         return redirect(url_for('admin_bookings.view_booking', booking_id=booking.id))
     
-    return render_template('admin/bookings/edit.html', form=form, booking=booking)
+    # If validation fails, re-render with errors
+    customer = booking.customer
+    vehicle = booking.vehicle
+    lead = booking.lead
+    
+    previous_bookings = []
+    if customer:
+        previous_bookings = Booking.query.filter(
+            Booking.customer_id == customer.id,
+            Booking.id != booking_id
+        ).order_by(Booking.scheduled_date.desc()).limit(5).all()
+    elif booking.customer_email:
+        previous_bookings = Booking.query.filter(
+            Booking.customer_email == booking.customer_email,
+            Booking.id != booking_id
+        ).order_by(Booking.scheduled_date.desc()).limit(5).all()
+    
+    return render_template(
+        'admin/bookings/view.html',
+        booking=booking,
+        customer=customer,
+        vehicle=vehicle,
+        lead=lead,
+        previous_bookings=previous_bookings,
+        form=form
+    )
 
 
 @admin_bookings_bp.route('/<int:booking_id>/delete', methods=['DELETE', 'POST'])
